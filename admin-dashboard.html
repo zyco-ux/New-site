@@ -2394,40 +2394,6 @@
         }
 
         // ==============================
-        // HOW TO CHANGE ADMIN EMAIL & PASSWORD IN FIREBASE
-        // ==============================
-        /*
-        METHOD 1: Firebase Console (Recommended for Production)
-        1. Go to Firebase Console: https://console.firebase.google.com/
-        2. Select your project (lumiere-bank)
-        3. Go to Authentication → Users tab
-        4. Find your admin user account
-        5. Click the three dots menu (⋮) → Edit user
-        6. Change email and/or password
-        7. Click Save
-
-        METHOD 2: Using Firebase CLI
-        1. Install Firebase CLI: npm install -g firebase-tools
-        2. Login: firebase login
-        3. Change email: firebase auth:update:user UID --email newemail@zorynthbank.com
-        4. Change password: firebase auth:update:user UID --password newpassword123
-
-        METHOD 3: Programmatically (Use with caution)
-        // To change email:
-        await currentAdmin.updateEmail("newadmin@zorynthbank.com");
-        
-        // To change password:
-        await currentAdmin.updatePassword("NewSecurePassword123!");
-        
-        // Note: This requires re-authentication first:
-        const credential = firebase.auth.EmailAuthProvider.credential(
-            currentAdmin.email,
-            currentPassword
-        );
-        await currentAdmin.reauthenticateWithCredential(credential);
-        */
-
-        // ==============================
         // DATA LOADING
         // ==============================
         async function loadAdminData() {
@@ -2668,7 +2634,7 @@
                         <div class="user-info">
                             <div class="user-avatar ${hasProfilePicture ? 'has-image' : ''}">
                                 ${hasProfilePicture ? 
-                                    `<img src="${user.profilePictureUrl}" alt="${user.firstName} ${user.lastName}" onerror="this.style.display='none'; this.parentElement.innerHTML='${initials}'; this.parentElement.classList.remove('has-image');" />` : 
+                                    `<img src="${user.profilePictureUrl}" alt="${user.firstName} ${user.lastName}" onerror="handleProfilePictureError(this, '${initials}');" />` : 
                                     initials
                                 }
                             </div>
@@ -2718,6 +2684,14 @@
                 
                 tableBody.appendChild(row);
             });
+        }
+
+        // Helper function to handle profile picture errors
+        function handleProfilePictureError(imgElement, initials) {
+            imgElement.style.display = 'none';
+            const avatarDiv = imgElement.parentElement;
+            avatarDiv.innerHTML = initials;
+            avatarDiv.classList.remove('has-image');
         }
 
         function updateTransactionsView() {

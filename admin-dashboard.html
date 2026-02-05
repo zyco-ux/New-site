@@ -1,0 +1,3934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Zorynth Bank</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Slab:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Cloudinary Upload Widget -->
+    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+    <style>
+        :root {
+            --primary-blue: #0052CC;
+            --dark-blue: #003D99;
+            --light-blue: #E6F0FF;
+            --accent-gold: #D4AF37;
+            --success-green: #10B981;
+            --warning-orange: #F59E0B;
+            --danger-red: #DC2626;
+            --admin-purple: #8B5CF6;
+            --text-dark: #1A1A1A;
+            --text-gray: #4A4A4A;
+            --text-light: #666666;
+            --bg-light: #F8FAFD;
+            --white: #FFFFFF;
+            --border-color: #E0E6EF;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --border-radius: 12px;
+            --border-radius-sm: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 13px; /* Reduced from default 16px */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text-dark);
+            line-height: 1.5; /* Reduced from 1.6 */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Login Section */
+        .login-container {
+            display: block;
+        }
+
+        .admin-container {
+            display: none;
+            width: 100%;
+            max-width: 1400px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            min-height: 90vh;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .admin-container.active {
+            display: block;
+        }
+
+        /* Login Form */
+        .login-box {
+            background: var(--white);
+            padding: 40px 35px; /* Reduced padding */
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 420px; /* Slightly smaller */
+            text-align: center;
+        }
+
+        .login-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 26px; /* Reduced */
+            font-weight: 800;
+            color: var(--admin-purple);
+            margin-bottom: 25px; /* Reduced */
+        }
+
+        .login-logo i {
+            font-size: 30px; /* Reduced */
+        }
+
+        .login-title {
+            font-size: 20px; /* Reduced from 24px */
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: var(--text-light);
+            margin-bottom: 25px; /* Reduced */
+            font-size: 13px; /* Reduced */
+        }
+
+        .login-form {
+            margin-top: 25px; /* Reduced */
+        }
+
+        .form-group {
+            margin-bottom: 18px; /* Reduced */
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px; /* Reduced */
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 13px; /* Reduced */
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 14px; /* Reduced */
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-size: 14px; /* Reduced */
+            font-family: 'Inter', sans-serif;
+            background-color: var(--white);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--admin-purple);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px; /* Reduced */
+            background: linear-gradient(135deg, var(--admin-purple), #7C3AED);
+            color: var(--white);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-size: 14px; /* Reduced */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px; /* Reduced */
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .login-error {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: var(--danger-red);
+            padding: 10px; /* Reduced */
+            border-radius: var(--border-radius-sm);
+            margin-top: 18px; /* Reduced */
+            text-align: left;
+            font-size: 13px; /* Reduced */
+            display: none;
+        }
+
+        /* Admin Header */
+        .admin-header {
+            background: linear-gradient(135deg, var(--admin-purple), #7C3AED);
+            color: var(--white);
+            padding: 18px 25px; /* Reduced */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-md);
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 21px; /* Reduced */
+            font-weight: 800;
+        }
+
+        .admin-logo i {
+            font-size: 24px; /* Reduced */
+        }
+
+        .admin-logo span {
+            color: var(--white);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 18px; /* Reduced */
+        }
+
+        .admin-badge {
+            background-color: var(--white);
+            color: var(--admin-purple);
+            padding: 4px 10px; /* Reduced */
+            border-radius: 20px;
+            font-size: 11px; /* Reduced */
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .logout-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 7px 18px; /* Reduced */
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 13px; /* Reduced */
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Content */
+        .admin-content {
+            padding: 25px; /* Reduced */
+            min-height: calc(90vh - 74px); /* Adjusted */
+            background-color: var(--bg-light);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Reduced */
+            gap: 18px; /* Reduced */
+            margin-bottom: 25px; /* Reduced */
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 22px; /* Reduced */
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 46px; /* Reduced */
+            height: 46px; /* Reduced */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 13px; /* Reduced */
+            font-size: 18px; /* Reduced */
+        }
+
+        .stat-icon.users {
+            background-color: rgba(139, 92, 246, 0.1);
+            color: var(--admin-purple);
+        }
+
+        .stat-icon.balance {
+            background-color: rgba(0, 82, 204, 0.1);
+            color: var(--primary-blue);
+        }
+
+        .stat-icon.transactions {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+        }
+
+        .stat-icon.active {
+            background-color: rgba(212, 175, 55, 0.1);
+            color: var(--accent-gold);
+        }
+
+        .stat-value {
+            font-family: 'Roboto Slab', serif;
+            font-size: 28px; /* Reduced from 32px */
+            font-weight: 700;
+            margin-bottom: 4px; /* Reduced */
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 13px; /* Reduced */
+        }
+
+        .stat-change {
+            font-size: 11px; /* Reduced */
+            margin-top: 6px; /* Reduced */
+        }
+
+        .stat-change.positive {
+            color: var(--success-green);
+        }
+
+        .stat-change.negative {
+            color: var(--danger-red);
+        }
+
+        /* Admin Actions */
+        .admin-actions-section {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 22px; /* Reduced */
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px; /* Reduced */
+        }
+
+        .section-title {
+            font-size: 18px; /* Reduced from 20px */
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 18px; /* Reduced */
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Reduced */
+        }
+
+        .section-title i {
+            color: var(--admin-purple);
+            font-size: 16px; /* Reduced */
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); /* Reduced */
+            gap: 13px; /* Reduced */
+        }
+
+        .action-btn {
+            padding: 18px; /* Reduced */
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px; /* Reduced */
+        }
+
+        .action-btn:hover {
+            background-color: var(--admin-purple);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .action-btn i {
+            font-size: 22px; /* Reduced */
+            margin-bottom: 8px; /* Reduced */
+            display: block;
+        }
+
+        .action-btn span {
+            font-weight: 500;
+            display: block;
+        }
+
+        /* Users Table */
+        .users-table-container {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 22px; /* Reduced */
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px; /* Reduced */
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px; /* Reduced */
+        }
+
+        .search-box {
+            position: relative;
+            width: 280px; /* Reduced */
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 9px 36px 9px 14px; /* Reduced */
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-size: 13px; /* Reduced */
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 13px; /* Reduced */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px; /* Reduced */
+        }
+
+        th {
+            text-align: left;
+            padding: 14px; /* Reduced */
+            font-weight: 600;
+            color: var(--text-dark);
+            border-bottom: 2px solid var(--border-color);
+            background-color: var(--bg-light);
+            font-size: 13px; /* Reduced */
+        }
+
+        td {
+            padding: 14px; /* Reduced */
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 13px; /* Reduced */
+        }
+
+        tr:hover {
+            background-color: var(--bg-light);
+        }
+
+        .user-avatar {
+            width: 38px; /* Reduced */
+            height: 38px; /* Reduced */
+            border-radius: 50%;
+            background-color: var(--light-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-blue);
+            font-weight: 600;
+            margin-right: 8px; /* Reduced */
+            font-size: 13px; /* Reduced */
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 13px; /* Reduced */
+        }
+
+        .user-email {
+            font-size: 11px; /* Reduced */
+            color: var(--text-light);
+        }
+
+        .status-badge {
+            padding: 3px 8px; /* Reduced */
+            border-radius: 4px;
+            font-size: 11px; /* Reduced */
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+        }
+
+        .status-suspended {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: var(--danger-red);
+        }
+
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-orange);
+        }
+
+        .role-badge {
+            padding: 3px 8px; /* Reduced */
+            border-radius: 4px;
+            font-size: 11px; /* Reduced */
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .role-admin {
+            background-color: rgba(139, 92, 246, 0.1);
+            color: var(--admin-purple);
+        }
+
+        .role-user {
+            background-color: rgba(0, 82, 204, 0.1);
+            color: var(--primary-blue);
+        }
+
+        .balance-amount {
+            font-family: 'Roboto Slab', serif;
+            font-weight: 600;
+            font-size: 13px; /* Reduced */
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 4px; /* Reduced */
+        }
+
+        .table-btn {
+            width: 30px; /* Reduced */
+            height: 30px; /* Reduced */
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 13px; /* Reduced */
+            background: none;
+        }
+
+        .table-btn.edit {
+            background-color: rgba(0, 82, 204, 0.1);
+            color: var(--primary-blue);
+        }
+
+        .table-btn.edit:hover {
+            background-color: var(--primary-blue);
+            color: var(--white);
+        }
+
+        .table-btn.suspend {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-orange);
+        }
+
+        .table-btn.suspend:hover {
+            background-color: var(--warning-orange);
+            color: var(--white);
+        }
+
+        .table-btn.delete {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: var(--danger-red);
+        }
+
+        .table-btn.delete:hover {
+            background-color: var(--danger-red);
+            color: var(--white);
+        }
+
+        .table-btn.reset {
+            background-color: rgba(139, 92, 246, 0.1);
+            color: var(--admin-purple);
+        }
+
+        .table-btn.reset:hover {
+            background-color: var(--admin-purple);
+            color: var(--white);
+        }
+
+        .table-btn.accounts {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+        }
+
+        .table-btn.accounts:hover {
+            background-color: var(--success-green);
+            color: var(--white);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px; /* Reduced */
+            margin-top: 18px; /* Reduced */
+        }
+
+        .pagination-btn {
+            padding: 7px 14px; /* Reduced */
+            background-color: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px; /* Reduced */
+        }
+
+        .pagination-btn:hover {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            border-color: var(--primary-blue);
+        }
+
+        .pagination-btn.active {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            border-color: var(--primary-blue);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 18px; /* Reduced */
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 35px; /* Reduced */
+            width: 100%;
+            max-width: 780px; /* Reduced */
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+            font-size: 13px; /* Reduced */
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px; /* Reduced */
+        }
+
+        .modal-title {
+            font-size: 22px; /* Reduced from 24px */
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 18px; /* Reduced */
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: var(--text-dark);
+        }
+
+        .modal-content {
+            margin-bottom: 22px; /* Reduced */
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 8px; /* Reduced */
+            justify-content: flex-end;
+            margin-top: 25px; /* Reduced */
+        }
+
+        .modal-btn {
+            padding: 11px 22px; /* Reduced */
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px; /* Reduced */
+        }
+
+        .modal-btn.primary {
+            background-color: var(--admin-purple);
+            color: var(--white);
+        }
+
+        .modal-btn.primary:hover {
+            background-color: #7C3AED;
+        }
+
+        .modal-btn.secondary {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-btn.secondary:hover {
+            background-color: var(--border-color);
+        }
+
+        .modal-btn.danger {
+            background-color: var(--danger-red);
+            color: var(--white);
+        }
+
+        .modal-btn.danger:hover {
+            background-color: #b91c1c;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 25px; /* Reduced */
+            right: 25px; /* Reduced */
+            background-color: var(--white);
+            border-radius: var(--border-radius-sm);
+            padding: 14px 18px; /* Reduced */
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Reduced */
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            max-width: 380px; /* Reduced */
+            font-size: 13px; /* Reduced */
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            width: 22px; /* Reduced */
+            height: 22px; /* Reduced */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px; /* Reduced */
+        }
+
+        .toast-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+        }
+
+        .toast-error {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: var(--danger-red);
+        }
+
+        .toast-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-orange);
+        }
+
+        .toast-info {
+            background-color: rgba(0, 82, 204, 0.1);
+            color: var(--primary-blue);
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 3px; /* Reduced */
+            color: var(--text-dark);
+            font-size: 13px; /* Reduced */
+        }
+
+        .toast-message {
+            font-size: 12px; /* Reduced */
+            color: var(--text-gray);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 4px; /* Reduced */
+            border-radius: 4px;
+            font-size: 13px; /* Reduced */
+        }
+
+        .toast-close:hover {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        /* Generated Credentials */
+        .generated-credentials {
+            background-color: var(--bg-light);
+            border-radius: var(--border-radius-sm);
+            padding: 18px; /* Reduced */
+            margin: 18px 0; /* Reduced */
+            border: 1px dashed var(--border-color);
+            font-size: 13px; /* Reduced */
+        }
+
+        .credential-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px; /* Reduced */
+            padding-bottom: 8px; /* Reduced */
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .credential-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .credential-label {
+            color: var(--text-light);
+            font-weight: 500;
+            min-width: 110px; /* Reduced */
+            font-size: 13px; /* Reduced */
+        }
+
+        .credential-value {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 600;
+            color: var(--text-dark);
+            word-break: break-all;
+            flex: 1;
+            margin: 0 8px; /* Reduced */
+            font-size: 13px; /* Reduced */
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--admin-purple);
+            cursor: pointer;
+            font-size: 13px; /* Reduced */
+            padding: 4px 8px; /* Reduced */
+            border-radius: 4px;
+        }
+
+        .copy-btn:hover {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+
+        /* Password Input Container */
+        .password-input-container {
+            position: relative;
+        }
+
+        .generate-password-btn {
+            position: absolute;
+            right: 9px; /* Reduced */
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--admin-purple);
+            cursor: pointer;
+            font-size: 13px; /* Reduced */
+            padding: 4px; /* Reduced */
+        }
+
+        .generate-password-btn:hover {
+            color: var(--dark-blue);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 35px; /* Reduced */
+        }
+
+        .spinner {
+            width: 38px; /* Reduced */
+            height: 38px; /* Reduced */
+            border: 3px solid var(--light-blue);
+            border-top-color: var(--admin-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 45px 18px; /* Reduced */
+            color: var(--text-light);
+            font-size: 13px; /* Reduced */
+        }
+
+        .empty-state i {
+            font-size: 44px; /* Reduced */
+            margin-bottom: 18px; /* Reduced */
+            color: var(--border-color);
+        }
+
+        .empty-state p {
+            font-size: 14px; /* Reduced */
+            margin-bottom: 18px; /* Reduced */
+        }
+
+        /* System Settings Styles */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Reduced */
+            gap: 18px; /* Reduced */
+            margin-top: 18px; /* Reduced */
+        }
+
+        .settings-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 22px; /* Reduced */
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .settings-group {
+            margin-bottom: 18px; /* Reduced */
+        }
+
+        .settings-label {
+            font-weight: 500;
+            margin-bottom: 6px; /* Reduced */
+            color: var(--text-dark);
+            font-size: 13px; /* Reduced */
+        }
+
+        .settings-description {
+            font-size: 11px; /* Reduced */
+            color: var(--text-light);
+            margin-bottom: 13px; /* Reduced */
+        }
+
+        /* Transactions Styles */
+        .transaction-card {
+            background: var(--white);
+            border-radius: var(--border-radius-sm);
+            padding: 18px; /* Reduced */
+            margin-bottom: 13px; /* Reduced */
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            font-size: 13px; /* Reduced */
+        }
+
+        .transaction-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px; /* Reduced */
+        }
+
+        .transaction-id {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 11px; /* Reduced */
+            color: var(--text-light);
+        }
+
+        .transaction-amount {
+            font-family: 'Roboto Slab', serif;
+            font-weight: 600;
+            font-size: 16px; /* Reduced from 18px */
+        }
+
+        .transaction-amount.positive {
+            color: var(--success-green);
+        }
+
+        .transaction-amount.negative {
+            color: var(--danger-red);
+        }
+
+        .transaction-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px; /* Reduced */
+            margin-top: 13px; /* Reduced */
+            font-size: 12px; /* Reduced */
+        }
+
+        .transaction-detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            color: var(--text-light);
+            font-size: 10px; /* Reduced */
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            font-size: 12px; /* Reduced */
+        }
+
+        /* Account Management Styles */
+        .account-tabs {
+            display: flex;
+            gap: 4px; /* Reduced */
+            margin-bottom: 18px; /* Reduced */
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px; /* Reduced */
+        }
+
+        .account-tab {
+            padding: 9px 18px; /* Reduced */
+            background: none;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 13px; /* Reduced */
+        }
+
+        .account-tab:hover {
+            color: var(--admin-purple);
+            background-color: rgba(139, 92, 246, 0.05);
+        }
+
+        .account-tab.active {
+            color: var(--admin-purple);
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+
+        .account-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--admin-purple);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .account-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .account-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .account-details-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 22px; /* Reduced */
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: 18px; /* Reduced */
+        }
+
+        .account-header {
+            display: flex;
+            align-items: center;
+            gap: 13px; /* Reduced */
+            margin-bottom: 22px; /* Reduced */
+        }
+
+        .account-icon {
+            width: 56px; /* Reduced */
+            height: 56px; /* Reduced */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px; /* Reduced */
+        }
+
+        .account-icon.checking {
+            background-color: rgba(0, 82, 204, 0.1);
+            color: var(--primary-blue);
+        }
+
+        .account-icon.savings {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+        }
+
+        .account-icon.investment {
+            background-color: rgba(212, 175, 55, 0.1);
+            color: var(--accent-gold);
+        }
+
+        .account-info h3 {
+            font-size: 18px; /* Reduced */
+            margin-bottom: 4px; /* Reduced */
+            color: var(--text-dark);
+        }
+
+        .account-info p {
+            color: var(--text-light);
+            font-size: 13px; /* Reduced */
+        }
+
+        .account-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); /* Reduced */
+            gap: 18px; /* Reduced */
+            margin-bottom: 22px; /* Reduced */
+        }
+
+        .account-stat {
+            background: var(--bg-light);
+            border-radius: var(--border-radius-sm);
+            padding: 18px; /* Reduced */
+            text-align: center;
+        }
+
+        .account-stat-value {
+            font-family: 'Roboto Slab', serif;
+            font-size: 26px; /* Reduced from 28px */
+            font-weight: 600;
+            margin-bottom: 4px; /* Reduced */
+        }
+
+        .account-stat-label {
+            color: var(--text-light);
+            font-size: 13px; /* Reduced */
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px; /* Reduced */
+            margin-bottom: 18px; /* Reduced */
+        }
+
+        .investment-portfolio {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Reduced */
+            gap: 18px; /* Reduced */
+            margin-bottom: 22px; /* Reduced */
+        }
+
+        .portfolio-item {
+            background: var(--white);
+            border-radius: var(--border-radius-sm);
+            padding: 18px; /* Reduced */
+            border: 1px solid var(--border-color);
+        }
+
+        .portfolio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 13px; /* Reduced */
+        }
+
+        .portfolio-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 13px; /* Reduced */
+        }
+
+        .portfolio-allocation {
+            font-size: 11px; /* Reduced */
+            color: var(--text-light);
+        }
+
+        .portfolio-chart {
+            height: 90px; /* Reduced */
+            background: linear-gradient(90deg, var(--success-green) 40%, var(--primary-blue) 30%, var(--admin-purple) 30%);
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 13px; /* Reduced */
+        }
+
+        /* Profile Picture Upload Styles */
+        .profile-picture-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-picture-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            overflow: hidden;
+            border: 3px solid var(--border-color);
+            background-color: var(--bg-light);
+            position: relative;
+        }
+
+        .profile-picture-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-blue);
+            color: var(--primary-blue);
+            font-size: 40px;
+        }
+
+        .upload-btn {
+            background-color: var(--admin-purple);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-btn:hover {
+            background-color: #7C3AED;
+            transform: translateY(-2px);
+        }
+
+        .upload-btn i {
+            font-size: 14px;
+        }
+
+        .remove-picture-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: var(--danger-red);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .remove-picture-btn:hover {
+            opacity: 1;
+        }
+
+        .profile-picture-preview:hover .remove-picture-btn {
+            display: flex;
+        }
+
+        /* Profile Picture in User Table */
+        .user-avatar.has-image {
+            background: none;
+            color: transparent;
+            overflow: hidden;
+        }
+
+        .user-avatar.has-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                font-size: 12px; /* Smaller on mobile */
+            }
+            
+            .admin-content {
+                padding: 18px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 13px;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                font-size: 12px;
+                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            }
+
+            /* ADDED: Table container scroll for mobile */
+            .users-table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            }
+            
+            .users-table-container table {
+                min-width: 800px; /* Ensure table has minimum width for scrolling */
+            }
+
+            .action-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .login-box {
+                padding: 25px 20px;
+            }
+
+            .transaction-details {
+                grid-template-columns: 1fr;
+            }
+
+            .account-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .modal {
+                padding: 25px 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .admin-header {
+                padding: 13px;
+                flex-direction: column;
+                gap: 13px;
+                align-items: flex-start;
+            }
+
+            .admin-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .admin-logo {
+                font-size: 18px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .toast {
+                left: 13px;
+                right: 13px;
+                bottom: 13px;
+                max-width: none;
+            }
+
+            .login-box {
+                padding: 20px 15px;
+            }
+
+            .account-tabs {
+                flex-wrap: wrap;
+            }
+
+            .account-tab {
+                flex: 1;
+                min-width: 90px;
+                text-align: center;
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            /* ADDED: Better mobile scrolling for user table */
+            .users-table-container {
+                margin-left: -10px;
+                margin-right: -10px;
+                border-radius: 0;
+                padding: 15px;
+            }
+            
+            .users-table-container table {
+                min-width: 900px; /* Increased minimum width for better mobile viewing */
+            }
+            
+            .table-header {
+                flex-wrap: wrap;
+            }
+            
+            .search-box {
+                margin-top: 10px;
+            }
+        }
+
+        /* ADDED: Specific styles for very small screens */
+        @media (max-width: 400px) {
+            .users-table-container table {
+                min-width: 950px; /* Even wider for very small screens */
+            }
+            
+            .action-buttons-cell {
+                flex-wrap: wrap;
+                gap: 2px;
+            }
+            
+            .table-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 11px;
+            }
+            
+            .user-name {
+                font-size: 12px;
+            }
+            
+            .user-email {
+                font-size: 10px;
+            }
+        }
+
+        /* ADDED: Custom scrollbar styling */
+        .users-table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .users-table-container::-webkit-scrollbar-track {
+            background: var(--bg-light);
+            border-radius: 4px;
+        }
+        
+        .users-table-container::-webkit-scrollbar-thumb {
+            background: var(--admin-purple);
+            border-radius: 4px;
+        }
+        
+        .users-table-container::-webkit-scrollbar-thumb:hover {
+            background: #7C3AED;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Section -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <div class="login-logo">
+                <i class="fas fa-user-shield"></i>
+                <span>Zorynth<span>Bank</span> Admin</span>
+            </div>
+            <h1 class="login-title">Administrator Login</h1>
+            <p class="login-subtitle">Enter your credentials to access the admin dashboard</p>
+            
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="adminEmail" class="form-label">Admin Email</label>
+                    <input type="email" id="adminEmail" class="form-control" placeholder="admin@zorynthbank.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="adminPassword" class="form-label">Password</label>
+                    <input type="password" id="adminPassword" class="form-control" placeholder="Enter your password" required>
+                </div>
+                
+                <div class="login-error" id="loginError">
+                    <i class="fas fa-exclamation-circle"></i> Invalid email or password
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+            
+            <div style="margin-top: 25px; padding-top: 18px; border-top: 1px solid var(--border-color);">
+                <p style="color: var(--text-light); font-size: 12px;">
+                    <i class="fas fa-info-circle"></i> Contact system administrator for access credentials
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-container" id="adminContainer">
+        <!-- Admin Header -->
+        <header class="admin-header">
+            <div class="admin-logo">
+                <i class="fas fa-user-shield"></i>
+                <span>Zorynth<span>Bank</span> Admin</span>
+            </div>
+            <div class="admin-info">
+                <div class="admin-badge">Administrator</div>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon users">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-value" id="totalUsers">0</div>
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-change positive" id="userChange">
+                        <i class="fas fa-arrow-up"></i> <span>0% from last month</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon balance">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div class="stat-value" id="totalBalance">$0.00</div>
+                    <div class="stat-label">Total Bank Balance</div>
+                    <div class="stat-change positive" id="balanceChange">
+                        <i class="fas fa-arrow-up"></i> <span>0% from last month</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon transactions">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="stat-value" id="totalTransactions">0</div>
+                    <div class="stat-label">Total Transactions</div>
+                    <div class="stat-change positive" id="transactionChange">
+                        <i class="fas fa-arrow-up"></i> <span>0% from last month</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon active">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-value" id="activeUsers">0</div>
+                    <div class="stat-label">Active Users</div>
+                    <div class="stat-change positive" id="activeChange">
+                        <i class="fas fa-arrow-up"></i> <span>0% from last month</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Actions -->
+            <div class="admin-actions-section">
+                <h2 class="section-title">
+                    <i class="fas fa-cogs"></i> Admin Actions
+                </h2>
+                <div class="action-buttons">
+                    <button class="action-btn" id="createUserBtn">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Create New User</span>
+                    </button>
+                    <button class="action-btn" id="manageUsersBtn">
+                        <i class="fas fa-users-cog"></i>
+                        <span>Manage All Users</span>
+                    </button>
+                    <button class="action-btn" id="viewTransactionsBtn">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>View All Transactions</span>
+                    </button>
+                    <button class="action-btn" id="systemSettingsBtn">
+                        <i class="fas fa-sliders-h"></i>
+                        <span>System Settings</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="users-table-container" id="usersTableContainer">
+                <div class="table-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-users"></i> User Management
+                    </h2>
+                    <div class="search-box">
+                        <input type="text" id="searchUsers" placeholder="Search users by name or email...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                <div id="usersTableLoading">
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner"></div>
+                    </div>
+                    <table id="usersTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Balance</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Users will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="pagination" style="display: none;">
+                    <button class="pagination-btn" id="prevPage" disabled>Previous</button>
+                    <span id="pageInfo">Page 1 of 1</span>
+                    <button class="pagination-btn" id="nextPage" disabled>Next</button>
+                </div>
+            </div>
+
+            <!-- Transactions Section -->
+            <div class="users-table-container" id="transactionsContainer" style="display: none;">
+                <div class="table-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-exchange-alt"></i> Recent Transactions
+                    </h2>
+                    <div class="search-box">
+                        <input type="text" id="searchTransactions" placeholder="Search transactions...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                <div id="transactionsContent">
+                    <!-- Transactions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- System Settings Section -->
+            <div class="users-table-container" id="systemSettingsContainer" style="display: none;">
+                <div class="table-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-sliders-h"></i> System Settings
+                    </h2>
+                </div>
+                <div id="systemSettingsContent">
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <h3 style="margin-bottom: 18px; color: var(--text-dark);">General Settings</h3>
+                            <div class="settings-group">
+                                <div class="settings-label">Bank Name</div>
+                                <div class="settings-description">Display name for the banking application</div>
+                                <input type="text" class="form-control" value="Zorynth Bank" id="bankName">
+                            </div>
+                            <div class="settings-group">
+                                <div class="settings-label">Maintenance Mode</div>
+                                <div class="settings-description">Enable to temporarily disable user access</div>
+                                <label style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                                    <input type="checkbox" id="maintenanceMode">
+                                    <span style="font-size: 13px;">Enable Maintenance Mode</span>
+                                </label>
+                            </div>
+                            <div class="settings-group">
+                                <div class="settings-label">Transaction Fee</div>
+                                <div class="settings-description">Percentage fee for each transaction</div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="number" class="form-control" value="1.5" id="transactionFee" min="0" max="10" step="0.1">
+                                    <span style="font-size: 13px;">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-card">
+                            <h3 style="margin-bottom: 18px; color: var(--text-dark);">Security Settings</h3>
+                            <div class="settings-group">
+                                <div class="settings-label">Password Policy</div>
+                                <div class="settings-description">Minimum requirements for user passwords</div>
+                                <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+                                        <input type="checkbox" checked>
+                                        <span>Minimum 8 characters</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+                                        <input type="checkbox" checked>
+                                        <span>At least one number</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+                                        <input type="checkbox" checked>
+                                        <span>At least one special character</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="settings-group">
+                                <div class="settings-label">Session Timeout</div>
+                                <div class="settings-description">Time before automatic logout (minutes)</div>
+                                <select class="form-control" id="sessionTimeout">
+                                    <option value="15">15 minutes</option>
+                                    <option value="30" selected>30 minutes</option>
+                                    <option value="60">60 minutes</option>
+                                    <option value="120">2 hours</option>
+                                </select>
+                            </div>
+                            <div class="settings-group">
+                                <div class="settings-label">Two-Factor Authentication</div>
+                                <div class="settings-description">Require 2FA for admin accounts</div>
+                                <label style="display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px;">
+                                    <input type="checkbox" id="require2FA">
+                                    <span>Require 2FA for Admins</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 25px;">
+                        <button class="modal-btn primary" id="saveSettingsBtn">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                        <button class="modal-btn secondary" id="resetSettingsBtn">
+                            <i class="fas fa-undo"></i> Reset to Default
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create User Modal -->
+    <div class="modal-overlay" id="createUserModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Create New User</h2>
+                <button class="close-modal" id="closeCreateUserModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <form id="createUserForm">
+                    <!-- Profile Picture Upload -->
+                    <div class="profile-picture-container">
+                        <div class="profile-picture-preview" id="profilePicturePreview">
+                            <div class="upload-placeholder" id="uploadPlaceholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <img id="profilePictureImage" style="display: none;">
+                            <button type="button" class="remove-picture-btn" id="removePictureBtn" style="display: none;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <button type="button" class="upload-btn" id="uploadPictureBtn">
+                            <i class="fas fa-cloud-upload-alt"></i> Upload Profile Picture
+                        </button>
+                        <input type="hidden" id="profilePictureUrl">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 13px;">
+                        <div class="form-group">
+                            <label for="firstName" class="form-label">First Name *</label>
+                            <input type="text" id="firstName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName" class="form-label">Last Name *</label>
+                            <input type="text" id="lastName" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address *</label>
+                        <input type="email" id="email" class="form-control" placeholder="user@example.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userPassword" class="form-label">Password *</label>
+                        <div class="password-input-container">
+                            <input type="password" id="userPassword" class="form-control" placeholder="Generate or enter password" required>
+                            <button type="button" class="generate-password-btn" id="generatePasswordBtn">
+                                <i class="fas fa-random"></i> Generate
+                            </button>
+                        </div>
+                        <div style="margin-top: 4px; font-size: 11px; color: var(--text-light);">
+                            <i class="fas fa-info-circle"></i> Click generate or enter a custom password
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 13px;">
+                        <div class="form-group">
+                            <label for="role" class="form-label">User Role *</label>
+                            <select id="role" class="form-control" required>
+                                <option value="user">Standard User</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="initialBalance" class="form-label">Initial Balance ($)</label>
+                            <input type="number" id="initialBalance" class="form-control" value="1000" min="0" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Account Status *</label>
+                        <div style="display: flex; gap: 18px; margin-top: 4px;">
+                            <label style="display: flex; align-items: center; gap: 4px; font-size: 13px;">
+                                <input type="radio" name="status" value="active" checked> Active
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; font-size: 13px;">
+                                <input type="radio" name="status" value="pending"> Pending
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; font-size: 13px;">
+                                <input type="radio" name="status" value="suspended"> Suspended
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="form-actions">
+                <button class="modal-btn secondary" id="cancelCreateUser">Cancel</button>
+                <button class="modal-btn primary" id="generateUserCredentials">Create User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Credentials Modal -->
+    <div class="modal-overlay" id="userCredentialsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">User Created Successfully</h2>
+                <button class="close-modal" id="closeCredentialsModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div style="text-align: center; margin-bottom: 18px;">
+                    <div style="width: 56px; height: 56px; background-color: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 13px; color: var(--success-green); font-size: 22px;">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <p style="color: var(--text-gray); font-size: 13px;">User account has been created successfully. Share these credentials with the user:</p>
+                </div>
+                <div class="generated-credentials">
+                    <div class="credential-item">
+                        <span class="credential-label">Email:</span>
+                        <span class="credential-value" id="generatedEmail">user@example.com</span>
+                        <button class="copy-btn" data-copy="email">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="credential-item">
+                        <span class="credential-label">Password:</span>
+                        <span class="credential-value" id="generatedPassword">••••••••</span>
+                        <button class="copy-btn" data-copy="password">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+                <div style="background-color: rgba(245, 158, 11, 0.1); padding: 13px; border-radius: var(--border-radius-sm); margin-top: 18px; border-left: 4px solid var(--warning-orange);">
+                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <i class="fas fa-exclamation-triangle" style="color: var(--warning-orange);"></i>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-dark); margin-bottom: 4px; font-size: 13px;">Important</div>
+                            <div style="font-size: 12px; color: var(--text-gray);">
+                                The user will be prompted to change their password on first login. Keep these credentials secure.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="modal-btn secondary" id="closeCredentials">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal-overlay" id="editUserModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit User Account</h2>
+                <button class="close-modal" id="closeEditUserModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    
+                    <!-- Profile Picture Upload -->
+                    <div class="profile-picture-container">
+                        <div class="profile-picture-preview" id="editProfilePicturePreview">
+                            <div class="upload-placeholder" id="editUploadPlaceholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <img id="editProfilePictureImage" style="display: none;">
+                            <button type="button" class="remove-picture-btn" id="editRemovePictureBtn" style="display: none;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <button type="button" class="upload-btn" id="editUploadPictureBtn">
+                            <i class="fas fa-cloud-upload-alt"></i> Upload Profile Picture
+                        </button>
+                        <input type="hidden" id="editProfilePictureUrl">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 13px;">
+                        <div class="form-group">
+                            <label for="editFirstName" class="form-label">First Name *</label>
+                            <input type="text" id="editFirstName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editLastName" class="form-label">Last Name *</label>
+                            <input type="text" id="editLastName" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editEmail" class="form-label">Email Address *</label>
+                        <input type="email" id="editEmail" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editPassword" class="form-label">Password (Optional)</label>
+                        <div class="password-input-container">
+                            <input type="password" id="editPassword" class="form-control" placeholder="Leave empty to keep current">
+                            <button type="button" class="generate-password-btn" id="generateEditPasswordBtn">
+                                <i class="fas fa-random"></i> Generate
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 13px;">
+                        <div class="form-group">
+                            <label for="editRole" class="form-label">User Role *</label>
+                            <select id="editRole" class="form-control" required>
+                                <option value="user">Standard User</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editBalance" class="form-label">Account Balance ($)</label>
+                            <input type="number" id="editBalance" class="form-control" min="0" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Account Status *</label>
+                        <div style="display: flex; gap: 18px; margin-top: 4px;">
+                            <label style="display: flex; align-items: center; gap: 4px; font-size: 13px;">
+                                <input type="radio" name="editStatus" value="active"> Active
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; font-size: 13px;">
+                                <input type="radio" name="editStatus" value="pending"> Pending
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; font-size: 13px;">
+                                <input type="radio" name="editStatus" value="suspended"> Suspended
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="form-actions">
+                <button class="modal-btn danger" id="resetPasswordBtn">
+                    <i class="fas fa-key"></i> Reset Password
+                </button>
+                <button class="modal-btn secondary" id="cancelEditUser">Cancel</button>
+                <button class="modal-btn primary" id="saveUserChanges">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Accounts Modal -->
+    <div class="modal-overlay" id="manageAccountsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Manage User Accounts</h2>
+                <button class="close-modal" id="closeManageAccountsModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div style="margin-bottom: 18px;">
+                    <h3 style="margin-bottom: 8px; color: var(--text-dark);" id="accountsUserName"></h3>
+                    <p style="color: var(--text-light); font-size: 13px;" id="accountsUserEmail"></p>
+                </div>
+                
+                <div class="account-tabs">
+                    <button class="account-tab active" data-account="savings">
+                        <i class="fas fa-piggy-bank"></i> Savings Account
+                    </button>
+                    <button class="account-tab" data-account="investment">
+                        <i class="fas fa-chart-line"></i> Investment Portfolio
+                    </button>
+                </div>
+                
+                <!-- Savings Account Section -->
+                <div class="account-section active" id="savingsAccountSection">
+                    <div class="account-details-card">
+                        <div class="account-header">
+                            <div class="account-icon savings">
+                                <i class="fas fa-piggy-bank"></i>
+                            </div>
+                            <div class="account-info">
+                                <h3>Savings Account</h3>
+                                <p>High-yield savings account with competitive interest rates</p>
+                            </div>
+                        </div>
+                        
+                        <div class="account-stats">
+                            <div class="account-stat">
+                                <div class="account-stat-value" id="savingsBalance">$0.00</div>
+                                <div class="account-stat-label">Current Balance</div>
+                            </div>
+                            <div class="account-stat">
+                                <div class="account-stat-value" id="savingsInterest">0.00%</div>
+                                <div class="account-stat-label">Interest Rate</div>
+                            </div>
+                            <div class="account-stat">
+                                <div class="account-stat-value" id="savingsYTD">$0.00</div>
+                                <div class="account-stat-label">YTD Interest</div>
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-bottom: 13px; color: var(--text-dark);">Edit Savings Account</h4>
+                        <form id="savingsAccountForm">
+                            <input type="hidden" id="savingsUserId">
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editSavingsBalance" class="form-label">Account Balance ($)</label>
+                                    <input type="number" id="editSavingsBalance" class="form-control" min="0" step="0.01" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editSavingsInterestRate" class="form-label">Interest Rate (%)</label>
+                                    <input type="number" id="editSavingsInterestRate" class="form-control" min="0" max="10" step="0.01" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editSavingsAccountNumber" class="form-label">Account Number</label>
+                                    <input type="text" id="editSavingsAccountNumber" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editSavingsStatus" class="form-label">Account Status</label>
+                                    <select id="editSavingsStatus" class="form-control" required>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                        <option value="suspended">Suspended</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editSavingsMonthlyInterest" class="form-label">Monthly Interest ($)</label>
+                                <input type="number" id="editSavingsMonthlyInterest" class="form-control" min="0" step="0.01">
+                                <div style="margin-top: 4px; font-size: 11px; color: var(--text-light);">
+                                    <i class="fas fa-info-circle"></i> Auto-calculated if left empty
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Investment Portfolio Section -->
+                <div class="account-section" id="investmentAccountSection">
+                    <div class="account-details-card">
+                        <div class="account-header">
+                            <div class="account-icon investment">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="account-info">
+                                <h3>Investment Portfolio</h3>
+                                <p>Diversified investment portfolio with various asset classes</p>
+                            </div>
+                        </div>
+                        
+                        <div class="account-stats">
+                            <div class="account-stat">
+                                <div class="account-stat-value" id="investmentBalance">$0.00</div>
+                                <div class="account-stat-label">Portfolio Value</div>
+                            </div>
+                            <div class="account-stat">
+                                <div class="account-stat-value" id="investmentYTD">0.00%</div>
+                                <div class="account-stat-label">YTD Return</div>
+                            </div>
+                            <div class="account-stat">
+                                <div class="account-stat-value" id="investmentRisk">Medium</div>
+                                <div class="account-stat-label">Risk Level</div>
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-bottom: 13px; color: var(--text-dark);">Edit Investment Portfolio</h4>
+                        <form id="investmentAccountForm">
+                            <input type="hidden" id="investmentUserId">
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editInvestmentBalance" class="form-label">Portfolio Value ($)</label>
+                                    <input type="number" id="editInvestmentBalance" class="form-control" min="0" step="0.01" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editInvestmentYTD" class="form-label">YTD Return (%)</label>
+                                    <input type="number" id="editInvestmentYTD" class="form-control" min="-100" max="100" step="0.01" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editInvestmentType" class="form-label">Portfolio Type</label>
+                                    <select id="editInvestmentType" class="form-control" required>
+                                        <option value="conservative">Conservative</option>
+                                        <option value="balanced">Balanced</option>
+                                        <option value="growth">Growth</option>
+                                        <option value="aggressive">Aggressive</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editInvestmentRisk" class="form-label">Risk Level</label>
+                                    <select id="editInvestmentRisk" class="form-control" required>
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Portfolio Allocation</label>
+                                <div class="investment-portfolio">
+                                    <div class="portfolio-item">
+                                        <div class="portfolio-header">
+                                            <span class="portfolio-name">Stocks</span>
+                                            <span class="portfolio-allocation" id="stocksAllocation">60%</span>
+                                        </div>
+                                        <input type="range" id="stocksSlider" class="form-control" min="0" max="100" value="60" style="width: 100%; margin-top: 8px;">
+                                    </div>
+                                    <div class="portfolio-item">
+                                        <div class="portfolio-header">
+                                            <span class="portfolio-name">Bonds</span>
+                                            <span class="portfolio-allocation" id="bondsAllocation">30%</span>
+                                        </div>
+                                        <input type="range" id="bondsSlider" class="form-control" min="0" max="100" value="30" style="width: 100%; margin-top: 8px;">
+                                    </div>
+                                    <div class="portfolio-item">
+                                        <div class="portfolio-header">
+                                            <span class="portfolio-name">Cash</span>
+                                            <span class="portfolio-allocation" id="cashAllocation">10%</span>
+                                        </div>
+                                        <input type="range" id="cashSlider" class="form-control" min="0" max="100" value="10" style="width: 100%; margin-top: 8px;">
+                                    </div>
+                                </div>
+                                <div style="margin-top: 4px; font-size: 11px; color: var(--text-light);">
+                                    <i class="fas fa-info-circle"></i> Adjust sliders to change portfolio allocation (total must equal 100%)
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editInvestmentDescription" class="form-label">Portfolio Description</label>
+                                <textarea id="editInvestmentDescription" class="form-control" rows="3" placeholder="Enter portfolio description..."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="modal-btn secondary" id="cancelManageAccounts">Cancel</button>
+                <button class="modal-btn primary" id="saveAccountChanges">
+                    <i class="fas fa-save"></i> Save All Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete User Modal -->
+    <div class="modal-overlay" id="deleteUserModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirm User Deletion</h2>
+                <button class="close-modal" id="closeDeleteUserModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div style="text-align: center; margin-bottom: 18px;">
+                    <div style="width: 56px; height: 56px; background-color: rgba(220, 38, 38, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 13px; color: var(--danger-red); font-size: 22px;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 style="color: var(--danger-red); margin-bottom: 8px; font-size: 18px;">Warning: This action cannot be undone!</h3>
+                    <p style="color: var(--text-gray); margin-bottom: 18px; font-size: 13px;">You are about to permanently delete the user account for:</p>
+                    <div style="font-size: 16px; font-weight: 600; color: var(--text-dark); margin-bottom: 18px;" id="deleteUserName"></div>
+                    <p style="color: var(--text-gray); font-size: 12px;">
+                        All user data including transaction history, account balances, and personal information will be permanently deleted.
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="confirmDelete" class="form-label">
+                        Type "DELETE" to confirm
+                    </label>
+                    <input type="text" id="confirmDelete" class="form-control" placeholder="Type DELETE here">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="modal-btn secondary" id="cancelDeleteUser">Cancel</button>
+                <button class="modal-btn danger" id="confirmDeleteUser" disabled>
+                    <i class="fas fa-trash"></i> Delete User Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toastNotification">
+        <div class="toast-icon" id="toastIcon">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="toast-content">
+            <div class="toast-title" id="toastTitle">Notification</div>
+            <div class="toast-message" id="toastMessage">This is a notification message.</div>
+        </div>
+        <button class="toast-close" id="toastClose">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // ==============================
+        // FIREBASE CONFIGURATION
+        // ==============================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfVYuGUWrW528Nk_gRaIulalZ1AUalqPw",
+            authDomain: "lumiere-bank.firebaseapp.com",
+            projectId: "lumiere-bank",
+            storageBucket: "lumiere-bank.firebasestorage.app",
+            messagingSenderId: "16422937370",
+            appId: "1:16422937370:web:9297b9d9f6834ca33b02a3",
+            measurementId: "G-N6JBRJ339S"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ==============================
+        // CLOUDINARY CONFIGURATION
+        // ==============================
+        const cloudinaryConfig = {
+            cloudName: 'dzy5eio5y',
+            apiKey: '624631155753264',
+            uploadPreset: 'bitboost'
+        };
+
+        // ==============================
+        // GLOBAL VARIABLES
+        // ==============================
+        let currentAdmin = null;
+        let allUsers = [];
+        let allTransactions = [];
+        let currentPage = 1;
+        const usersPerPage = 10;
+        let searchQuery = '';
+        let currentView = 'users'; // 'users', 'transactions', 'settings'
+        let currentAccountsUser = null;
+        let currentAccountsData = {
+            savings: null,
+            investment: null
+        };
+
+        // Cloudinary Upload Widget
+        let uploadWidget = null;
+
+        // ==============================
+        // INITIALIZATION
+        // ==============================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if already logged in
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // User is signed in, check if admin
+                    await checkIfAdmin(user);
+                } else {
+                    // No user is signed in, show login
+                    showLogin();
+                }
+            });
+            
+            // Initialize event listeners
+            initEventListeners();
+        });
+
+        // ==============================
+        // AUTHENTICATION
+        // ==============================
+        async function checkIfAdmin(user) {
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    if (userData.role === 'admin') {
+                        currentAdmin = user;
+                        showAdminDashboard();
+                        loadAdminData();
+                    } else {
+                        // Not an admin, sign out and show login
+                        await auth.signOut();
+                        showLogin();
+                        showToast('Access Denied', 'You do not have administrator privileges.', 'error');
+                    }
+                } else {
+                    // User document doesn't exist, sign out
+                    await auth.signOut();
+                    showLogin();
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+                await auth.signOut();
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('adminContainer').classList.remove('active');
+        }
+
+        function showAdminDashboard() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('adminContainer').classList.add('active');
+        }
+
+        // ==============================
+        // HOW TO CHANGE ADMIN EMAIL & PASSWORD IN FIREBASE
+        // ==============================
+        /*
+        METHOD 1: Firebase Console (Recommended for Production)
+        1. Go to Firebase Console: https://console.firebase.google.com/
+        2. Select your project (lumiere-bank)
+        3. Go to Authentication → Users tab
+        4. Find your admin user account
+        5. Click the three dots menu (⋮) → Edit user
+        6. Change email and/or password
+        7. Click Save
+
+        METHOD 2: Using Firebase CLI
+        1. Install Firebase CLI: npm install -g firebase-tools
+        2. Login: firebase login
+        3. Change email: firebase auth:update:user UID --email newemail@zorynthbank.com
+        4. Change password: firebase auth:update:user UID --password newpassword123
+
+        METHOD 3: Programmatically (Use with caution)
+        // To change email:
+        await currentAdmin.updateEmail("newadmin@zorynthbank.com");
+        
+        // To change password:
+        await currentAdmin.updatePassword("NewSecurePassword123!");
+        
+        // Note: This requires re-authentication first:
+        const credential = firebase.auth.EmailAuthProvider.credential(
+            currentAdmin.email,
+            currentPassword
+        );
+        await currentAdmin.reauthenticateWithCredential(credential);
+        */
+
+        // ==============================
+        // DATA LOADING
+        // ==============================
+        async function loadAdminData() {
+            try {
+                // Load all users
+                await loadAllUsers();
+                
+                // Load transactions
+                await loadAllTransactions();
+                
+                // Update stats
+                updateStats();
+                
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('usersTable').style.display = 'table';
+                document.getElementById('pagination').style.display = 'flex';
+                
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+                showToast('Error', 'Failed to load admin data. Please refresh the page.', 'error');
+            }
+        }
+
+        async function loadAllUsers() {
+            try {
+                const usersSnapshot = await db.collection('users').get();
+                allUsers = [];
+                
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    allUsers.push({
+                        id: doc.id,
+                        ...userData
+                    });
+                });
+                
+                // Sort users by creation date (newest first)
+                allUsers.sort((a, b) => {
+                    const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                    const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                    return dateB - dateA;
+                });
+                
+                // Update users table
+                updateUsersTable();
+                
+            } catch (error) {
+                console.error('Error loading all users:', error);
+                showToast('Error', 'Failed to load users. Please try again.', 'error');
+            }
+        }
+
+        async function loadAllTransactions() {
+            try {
+                allTransactions = [];
+                
+                // Get all users' transactions
+                for (const user of allUsers) {
+                    const transactionsSnapshot = await db.collection('users').doc(user.id)
+                        .collection('transactions')
+                        .orderBy('timestamp', 'desc')
+                        .limit(50)
+                        .get();
+                    
+                    transactionsSnapshot.forEach(doc => {
+                        const transactionData = doc.data();
+                        allTransactions.push({
+                            id: doc.id,
+                            userId: user.id,
+                            userName: `${user.firstName || ''} ${user.lastName || ''}`,
+                            userEmail: user.email,
+                            ...transactionData
+                        });
+                    });
+                }
+                
+                // Sort transactions by timestamp (newest first)
+                allTransactions.sort((a, b) => {
+                    const dateA = a.timestamp ? new Date(a.timestamp) : new Date(0);
+                    const dateB = b.timestamp ? new Date(b.timestamp) : new Date(0);
+                    return dateB - dateA;
+                });
+                
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+                // Don't show error for transactions as it's not critical
+            }
+        }
+
+        async function loadUserAccounts(userId) {
+            try {
+                // Load savings account
+                const savingsDoc = await db.collection('users').doc(userId)
+                    .collection('accounts').doc('savings').get();
+                
+                if (savingsDoc.exists) {
+                    currentAccountsData.savings = savingsDoc.data();
+                } else {
+                    // Create default savings account if it doesn't exist
+                    currentAccountsData.savings = {
+                        type: 'savings',
+                        balance: 0,
+                        accountNumber: generateAccountNumber(),
+                        fullNumber: generateFullAccountNumber(),
+                        currency: 'USD',
+                        status: 'active',
+                        createdAt: new Date().toISOString(),
+                        interestRate: 2.5,
+                        annualYield: 3.2,
+                        monthlyInterest: 0
+                    };
+                    
+                    await db.collection('users').doc(userId)
+                        .collection('accounts').doc('savings').set(currentAccountsData.savings);
+                }
+                
+                // Load investment account
+                const investmentDoc = await db.collection('users').doc(userId)
+                    .collection('accounts').doc('investment').get();
+                
+                if (investmentDoc.exists) {
+                    currentAccountsData.investment = investmentDoc.data();
+                } else {
+                    // Create default investment account if it doesn't exist
+                    currentAccountsData.investment = {
+                        type: 'investment',
+                        balance: 0,
+                        portfolioType: 'Balanced',
+                        riskLevel: 'Medium',
+                        ytdReturn: 5.2,
+                        createdAt: new Date().toISOString(),
+                        status: 'active',
+                        allocation: {
+                            stocks: 60,
+                            bonds: 30,
+                            cash: 10
+                        },
+                        description: 'Diversified investment portfolio'
+                    };
+                    
+                    await db.collection('users').doc(userId)
+                        .collection('accounts').doc('investment').set(currentAccountsData.investment);
+                }
+                
+                return currentAccountsData;
+                
+            } catch (error) {
+                console.error('Error loading user accounts:', error);
+                return null;
+            }
+        }
+
+        // ==============================
+        // UI UPDATES
+        // ==============================
+        function updateStats() {
+            // Total users
+            document.getElementById('totalUsers').textContent = allUsers.length;
+            
+            // Total balance (calculate from all users)
+            const totalBalance = allUsers.reduce((sum, user) => sum + (user.totalBalance || 0), 0);
+            document.getElementById('totalBalance').textContent = formatCurrency(totalBalance);
+            
+            // Active users
+            const activeUsers = allUsers.filter(user => user.status === 'active').length;
+            document.getElementById('activeUsers').textContent = activeUsers;
+            
+            // Total transactions
+            const transactionCount = allTransactions.length;
+            document.getElementById('totalTransactions').textContent = transactionCount.toLocaleString();
+            
+            // Calculate changes (mock data)
+            const userChange = 5.2;
+            const balanceChange = 3.8;
+            const activeChange = 2.1;
+            const transactionChange = 8.5;
+            
+            document.getElementById('userChange').innerHTML = `<i class="fas fa-arrow-up"></i> <span>+${userChange}% from last month</span>`;
+            document.getElementById('balanceChange').innerHTML = `<i class="fas fa-arrow-up"></i> <span>+${balanceChange}% from last month</span>`;
+            document.getElementById('activeChange').innerHTML = `<i class="fas fa-arrow-up"></i> <span>+${activeChange}% from last month</span>`;
+            document.getElementById('transactionChange').innerHTML = `<i class="fas fa-arrow-up"></i> <span>+${transactionChange}% from last month</span>`;
+        }
+
+        function updateUsersTable() {
+            const tableBody = document.getElementById('usersTableBody');
+            tableBody.innerHTML = '';
+            
+            // Filter users based on search query
+            const filteredUsers = allUsers.filter(user => {
+                if (!searchQuery) return true;
+                
+                const searchLower = searchQuery.toLowerCase();
+                const fullName = `${user.firstName || ''} ${user.lastName || ''}`.toLowerCase();
+                return (
+                    fullName.includes(searchLower) ||
+                    (user.email && user.email.toLowerCase().includes(searchLower))
+                );
+            });
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+            const startIndex = (currentPage - 1) * usersPerPage;
+            const endIndex = startIndex + usersPerPage;
+            const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+            
+            // Update pagination info
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
+            
+            if (paginatedUsers.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 35px;">
+                            <div class="empty-state">
+                                <i class="fas fa-users-slash"></i>
+                                <p>No users found${searchQuery ? ' matching your search' : ''}</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Populate table
+            paginatedUsers.forEach(user => {
+                const row = document.createElement('tr');
+                const initials = getInitials(user.firstName, user.lastName);
+                const balance = user.totalBalance || 0;
+                const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A';
+                const status = user.status || 'active';
+                const role = user.role || 'user';
+                const hasProfilePicture = user.profilePictureUrl && user.profilePictureUrl.trim() !== '';
+                
+                row.innerHTML = `
+                    <td>
+                        <div class="user-info">
+                            <div class="user-avatar ${hasProfilePicture ? 'has-image' : ''}">
+                                ${hasProfilePicture ? 
+                                    `<img src="${user.profilePictureUrl}" alt="${user.firstName} ${user.lastName}" onerror="this.style.display='none'; this.parentElement.innerHTML='${initials}'; this.parentElement.classList.remove('has-image');" />` : 
+                                    initials
+                                }
+                            </div>
+                            <div>
+                                <div class="user-name">${user.firstName || ''} ${user.lastName || ''}</div>
+                                <div class="user-email">${user.email || 'No email'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${user.email || 'N/A'}</td>
+                    <td>
+                        <span class="role-badge ${role === 'admin' ? 'role-admin' : 'role-user'}">
+                            ${role}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${status}">
+                            ${status}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="balance-amount">${formatCurrency(balance)}</div>
+                    </td>
+                    <td>${createdAt}</td>
+                    <td>
+                        <div class="action-buttons-cell">
+                            <button class="table-btn accounts" data-user-id="${user.id}" title="Manage Accounts">
+                                <i class="fas fa-university"></i>
+                            </button>
+                            <button class="table-btn edit" data-user-id="${user.id}" title="Edit User">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="table-btn suspend" data-user-id="${user.id}" title="${status === 'suspended' ? 'Activate' : 'Suspend'}">
+                                <i class="fas ${status === 'suspended' ? 'fa-play' : 'fa-pause'}"></i>
+                            </button>
+                            <button class="table-btn reset" data-user-id="${user.id}" title="Reset Password">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            ${user.id !== currentAdmin?.uid ? `
+                            <button class="table-btn delete" data-user-id="${user.id}" title="Delete User">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateTransactionsView() {
+            const container = document.getElementById('transactionsContent');
+            container.innerHTML = '';
+            
+            if (allTransactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exchange-alt"></i>
+                        <p>No transactions found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Display recent transactions
+            allTransactions.slice(0, 20).forEach(transaction => {
+                const transactionCard = document.createElement('div');
+                transactionCard.className = 'transaction-card';
+                
+                const amount = transaction.amount || 0;
+                const type = transaction.type || 'unknown';
+                const status = transaction.status || 'completed';
+                const description = transaction.description || 'No description';
+                const timestamp = transaction.timestamp ? new Date(transaction.timestamp).toLocaleString() : 'N/A';
+                const isPositive = ['deposit', 'credit', 'transfer_in'].includes(type);
+                
+                transactionCard.innerHTML = `
+                    <div class="transaction-header">
+                        <div>
+                            <div style="font-weight: 500;">${transaction.userName}</div>
+                            <div style="font-size: 11px; color: var(--text-light);">${transaction.userEmail}</div>
+                        </div>
+                        <div class="transaction-amount ${isPositive ? 'positive' : 'negative'}">
+                            ${isPositive ? '+' : '-'}${formatCurrency(Math.abs(amount))}
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px;">
+                        <div style="font-weight: 500;">${description}</div>
+                        <div style="font-size: 11px; color: var(--text-light); margin-top: 4px;">
+                            <span class="status-badge status-${status}">${status}</span>
+                            <span style="margin-left: 8px;">${type.replace('_', ' ')}</span>
+                        </div>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-detail">
+                            <span class="detail-label">Date & Time</span>
+                            <span class="detail-value">${timestamp}</span>
+                        </div>
+                        <div class="transaction-detail">
+                            <span class="detail-label">Transaction ID</span>
+                            <span class="detail-value transaction-id">${transaction.id.substring(0, 8)}...</span>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(transactionCard);
+            });
+            
+            if (allTransactions.length > 20) {
+                container.innerHTML += `
+                    <div style="text-align: center; margin-top: 18px; padding: 18px; color: var(--text-light); font-size: 13px;">
+                        Showing 20 of ${allTransactions.length} recent transactions
+                    </div>
+                `;
+            }
+        }
+
+        function updateSavingsAccountForm() {
+            if (!currentAccountsData.savings) return;
+            
+            const savings = currentAccountsData.savings;
+            
+            // Update form fields
+            document.getElementById('savingsUserId').value = currentAccountsUser.id;
+            document.getElementById('editSavingsBalance').value = savings.balance || 0;
+            document.getElementById('editSavingsInterestRate').value = savings.interestRate || 2.5;
+            document.getElementById('editSavingsAccountNumber').value = savings.accountNumber || generateAccountNumber();
+            document.getElementById('editSavingsStatus').value = savings.status || 'active';
+            document.getElementById('editSavingsMonthlyInterest').value = savings.monthlyInterest || (savings.balance * (savings.interestRate || 2.5) / 100 / 12).toFixed(2);
+            
+            // Update display values
+            document.getElementById('savingsBalance').textContent = formatCurrency(savings.balance || 0);
+            document.getElementById('savingsInterest').textContent = (savings.interestRate || 0).toFixed(2) + '%';
+            
+            // Calculate and display YTD interest
+            const ytdInterest = savings.monthlyInterest ? (savings.monthlyInterest * 12) : (savings.balance * (savings.interestRate || 2.5) / 100);
+            document.getElementById('savingsYTD').textContent = formatCurrency(ytdInterest);
+        }
+
+        function updateInvestmentAccountForm() {
+            if (!currentAccountsData.investment) return;
+            
+            const investment = currentAccountsData.investment;
+            
+            // Update form fields
+            document.getElementById('investmentUserId').value = currentAccountsUser.id;
+            document.getElementById('editInvestmentBalance').value = investment.balance || 0;
+            document.getElementById('editInvestmentYTD').value = investment.ytdReturn || 5.2;
+            document.getElementById('editInvestmentType').value = investment.portfolioType || 'Balanced';
+            document.getElementById('editInvestmentRisk').value = investment.riskLevel || 'Medium';
+            document.getElementById('editInvestmentDescription').value = investment.description || 'Diversified investment portfolio';
+            
+            // Update portfolio allocation sliders
+            const allocation = investment.allocation || { stocks: 60, bonds: 30, cash: 10 };
+            document.getElementById('stocksSlider').value = allocation.stocks || 60;
+            document.getElementById('bondsSlider').value = allocation.bonds || 30;
+            document.getElementById('cashSlider').value = allocation.cash || 10;
+            
+            // Update allocation display
+            document.getElementById('stocksAllocation').textContent = (allocation.stocks || 60) + '%';
+            document.getElementById('bondsAllocation').textContent = (allocation.bonds || 30) + '%';
+            document.getElementById('cashAllocation').textContent = (allocation.cash || 10) + '%';
+            
+            // Update display values
+            document.getElementById('investmentBalance').textContent = formatCurrency(investment.balance || 0);
+            document.getElementById('investmentYTD').textContent = (investment.ytdReturn || 0).toFixed(2) + '%';
+            document.getElementById('investmentRisk').textContent = investment.riskLevel || 'Medium';
+        }
+
+        function switchView(view) {
+            currentView = view;
+            
+            // Hide all sections
+            document.getElementById('usersTableContainer').style.display = 'none';
+            document.getElementById('transactionsContainer').style.display = 'none';
+            document.getElementById('systemSettingsContainer').style.display = 'none';
+            
+            // Show selected section
+            switch(view) {
+                case 'users':
+                    document.getElementById('usersTableContainer').style.display = 'block';
+                    break;
+                case 'transactions':
+                    document.getElementById('transactionsContainer').style.display = 'block';
+                    updateTransactionsView();
+                    break;
+                case 'settings':
+                    document.getElementById('systemSettingsContainer').style.display = 'block';
+                    break;
+            }
+        }
+
+        // ==============================
+        // CLOUDINARY UPLOAD FUNCTIONS
+        // ==============================
+        function initCloudinaryUpload(isEdit = false) {
+            const widgetId = isEdit ? 'editProfilePicturePreview' : 'profilePicturePreview';
+            const urlFieldId = isEdit ? 'editProfilePictureUrl' : 'profilePictureUrl';
+            const imageId = isEdit ? 'editProfilePictureImage' : 'profilePictureImage';
+            const placeholderId = isEdit ? 'editUploadPlaceholder' : 'uploadPlaceholder';
+            const removeBtnId = isEdit ? 'editRemovePictureBtn' : 'removePictureBtn';
+            
+            uploadWidget = cloudinary.createUploadWidget(
+                {
+                    cloudName: cloudinaryConfig.cloudName,
+                    uploadPreset: cloudinaryConfig.uploadPreset,
+                    sources: ['local', 'url', 'camera'],
+                    multiple: false,
+                    cropping: true,
+                    croppingAspectRatio: 1,
+                    croppingShowDimensions: true,
+                    croppingCoordinatesMode: 'custom',
+                    maxFileSize: 5000000, // 5MB
+                    maxImageWidth: 2000,
+                    maxImageHeight: 2000,
+                    clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+                    showAdvancedOptions: true,
+                    styles: {
+                        palette: {
+                            window: "#F5F5F5",
+                            sourceBg: "#FFFFFF",
+                            windowBorder: "#90a0b3",
+                            tabIcon: "#8B5CF6",
+                            inactiveTabIcon: "#69778A",
+                            menuIcons: "#8B5CF6",
+                            link: "#8B5CF6",
+                            action: "#8B5CF6",
+                            inProgress: "#8B5CF6",
+                            complete: "#10B981",
+                            error: "#DC2626",
+                            textDark: "#1A1A1A",
+                            textLight: "#FFFFFF"
+                        },
+                        fonts: {
+                            default: null,
+                            "'Inter', sans-serif": {
+                                url: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap",
+                                active: true
+                            }
+                        }
+                    }
+                },
+                (error, result) => {
+                    if (!error && result && result.event === "success") {
+                        const imageUrl = result.info.secure_url;
+                        
+                        // Update the hidden input
+                        document.getElementById(urlFieldId).value = imageUrl;
+                        
+                        // Update the preview
+                        const preview = document.getElementById(imageId);
+                        const placeholder = document.getElementById(placeholderId);
+                        const removeBtn = document.getElementById(removeBtnId);
+                        
+                        preview.src = imageUrl;
+                        preview.style.display = 'block';
+                        placeholder.style.display = 'none';
+                        removeBtn.style.display = 'flex';
+                        
+                        showToast('Success', 'Profile picture uploaded successfully!', 'success');
+                    } else if (error) {
+                        console.error('Cloudinary upload error:', error);
+                        showToast('Error', 'Failed to upload image. Please try again.', 'error');
+                    }
+                }
+            );
+        }
+
+        function openCloudinaryUpload(isEdit = false) {
+            if (!uploadWidget) {
+                initCloudinaryUpload(isEdit);
+            }
+            uploadWidget.open();
+        }
+
+        function removeProfilePicture(isEdit = false) {
+            const widgetId = isEdit ? 'editProfilePicturePreview' : 'profilePicturePreview';
+            const urlFieldId = isEdit ? 'editProfilePictureUrl' : 'profilePictureUrl';
+            const imageId = isEdit ? 'editProfilePictureImage' : 'profilePictureImage';
+            const placeholderId = isEdit ? 'editUploadPlaceholder' : 'uploadPlaceholder';
+            const removeBtnId = isEdit ? 'editRemovePictureBtn' : 'removePictureBtn';
+            
+            document.getElementById(urlFieldId).value = '';
+            document.getElementById(imageId).style.display = 'none';
+            document.getElementById(placeholderId).style.display = 'flex';
+            document.getElementById(removeBtnId).style.display = 'none';
+        }
+
+        // ==============================
+        // EVENT LISTENERS
+        // ==============================
+        function initEventListeners() {
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = document.getElementById('adminEmail').value.trim();
+                const password = document.getElementById('adminPassword').value;
+                const loginBtn = document.getElementById('loginBtn');
+                const loginError = document.getElementById('loginError');
+                
+                // Reset error
+                loginError.style.display = 'none';
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+                
+                try {
+                    // Sign in with Firebase Auth
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    
+                    // Check if user is admin
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        if (userData.role === 'admin') {
+                            currentAdmin = user;
+                            showAdminDashboard();
+                            loadAdminData();
+                            showToast('Welcome', 'Admin login successful!', 'success');
+                        } else {
+                            // Not an admin
+                            await auth.signOut();
+                            loginError.style.display = 'block';
+                            loginError.innerHTML = '<i class="fas fa-exclamation-circle"></i> You do not have administrator privileges.';
+                        }
+                    } else {
+                        // User document doesn't exist
+                        await auth.signOut();
+                        loginError.style.display = 'block';
+                        loginError.innerHTML = '<i class="fas fa-exclamation-circle"></i> Admin account not found.';
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    loginError.style.display = 'block';
+                    
+                    let errorMessage = 'Invalid email or password';
+                    if (error.code === 'auth/user-not-found') {
+                        errorMessage = 'Admin account not found';
+                    } else if (error.code === 'auth/wrong-password') {
+                        errorMessage = 'Incorrect password';
+                    } else if (error.code === 'auth/too-many-requests') {
+                        errorMessage = 'Too many failed attempts. Please try again later.';
+                    }
+                    
+                    loginError.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${errorMessage}`;
+                } finally {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                }
+            });
+
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    showLogin();
+                    showToast('Logged Out', 'You have been successfully logged out.', 'info');
+                } catch (error) {
+                    console.error('Error signing out:', error);
+                    showToast('Error', 'Failed to sign out. Please try again.', 'error');
+                }
+            });
+
+            // Create User Button
+            document.getElementById('createUserBtn').addEventListener('click', () => {
+                document.getElementById('createUserModal').classList.add('active');
+                // Reset profile picture
+                removeProfilePicture(false);
+            });
+
+            // Manage Users Button
+            document.getElementById('manageUsersBtn').addEventListener('click', () => {
+                switchView('users');
+            });
+
+            // View Transactions Button
+            document.getElementById('viewTransactionsBtn').addEventListener('click', () => {
+                switchView('transactions');
+            });
+
+            // System Settings Button
+            document.getElementById('systemSettingsBtn').addEventListener('click', () => {
+                switchView('settings');
+            });
+
+            // Search users
+            document.getElementById('searchUsers').addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                currentPage = 1;
+                updateUsersTable();
+            });
+
+            // Search transactions
+            document.getElementById('searchTransactions').addEventListener('input', (e) => {
+                // Filter transactions based on search
+                const searchTerm = e.target.value.toLowerCase();
+                // Implementation depends on your transaction data structure
+            });
+
+            // Pagination
+            document.getElementById('prevPage').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateUsersTable();
+                }
+            });
+
+            document.getElementById('nextPage').addEventListener('click', () => {
+                const filteredUsers = allUsers.filter(user => {
+                    if (!searchQuery) return true;
+                    const searchLower = searchQuery.toLowerCase();
+                    const fullName = `${user.firstName || ''} ${user.lastName || ''}`.toLowerCase();
+                    return fullName.includes(searchLower) || (user.email && user.email.toLowerCase().includes(searchLower));
+                });
+                const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+                
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updateUsersTable();
+                }
+            });
+
+            // Create User Modal
+            document.getElementById('closeCreateUserModal').addEventListener('click', () => {
+                document.getElementById('createUserModal').classList.remove('active');
+            });
+
+            document.getElementById('cancelCreateUser').addEventListener('click', () => {
+                document.getElementById('createUserModal').classList.remove('active');
+                document.getElementById('createUserForm').reset();
+                removeProfilePicture(false);
+            });
+
+            // Profile Picture Upload
+            document.getElementById('uploadPictureBtn').addEventListener('click', () => {
+                openCloudinaryUpload(false);
+            });
+
+            document.getElementById('removePictureBtn').addEventListener('click', () => {
+                removeProfilePicture(false);
+            });
+
+            document.getElementById('editUploadPictureBtn').addEventListener('click', () => {
+                openCloudinaryUpload(true);
+            });
+
+            document.getElementById('editRemovePictureBtn').addEventListener('click', () => {
+                removeProfilePicture(true);
+            });
+
+            // Generate password button
+            document.getElementById('generatePasswordBtn').addEventListener('click', () => {
+                const generatedPassword = generatePassword();
+                document.getElementById('userPassword').value = generatedPassword;
+                document.getElementById('userPassword').type = 'text';
+                
+                // Revert to password type after 5 seconds
+                setTimeout(() => {
+                    document.getElementById('userPassword').type = 'password';
+                }, 5000);
+            });
+
+            document.getElementById('generateEditPasswordBtn').addEventListener('click', () => {
+                const generatedPassword = generatePassword();
+                document.getElementById('editPassword').value = generatedPassword;
+                document.getElementById('editPassword').type = 'text';
+                
+                // Revert to password type after 5 seconds
+                setTimeout(() => {
+                    document.getElementById('editPassword').type = 'password';
+                }, 5000);
+            });
+
+            document.getElementById('generateUserCredentials').addEventListener('click', async () => {
+                await createNewUser();
+            });
+
+            // User Credentials Modal
+            document.getElementById('closeCredentialsModal').addEventListener('click', () => {
+                document.getElementById('userCredentialsModal').classList.remove('active');
+            });
+
+            document.getElementById('closeCredentials').addEventListener('click', () => {
+                document.getElementById('userCredentialsModal').classList.remove('active');
+            });
+
+            // Copy buttons
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('copy-btn') || e.target.closest('.copy-btn')) {
+                    const btn = e.target.classList.contains('copy-btn') ? e.target : e.target.closest('.copy-btn');
+                    const copyType = btn.dataset.copy;
+                    let textToCopy = '';
+                    
+                    switch(copyType) {
+                        case 'email':
+                            textToCopy = document.getElementById('generatedEmail').textContent;
+                            break;
+                        case 'password':
+                            textToCopy = document.getElementById('generatedPassword').textContent;
+                            break;
+                    }
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        showToast('Copied!', `${copyType.charAt(0).toUpperCase() + copyType.slice(1)} copied to clipboard`, 'success');
+                    });
+                }
+            });
+
+            // Account tabs
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.account-tab')) {
+                    const tab = e.target.closest('.account-tab');
+                    const accountType = tab.dataset.account;
+                    
+                    // Update active tab
+                    document.querySelectorAll('.account-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show corresponding section
+                    document.querySelectorAll('.account-section').forEach(s => s.classList.remove('active'));
+                    document.getElementById(`${accountType}AccountSection`).classList.add('active');
+                }
+            });
+
+            // Portfolio allocation sliders
+            const sliders = ['stocksSlider', 'bondsSlider', 'cashSlider'];
+            sliders.forEach(sliderId => {
+                document.getElementById(sliderId).addEventListener('input', (e) => {
+                    updatePortfolioAllocation();
+                });
+            });
+
+            // Manage Accounts button
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.table-btn.accounts')) {
+                    const userId = e.target.closest('.table-btn.accounts').dataset.userId;
+                    showManageAccountsModal(userId);
+                }
+                
+                if (e.target.closest('.table-btn.edit')) {
+                    const userId = e.target.closest('.table-btn.edit').dataset.userId;
+                    showEditUserModal(userId);
+                }
+                
+                if (e.target.closest('.table-btn.suspend')) {
+                    const userId = e.target.closest('.table-btn.suspend').dataset.userId;
+                    toggleUserStatus(userId);
+                }
+                
+                if (e.target.closest('.table-btn.reset')) {
+                    const userId = e.target.closest('.table-btn.reset').dataset.userId;
+                    resetUserPassword(userId);
+                }
+                
+                if (e.target.closest('.table-btn.delete')) {
+                    const userId = e.target.closest('.table-btn.delete').dataset.userId;
+                    showDeleteUserModal(userId);
+                }
+            });
+
+            // Edit User Modal buttons
+            document.getElementById('closeEditUserModal').addEventListener('click', () => {
+                document.getElementById('editUserModal').classList.remove('active');
+            });
+
+            document.getElementById('cancelEditUser').addEventListener('click', () => {
+                document.getElementById('editUserModal').classList.remove('active');
+            });
+
+            document.getElementById('resetPasswordBtn').addEventListener('click', () => {
+                const userId = document.getElementById('editUserId').value;
+                resetUserPassword(userId);
+            });
+
+            document.getElementById('saveUserChanges').addEventListener('click', async () => {
+                await updateUser();
+            });
+
+            // Manage Accounts Modal
+            document.getElementById('closeManageAccountsModal').addEventListener('click', () => {
+                document.getElementById('manageAccountsModal').classList.remove('active');
+            });
+
+            document.getElementById('cancelManageAccounts').addEventListener('click', () => {
+                document.getElementById('manageAccountsModal').classList.remove('active');
+            });
+
+            document.getElementById('saveAccountChanges').addEventListener('click', async () => {
+                await saveAccountChanges();
+            });
+
+            // Delete User Modal
+            document.getElementById('closeDeleteUserModal').addEventListener('click', () => {
+                document.getElementById('deleteUserModal').classList.remove('active');
+                document.getElementById('confirmDelete').value = '';
+                document.getElementById('confirmDeleteUser').disabled = true;
+            });
+
+            document.getElementById('cancelDeleteUser').addEventListener('click', () => {
+                document.getElementById('deleteUserModal').classList.remove('active');
+                document.getElementById('confirmDelete').value = '';
+                document.getElementById('confirmDeleteUser').disabled = true;
+            });
+
+            document.getElementById('confirmDelete').addEventListener('input', (e) => {
+                document.getElementById('confirmDeleteUser').disabled = e.target.value !== 'DELETE';
+            });
+
+            document.getElementById('confirmDeleteUser').addEventListener('click', async () => {
+                const userId = document.getElementById('deleteUserModal').dataset.userId;
+                await deleteUserAccount(userId);
+            });
+
+            // System Settings
+            document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+                saveSystemSettings();
+            });
+
+            document.getElementById('resetSettingsBtn').addEventListener('click', () => {
+                resetSystemSettings();
+            });
+
+            // Toast close
+            document.getElementById('toastClose').addEventListener('click', () => {
+                document.getElementById('toastNotification').classList.remove('show');
+            });
+        }
+
+        // ==============================
+        // ACCOUNT MANAGEMENT FUNCTIONS
+        // ==============================
+        async function showManageAccountsModal(userId) {
+            currentAccountsUser = allUsers.find(u => u.id === userId);
+            if (!currentAccountsUser) {
+                showToast('Error', 'User not found.', 'error');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('manageAccountsModal').classList.add('active');
+            
+            // Set user info
+            document.getElementById('accountsUserName').textContent = 
+                `${currentAccountsUser.firstName || ''} ${currentAccountsUser.lastName || ''}`;
+            document.getElementById('accountsUserEmail').textContent = currentAccountsUser.email || 'No email';
+
+            try {
+                // Load user accounts
+                await loadUserAccounts(userId);
+                
+                // Update forms with loaded data
+                updateSavingsAccountForm();
+                updateInvestmentAccountForm();
+                
+            } catch (error) {
+                console.error('Error loading accounts:', error);
+                showToast('Error', 'Failed to load account data.', 'error');
+            }
+        }
+
+        function updatePortfolioAllocation() {
+            const stocks = parseInt(document.getElementById('stocksSlider').value) || 0;
+            const bonds = parseInt(document.getElementById('bondsSlider').value) || 0;
+            const cash = parseInt(document.getElementById('cashSlider').value) || 0;
+            const total = stocks + bonds + cash;
+            
+            if (total !== 100) {
+                // Adjust values to total 100%
+                const scale = 100 / total;
+                document.getElementById('stocksSlider').value = Math.round(stocks * scale);
+                document.getElementById('bondsSlider').value = Math.round(bonds * scale);
+                document.getElementById('cashSlider').value = Math.round(cash * scale);
+            }
+            
+            // Update display
+            document.getElementById('stocksAllocation').textContent = document.getElementById('stocksSlider').value + '%';
+            document.getElementById('bondsAllocation').textContent = document.getElementById('bondsSlider').value + '%';
+            document.getElementById('cashAllocation').textContent = document.getElementById('cashSlider').value + '%';
+        }
+
+        async function saveAccountChanges() {
+            if (!currentAccountsUser) {
+                showToast('Error', 'No user selected.', 'error');
+                return;
+            }
+
+            try {
+                // Save savings account changes
+                const savingsData = {
+                    balance: parseFloat(document.getElementById('editSavingsBalance').value) || 0,
+                    interestRate: parseFloat(document.getElementById('editSavingsInterestRate').value) || 2.5,
+                    accountNumber: document.getElementById('editSavingsAccountNumber').value.trim(),
+                    status: document.getElementById('editSavingsStatus').value,
+                    monthlyInterest: parseFloat(document.getElementById('editSavingsMonthlyInterest').value) || 
+                        (parseFloat(document.getElementById('editSavingsBalance').value) * 
+                         parseFloat(document.getElementById('editSavingsInterestRate').value) / 100 / 12),
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: currentAdmin.uid
+                };
+
+                await db.collection('users').doc(currentAccountsUser.id)
+                    .collection('accounts').doc('savings').update(savingsData);
+
+                // Save investment account changes
+                const stocks = parseInt(document.getElementById('stocksSlider').value) || 60;
+                const bonds = parseInt(document.getElementById('bondsSlider').value) || 30;
+                const cash = parseInt(document.getElementById('cashSlider').value) || 10;
+
+                const investmentData = {
+                    balance: parseFloat(document.getElementById('editInvestmentBalance').value) || 0,
+                    ytdReturn: parseFloat(document.getElementById('editInvestmentYTD').value) || 5.2,
+                    portfolioType: document.getElementById('editInvestmentType').value,
+                    riskLevel: document.getElementById('editInvestmentRisk').value,
+                    description: document.getElementById('editInvestmentDescription').value.trim(),
+                    allocation: {
+                        stocks: stocks,
+                        bonds: bonds,
+                        cash: cash
+                    },
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: currentAdmin.uid
+                };
+
+                await db.collection('users').doc(currentAccountsUser.id)
+                    .collection('accounts').doc('investment').update(investmentData);
+
+                // Update local data
+                Object.assign(currentAccountsData.savings, savingsData);
+                Object.assign(currentAccountsData.investment, investmentData);
+
+                // Update total balance in user document
+                const checkingBalance = currentAccountsUser.totalBalance || 0;
+                const totalBalance = checkingBalance + savingsData.balance + investmentData.balance;
+                
+                await db.collection('users').doc(currentAccountsUser.id).update({
+                    totalBalance: totalBalance,
+                    updatedAt: new Date().toISOString()
+                });
+
+                // Update user in local array
+                const userIndex = allUsers.findIndex(u => u.id === currentAccountsUser.id);
+                if (userIndex !== -1) {
+                    allUsers[userIndex].totalBalance = totalBalance;
+                }
+
+                // Update UI
+                updateStats();
+                updateUsersTable();
+
+                // Close modal
+                document.getElementById('manageAccountsModal').classList.remove('active');
+
+                showToast('Success', 'Account changes saved successfully!', 'success');
+
+            } catch (error) {
+                console.error('Error saving account changes:', error);
+                showToast('Error', 'Failed to save account changes. Please try again.', 'error');
+            }
+        }
+
+        // ==============================
+        // USER MANAGEMENT FUNCTIONS
+        // ==============================
+        async function createNewUser() {
+            // Get form data
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('userPassword').value;
+            const role = document.getElementById('role').value;
+            const initialBalance = parseFloat(document.getElementById('initialBalance').value) || 0;
+            const status = document.querySelector('input[name="status"]:checked').value;
+            const profilePictureUrl = document.getElementById('profilePictureUrl').value.trim();
+
+            // Validation
+            if (!firstName || !lastName || !email || !password) {
+                showToast('Error', 'Please fill in all required fields.', 'error');
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                showToast('Error', 'Please enter a valid email address.', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showToast('Error', 'Password must be at least 6 characters long.', 'error');
+                return;
+            }
+
+            try {
+                // Create user in Firebase Auth using admin SDK approach
+                // Note: In production, you should use Firebase Admin SDK on a server
+                // This is a client-side workaround for demonstration
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const newUser = userCredential.user;
+
+                // Immediately sign out the newly created user
+                await auth.signOut();
+                
+                // Sign back in as admin
+                const adminEmail = document.getElementById('adminEmail').value;
+                const adminPassword = document.getElementById('adminPassword').value;
+                await auth.signInWithEmailAndPassword(adminEmail, adminPassword);
+
+                // Prepare user data
+                const userData = {
+                    firstName,
+                    lastName,
+                    email,
+                    role,
+                    status,
+                    totalBalance: initialBalance,
+                    profilePictureUrl: profilePictureUrl || '',
+                    createdAt: new Date().toISOString(),
+                    createdBy: currentAdmin.uid,
+                    lastLogin: null
+                };
+
+                // Save user data to Firestore
+                await db.collection('users').doc(newUser.uid).set(userData);
+
+                // Create default accounts for the user
+                const defaultAccounts = {
+                    checking: {
+                        type: 'checking',
+                        balance: initialBalance,
+                        accountNumber: generateAccountNumber(),
+                        fullNumber: generateFullAccountNumber(),
+                        currency: 'USD',
+                        status: 'active',
+                        createdAt: new Date().toISOString(),
+                        interestRate: 0.01,
+                        overdraftLimit: 1000,
+                        availableBalance: initialBalance + 1000
+                    },
+                    savings: {
+                        type: 'savings',
+                        balance: 0,
+                        accountNumber: generateAccountNumber(),
+                        fullNumber: generateFullAccountNumber(),
+                        currency: 'USD',
+                        status: 'active',
+                        createdAt: new Date().toISOString(),
+                        interestRate: 2.5,
+                        annualYield: 3.2,
+                        monthlyInterest: 0
+                    },
+                    investment: {
+                        type: 'investment',
+                        balance: 0,
+                        portfolioType: 'Balanced',
+                        riskLevel: 'Medium',
+                        ytdReturn: 5.2,
+                        createdAt: new Date().toISOString(),
+                        status: 'active',
+                        allocation: {
+                            stocks: 60,
+                            bonds: 30,
+                            cash: 10
+                        },
+                        description: 'Diversified investment portfolio'
+                    }
+                };
+
+                for (const [accountId, accountData] of Object.entries(defaultAccounts)) {
+                    await db.collection('users').doc(newUser.uid)
+                        .collection('accounts').doc(accountId).set(accountData);
+                }
+
+                // Add to local users array
+                allUsers.unshift({
+                    id: newUser.uid,
+                    ...userData,
+                    accounts: defaultAccounts
+                });
+
+                // Update UI
+                updateStats();
+                updateUsersTable();
+
+                // Show generated credentials
+                document.getElementById('generatedEmail').textContent = email;
+                document.getElementById('generatedPassword').textContent = password;
+
+                // Close create modal and open credentials modal
+                document.getElementById('createUserModal').classList.remove('active');
+                document.getElementById('userCredentialsModal').classList.add('active');
+
+                // Reset form
+                document.getElementById('createUserForm').reset();
+                removeProfilePicture(false);
+
+                showToast('Success', 'User account created successfully!', 'success');
+
+            } catch (error) {
+                console.error('Error creating user:', error);
+                
+                let errorMessage = 'Failed to create user account. ';
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'Email already exists. Please use a different email.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password is too weak. Please use a stronger password.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage = 'Email/password accounts are not enabled.';
+                        break;
+                    default:
+                        errorMessage = 'Please try again. Error: ' + error.message;
+                }
+                
+                showToast('Error', errorMessage, 'error');
+            }
+        }
+
+        function showEditUserModal(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) {
+                showToast('Error', 'User not found.', 'error');
+                return;
+            }
+
+            // Populate form with user data
+            document.getElementById('editUserId').value = user.id;
+            document.getElementById('editFirstName').value = user.firstName || '';
+            document.getElementById('editLastName').value = user.lastName || '';
+            document.getElementById('editEmail').value = user.email || '';
+            document.getElementById('editPassword').value = ''; // Leave empty
+            document.getElementById('editRole').value = user.role || 'user';
+            document.getElementById('editBalance').value = user.totalBalance || 0;
+            document.getElementById('editProfilePictureUrl').value = user.profilePictureUrl || '';
+            
+            // Set profile picture preview
+            if (user.profilePictureUrl && user.profilePictureUrl.trim() !== '') {
+                document.getElementById('editProfilePictureImage').src = user.profilePictureUrl;
+                document.getElementById('editProfilePictureImage').style.display = 'block';
+                document.getElementById('editUploadPlaceholder').style.display = 'none';
+                document.getElementById('editRemovePictureBtn').style.display = 'flex';
+            } else {
+                document.getElementById('editProfilePictureImage').style.display = 'none';
+                document.getElementById('editUploadPlaceholder').style.display = 'flex';
+                document.getElementById('editRemovePictureBtn').style.display = 'none';
+            }
+            
+            // Set status
+            const statusRadios = document.querySelectorAll('input[name="editStatus"]');
+            statusRadios.forEach(radio => {
+                radio.checked = radio.value === (user.status || 'active');
+            });
+
+            document.getElementById('editUserModal').classList.add('active');
+        }
+
+        async function updateUser() {
+            const userId = document.getElementById('editUserId').value;
+            const user = allUsers.find(u => u.id === userId);
+            
+            if (!user) {
+                showToast('Error', 'User not found.', 'error');
+                return;
+            }
+
+            // Get updated data
+            const firstName = document.getElementById('editFirstName').value.trim();
+            const lastName = document.getElementById('editLastName').value.trim();
+            const email = document.getElementById('editEmail').value.trim();
+            const password = document.getElementById('editPassword').value;
+            const role = document.getElementById('editRole').value;
+            const balance = parseFloat(document.getElementById('editBalance').value) || 0;
+            const status = document.querySelector('input[name="editStatus"]:checked').value;
+            const profilePictureUrl = document.getElementById('editProfilePictureUrl').value.trim();
+
+            // Validation
+            if (!firstName || !lastName || !email) {
+                showToast('Error', 'Please fill in all required fields.', 'error');
+                return;
+            }
+
+            try {
+                // Update user data in Firestore
+                const updateData = {
+                    firstName,
+                    lastName,
+                    email,
+                    role,
+                    status,
+                    totalBalance: balance,
+                    profilePictureUrl: profilePictureUrl || '',
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: currentAdmin.uid
+                };
+
+                await db.collection('users').doc(userId).update(updateData);
+
+                // Update password if provided
+                if (password && password.length >= 6) {
+                    // Note: In production, use Firebase Admin SDK for this
+                    // This would require a server-side function
+                    showToast('Info', 'Password update requires server-side implementation.', 'info');
+                }
+
+                // Update account balance if user has accounts
+                const accountsSnapshot = await db.collection('users').doc(userId).collection('accounts').get();
+                if (!accountsSnapshot.empty) {
+                    const firstAccount = accountsSnapshot.docs[0];
+                    await firstAccount.ref.update({
+                        balance: balance,
+                        availableBalance: balance + 1000
+                    });
+                }
+
+                // Update local user data
+                Object.assign(user, updateData);
+
+                // Update UI
+                updateStats();
+                updateUsersTable();
+
+                // Close modal
+                document.getElementById('editUserModal').classList.remove('active');
+
+                showToast('Success', 'User account updated successfully!', 'success');
+
+            } catch (error) {
+                console.error('Error updating user:', error);
+                showToast('Error', 'Failed to update user. Please try again.', 'error');
+            }
+        }
+
+        async function toggleUserStatus(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) {
+                showToast('Error', 'User not found.', 'error');
+                return;
+            }
+
+            const newStatus = user.status === 'suspended' ? 'active' : 'suspended';
+            const action = newStatus === 'suspended' ? 'suspend' : 'activate';
+
+            if (!confirm(`Are you sure you want to ${action} this user account?`)) {
+                return;
+            }
+
+            try {
+                // Update status in Firestore
+                await db.collection('users').doc(userId).update({
+                    status: newStatus,
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: currentAdmin.uid
+                });
+
+                // Update local data
+                user.status = newStatus;
+
+                // Update UI
+                updateUsersTable();
+
+                showToast('Success', `User account ${action}ed successfully!`, 'success');
+
+            } catch (error) {
+                console.error(`Error ${action}ing user:`, error);
+                showToast('Error', `Failed to ${action} user. Please try again.`, 'error');
+            }
+        }
+
+        async function resetUserPassword(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user || !user.email) {
+                showToast('Error', 'User not found or email not available.', 'error');
+                return;
+            }
+
+            if (!confirm('Reset password for this user? They will receive an email with password reset instructions.')) {
+                return;
+            }
+
+            try {
+                // Send password reset email
+                await auth.sendPasswordResetEmail(user.email);
+                
+                showToast('Success', 'Password reset email sent successfully!', 'success');
+
+            } catch (error) {
+                console.error('Error sending password reset email:', error);
+                showToast('Error', 'Failed to send password reset email. Please try again.', 'error');
+            }
+        }
+
+        function showDeleteUserModal(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) {
+                showToast('Error', 'User not found.', 'error');
+                return;
+            }
+
+            if (userId === currentAdmin.uid) {
+                showToast('Error', 'You cannot delete your own account.', 'error');
+                return;
+            }
+
+            document.getElementById('deleteUserName').textContent = `${user.firstName || ''} ${user.lastName || ''} (${user.email || 'No email'})`;
+            document.getElementById('deleteUserModal').dataset.userId = userId;
+            document.getElementById('deleteUserModal').classList.add('active');
+        }
+
+        async function deleteUserAccount(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) {
+                showToast('Error', 'User not found.', 'error');
+                return;
+            }
+
+            try {
+                // Note: In a real app, you would need admin privileges to delete users
+                // This is a simplified version
+                await db.collection('users').doc(userId).delete();
+
+                // Remove from local array
+                const userIndex = allUsers.findIndex(u => u.id === userId);
+                if (userIndex !== -1) {
+                    allUsers.splice(userIndex, 1);
+                }
+
+                // Update UI
+                updateStats();
+                updateUsersTable();
+
+                // Close modal
+                document.getElementById('deleteUserModal').classList.remove('active');
+                document.getElementById('confirmDelete').value = '';
+                document.getElementById('confirmDeleteUser').disabled = true;
+
+                showToast('Success', 'User account deleted successfully!', 'success');
+
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                showToast('Error', 'Failed to delete user account. Please try again.', 'error');
+            }
+        }
+
+        // ==============================
+        // SYSTEM SETTINGS FUNCTIONS
+        // ==============================
+        function saveSystemSettings() {
+            const bankName = document.getElementById('bankName').value;
+            const maintenanceMode = document.getElementById('maintenanceMode').checked;
+            const transactionFee = document.getElementById('transactionFee').value;
+            const sessionTimeout = document.getElementById('sessionTimeout').value;
+            const require2FA = document.getElementById('require2FA').checked;
+            
+            // In a real app, you would save these to Firebase or a server
+            // For now, just show a success message
+            
+            showToast('Settings Saved', 'System settings have been updated successfully.', 'success');
+            
+            // Log the settings (for debugging)
+            console.log('System Settings:', {
+                bankName,
+                maintenanceMode,
+                transactionFee,
+                sessionTimeout,
+                require2FA
+            });
+        }
+
+        function resetSystemSettings() {
+            if (!confirm('Reset all system settings to default values?')) {
+                return;
+            }
+            
+            document.getElementById('bankName').value = 'Zorynth Bank';
+            document.getElementById('maintenanceMode').checked = false;
+            document.getElementById('transactionFee').value = '1.5';
+            document.getElementById('sessionTimeout').value = '30';
+            document.getElementById('require2FA').checked = false;
+            
+            showToast('Settings Reset', 'All settings have been reset to default values.', 'success');
+        }
+
+        // ==============================
+        // HELPER FUNCTIONS
+        // ==============================
+        function getInitials(firstName, lastName) {
+            return ((firstName?.[0] || '') + (lastName?.[0] || '')).toUpperCase() || 'U';
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2
+            }).format(amount || 0);
+        }
+
+        function generatePassword() {
+            const length = 12;
+            const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%";
+            let password = "";
+            for (let i = 0; i < length; i++) {
+                password += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            return password;
+        }
+
+        function generateAccountNumber() {
+            return `•••• ${Math.floor(1000 + Math.random() * 9000)}`;
+        }
+
+        function generateFullAccountNumber() {
+            const parts = [];
+            for (let i = 0; i < 4; i++) {
+                parts.push(Math.floor(1000 + Math.random() * 9000));
+            }
+            return parts.join(' ');
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function showToast(title, message, type = 'info') {
+            const toast = document.getElementById('toastNotification');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // Set type-specific styles
+            toast.className = `toast toast-${type}`;
+            toastIcon.className = `toast-icon toast-${type}`;
+            
+            // Set icons based on type
+            const icons = {
+                'success': 'fa-check-circle',
+                'error': 'fa-exclamation-circle',
+                'warning': 'fa-exclamation-triangle',
+                'info': 'fa-info-circle'
+            };
+            
+            toastIcon.innerHTML = `<i class="fas ${icons[type]}"></i>`;
+            
+            // Set content
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            
+            // Show toast
+            toast.classList.add('show');
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

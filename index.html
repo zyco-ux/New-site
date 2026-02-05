@@ -245,6 +245,30 @@
             font-size: 0.8rem;
         }
         
+        /* ========== CLIENT LOGIN BUTTON - DESKTOP ========== */
+        .desktop-client-login {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 0.9rem;
+            background: var(--gradient-navy);
+            color: var(--white);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .desktop-client-login:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .desktop-client-login i {
+            font-size: 0.9rem;
+        }
+        
         /* ========== PRELOADER ========== */
         #preloader {
             position: fixed;
@@ -2048,6 +2072,9 @@
             .mobile-bottom-nav {
                 display: none;
             }
+            .MOBB{
+                display: none;
+            }
             
             .large-images-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -2062,6 +2089,13 @@
         @media (min-width: 992px) {
             .menu-toggle {
                 display: none;
+            }
+            
+            /* Show desktop client login */
+            .desktop-client-login {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
             }
             
             .nav-menu {
@@ -2114,7 +2148,9 @@
                 background: var(--gradient-gold);
                 transition: width var(--transition-medium);
             }
-            
+            .MOBB{
+                display: none;
+            }
             .nav-link:hover::after {
                 width: 100%;
             }
@@ -2214,6 +2250,9 @@
                 <div class="logo-text">Zorynth<span>Bank</span></div>
             </a>
             
+         
+            
+            
             <button class="menu-toggle" id="menuToggle">
                 <span></span>
                 <span></span>
@@ -2270,7 +2309,7 @@
                     Zorynth Bank provides seamless digital banking solutions with secure, 
                     convenient access to your finances anytime, anywhere.
                 </p>
-                
+               
                 <!-- Mobile Banking Login Button -->
                 <a href="userdashboard.html" class="mobile-banking-login">
                     <i class="fas fa-sign-in-alt"></i> Client Login
@@ -2279,8 +2318,12 @@
                 <div class="hero-buttons">
                     <a href="userdashboard.html" class="btn btn-primary">Open Account</a>
                     <a href="#accounts" class="btn btn-light">View Services</a>
+                    <a href="userdashboard.html"  class="btn MOBB btn-primary">Client login</a>
                 </div>
-                
+              
+                <a href="userdashboard.html" class="desktop-client-login">
+                    <i class="fas fa-sign-in-alt"></i> Client Login
+                </a>
                 <div class="hero-stats">
                     <div class="stat-item">
                         <div class="stat-value">1847</div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zorynth Bank | Institutional Investment Banking</title>
+    <title>Zorynth Bank | Global Transaction Banking</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Source+Serif+Pro:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -243,6 +243,30 @@
         .btn-small {
             padding: 0.5rem 1.2rem;
             font-size: 0.8rem;
+        }
+        
+        /* ========== ACCESS DASHBOARD BUTTON - DESKTOP ========== */
+        .desktop-access-dashboard {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 0.9rem;
+            background: var(--gradient-navy);
+            color: var(--white);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .desktop-access-dashboard:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .desktop-access-dashboard i {
+            font-size: 0.9rem;
         }
         
         /* ========== PRELOADER ========== */
@@ -827,19 +851,65 @@
             font-style: italic;
         }
         
-        /* ========== INVESTMENT IMAGES GRID ========== */
-        .investment-grid-section {
-            background-color: var(--white);
-            padding: 3.5rem 0;
-        }
-        
-        .investment-grid {
+        /* ========== HERO BANKING IMAGES ========== */
+        .hero-banking-images {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 0.8rem;
         }
         
-        .investment-item {
+        .hero-banking-item {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            height: 120px;
+            position: relative;
+        }
+        
+        .hero-banking-item.large {
+            grid-column: span 2;
+            height: 140px;
+        }
+        
+        .hero-banking-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .hero-banking-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 0.7rem;
+            background: linear-gradient(transparent, rgba(12, 28, 54, 0.85));
+            color: var(--white);
+        }
+        
+        .hero-banking-overlay h4 {
+            font-size: 0.85rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .hero-banking-overlay p {
+            font-size: 0.7rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+        
+        /* ========== BANKING SERVICES GRID ========== */
+        .banking-grid-section {
+            background-color: var(--white);
+            padding: 3.5rem 0;
+        }
+        
+        .banking-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+        }
+        
+        .banking-item {
             border-radius: var(--radius-md);
             overflow: hidden;
             box-shadow: var(--shadow-sm);
@@ -848,18 +918,18 @@
             cursor: pointer;
         }
         
-        .investment-item img {
+        .banking-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform var(--transition-medium);
         }
         
-        .investment-item:hover img {
+        .banking-item:hover img {
             transform: scale(1.05);
         }
         
-        .investment-overlay {
+        .banking-overlay {
             position: absolute;
             bottom: 0;
             left: 0;
@@ -871,16 +941,16 @@
             transition: transform var(--transition-medium);
         }
         
-        .investment-item:hover .investment-overlay {
+        .banking-item:hover .banking-overlay {
             transform: translateY(0);
         }
         
-        .investment-overlay h4 {
+        .banking-overlay h4 {
             font-size: 0.8rem;
             margin-bottom: 0.2rem;
         }
         
-        .investment-overlay p {
+        .banking-overlay p {
             font-size: 0.7rem;
             opacity: 0.9;
             margin-bottom: 0;
@@ -1093,19 +1163,19 @@
             line-height: 1.5;
         }
         
-        /* ========== INVESTOR IMAGES SECTION ========== */
-        .investor-images {
+        /* ========== SAVINGS ACCOUNTS SECTION ========== */
+        .savings-images {
             background-color: var(--ivory);
             padding: 3.5rem 0;
         }
         
-        .investor-grid {
+        .savings-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 0.8rem;
         }
         
-        .investor-item {
+        .savings-item {
             border-radius: var(--radius-md);
             overflow: hidden;
             box-shadow: var(--shadow-sm);
@@ -1113,18 +1183,18 @@
             position: relative;
         }
         
-        .investor-item img {
+        .savings-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform var(--transition-medium);
         }
         
-        .investor-item:hover img {
+        .savings-item:hover img {
             transform: scale(1.05);
         }
         
-        .investor-label {
+        .savings-label {
             position: absolute;
             bottom: 0;
             left: 0;
@@ -1351,28 +1421,28 @@
             transform: translateY(-1px);
         }
         
-        /* ========== GOLD MARKET VIDEO SECTION ========== */
-        .gold-market {
+        /* ========== DIGITAL BANKING VIDEO SECTION ========== */
+        .digital-banking {
             background: linear-gradient(135deg, var(--primary-navy) 0%, var(--deep-navy) 100%);
             padding: 4rem 0;
             position: relative;
             overflow: hidden;
         }
         
-        .gold-market::before {
+        .digital-banking::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('https://images.unsplash.com/photo-1580637250481-b78db3e6f84d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-image: url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
             background-size: cover;
             background-position: center;
             opacity: 0.08;
         }
         
-        .gold-market-container {
+        .digital-banking-container {
             display: flex;
             flex-direction: column;
             gap: 2.5rem;
@@ -1380,24 +1450,24 @@
             z-index: 1;
         }
         
-        .gold-market-content {
+        .digital-banking-content {
             width: 100%;
         }
         
-        .gold-market-title {
+        .digital-banking-title {
             font-size: 1.8rem;
             margin-bottom: 1rem;
             color: var(--gold);
         }
         
-        .gold-market-subtitle {
+        .digital-banking-subtitle {
             font-size: 1.2rem;
             margin-bottom: 1rem;
             color: var(--white);
             font-weight: 500;
         }
         
-        .gold-market-description {
+        .digital-banking-description {
             color: rgba(255, 255, 255, 0.85);
             margin-bottom: 1.8rem;
             font-size: 0.9rem;
@@ -1438,8 +1508,8 @@
             line-height: 1.4;
         }
         
-        /* ========== ADDITIONAL INVESTMENT IMAGES ========== */
-        .additional-investments {
+        /* ========== ADDITIONAL BANKING SERVICES ========== */
+        .additional-services {
             background-color: var(--white);
             padding: 3.5rem 0;
         }
@@ -1483,19 +1553,19 @@
             text-align: center;
         }
         
-        /* ========== INVESTMENT STRATEGIES SECTION ========== */
-        .investment-strategies {
+        /* ========== FINANCIAL PLANNING SECTION ========== */
+        .financial-planning {
             background-color: var(--ivory);
             padding: 3.5rem 0;
         }
         
-        .strategies-grid {
+        .planning-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 0.8rem;
         }
         
-        .strategy-item {
+        .planning-item {
             border-radius: var(--radius-md);
             overflow: hidden;
             box-shadow: var(--shadow-sm);
@@ -1504,18 +1574,18 @@
             cursor: pointer;
         }
         
-        .strategy-item img {
+        .planning-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform var(--transition-medium);
         }
         
-        .strategy-item:hover img {
+        .planning-item:hover img {
             transform: scale(1.05);
         }
         
-        .strategy-label {
+        .planning-label {
             position: absolute;
             bottom: 0;
             left: 0;
@@ -1835,6 +1905,63 @@
             font-weight: 600;
         }
         
+        /* ========== LARGE BANKING IMAGES SECTION ========== */
+        .large-banking-images {
+            background-color: var(--white);
+            padding: 3.5rem 0;
+        }
+        
+        .large-images-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        .large-banking-item {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            height: 220px;
+            position: relative;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .large-banking-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-slow);
+        }
+        
+        .large-banking-item:hover img {
+            transform: scale(1.03);
+        }
+        
+        .large-banking-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(12, 28, 54, 0.85));
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
+            color: var(--white);
+        }
+        
+        .large-banking-overlay h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--white);
+        }
+        
+        .large-banking-overlay p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+        
         /* ========== MEDIA QUERIES ========== */
         /* Tablet */
         @media (min-width: 768px) {
@@ -1867,12 +1994,12 @@
                 display: none !important;
             }
             
-            .investment-grid {
+            .banking-grid {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 1rem;
             }
             
-            .investor-grid {
+            .savings-grid {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 1rem;
             }
@@ -1882,7 +2009,7 @@
                 gap: 1rem;
             }
             
-            .strategies-grid {
+            .planning-grid {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 1rem;
             }
@@ -1916,7 +2043,7 @@
                 gap: 1.5rem;
             }
             
-            .gold-market-container {
+            .digital-banking-container {
                 flex-direction: row;
                 align-items: center;
                 gap: 3rem;
@@ -1945,12 +2072,30 @@
             .mobile-bottom-nav {
                 display: none;
             }
+            .MOBB{
+                display: none;
+            }
+            
+            .large-images-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .large-banking-item {
+                height: 280px;
+            }
         }
         
         /* Desktop */
         @media (min-width: 992px) {
             .menu-toggle {
                 display: none;
+            }
+            
+            /* Show desktop access dashboard */
+            .desktop-access-dashboard {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
             }
             
             .nav-menu {
@@ -2003,7 +2148,9 @@
                 background: var(--gradient-gold);
                 transition: width var(--transition-medium);
             }
-            
+            .MOBB{
+                display: none;
+            }
             .nav-link:hover::after {
                 width: 100%;
             }
@@ -2022,11 +2169,11 @@
                 flex: 1;
             }
             
-            .investment-grid {
+            .banking-grid {
                 grid-template-columns: repeat(4, 1fr);
             }
             
-            .investor-grid {
+            .savings-grid {
                 grid-template-columns: repeat(4, 1fr);
             }
             
@@ -2034,7 +2181,7 @@
                 grid-template-columns: repeat(4, 1fr);
             }
             
-            .strategies-grid {
+            .planning-grid {
                 grid-template-columns: repeat(4, 1fr);
             }
             
@@ -2057,6 +2204,18 @@
             
             .video-iframe {
                 height: 350px;
+            }
+            
+            .large-images-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .large-banking-item {
+                height: 300px;
+            }
+            
+            .large-banking-item:first-child {
+                grid-column: span 2;
             }
         }
         
@@ -2091,6 +2250,10 @@
                 <div class="logo-text">Zorynth<span>Bank</span></div>
             </a>
             
+            <a href="userdashboard.html" class="desktop-access-dashboard">
+                <i class="fas fa-tachometer-alt"></i> Access Dashboard
+            </a>
+            
             <button class="menu-toggle" id="menuToggle">
                 <span></span>
                 <span></span>
@@ -2106,24 +2269,24 @@
                             <div class="nav-user-avatar">AT</div>
                             <div class="nav-user-info">
                                 <h3>Alexander Thorne</h3>
-                                <p>Private Client</p>
+                                <p>Premium Client</p>
                             </div>
                         </div>
                         <div class="nav-balance">
                             <div class="nav-balance-label">Available Balance</div>
-                            <div class="nav-balance-amount">$348,520.75</div>
+                            <div class="nav-balance-amount">$48,520.75</div>
                         </div>
                     </div>
                     
                     <ul>
                         <li><a href="#home" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a></li>
-                        <li><a href="#investments" class="nav-link"><i class="fas fa-chart-line"></i> Investments</a></li>
+                        <li><a href="#accounts" class="nav-link"><i class="fas fa-piggy-bank"></i> Accounts</a></li>
                         <li><a href="#transfer" class="nav-link"><i class="fas fa-exchange-alt"></i> Transfers</a></li>
                     </ul>
                     
                     <div class="nav-footer">
                         <a href="userdashboard.html" class="btn btn-primary btn-block mb-2">
-                            <i class="fas fa-sign-in-alt"></i> Full Dashboard
+                            <i class="fas fa-tachometer-alt"></i> Full Dashboard
                         </a>
                         <a href="login.html" class="nav-logout">
                             <i class="fas fa-sign-out-alt"></i> Sign Out
@@ -2139,37 +2302,42 @@
         <div class="container hero-container">
             <div class="hero-content">
                 <div class="hero-badge">
-                    <i class="fas fa-chart-line"></i>
-                    INVESTMENT BANKING
+                    <i class="fas fa-globe"></i>
+                    GLOBAL BANKING
                 </div>
-                <h1 class="hero-title">Institutional <span>Wealth Management</span></h1>
+                <h1 class="hero-title">Global <span>Transaction Banking</span></h1>
                 <p class="hero-description">
-                    Zorynth Bank provides sophisticated investment banking solutions for 
-                    institutional clients and high-net-worth investors worldwide.
+                    Zorynth Bank provides secure global banking solutions with seamless 
+                    transaction processing, international transfers, and comprehensive 
+                    financial services across 150+ countries.
                 </p>
-                
+               
                 <!-- Mobile Banking Login Button -->
                 <a href="userdashboard.html" class="mobile-banking-login">
-                    <i class="fas fa-sign-in-alt"></i> Client Login
+                    <i class="fas fa-tachometer-alt"></i> Access Dashboard
                 </a>
                 
                 <div class="hero-buttons">
-                    <a href="#contact" class="btn btn-primary">Open Account</a>
-                    <a href="#investments" class="btn btn-light">Investments</a>
+                    <a href="userdashboard.html" class="btn btn-primary">Open Account</a>
+                    <a href="#accounts" class="btn btn-light">View Services</a>
+                    <a href="userdashboard.html"  class="btn MOBB btn-primary">Access Dashboard</a>
                 </div>
-                
+              
+                <a href="userdashboard.html" class="desktop-access-dashboard" style="display: none;">
+                    <i class="fas fa-tachometer-alt"></i> Access Dashboard
+                </a>
                 <div class="hero-stats">
                     <div class="stat-item">
                         <div class="stat-value">1847</div>
                         <div class="stat-label">Founded</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">$950B</div>
-                        <div class="stat-label">Assets</div>
+                        <div class="stat-value">150+</div>
+                        <div class="stat-label">Countries</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">50+</div>
-                        <div class="stat-label">Countries</div>
+                        <div class="stat-value">5M+</div>
+                        <div class="stat-label">Clients</div>
                     </div>
                 </div>
             </div>
@@ -2178,7 +2346,7 @@
                 <div class="hero-card-container">
                     <div class="hero-card">
                         <div class="card-header">
-                            <div class="card-logo">ZORYNTH INVEST</div>
+                            <div class="card-logo">ZORYNTH BANK</div>
                             <div class="card-chip">
                                 <i class="fas fa-microchip"></i>
                             </div>
@@ -2200,20 +2368,27 @@
                     </div>
                 </div>
                 
-                <!-- Initial Investment Images -->
-                <div class="investment-grid">
-                    <div class="investment-item">
-                        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Stock Trading">
-                        <div class="investment-overlay">
-                            <h4>Stock Trading</h4>
-                            <p>Global equity markets</p>
+                <!-- Banking Services Images -->
+                <div class="hero-banking-images">
+                    <div class="hero-banking-item large">
+                        <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Global Banking Network">
+                        <div class="hero-banking-overlay">
+                            <h4>Global Banking Network</h4>
+                            <p>Connecting you to financial services worldwide</p>
                         </div>
                     </div>
-                    <div class="investment-item">
-                        <img src="https://businessamlive.com/wp-content/uploads/2025/09/Gold.jpeg" alt="Gold Trading">
-                        <div class="investment-overlay">
-                            <h4>Gold Trading</h4>
-                            <p>Precious metals</p>
+                    <div class="hero-banking-item">
+                        <img src="https://images.unsplash.com/photo-1601597111158-2fceff292cdc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Banking Services">
+                        <div class="hero-banking-overlay">
+                            <h4>Transaction Services</h4>
+                            <p>Secure global payments</p>
+                        </div>
+                    </div>
+                    <div class="hero-banking-item">
+                        <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Customer Service">
+                        <div class="hero-banking-overlay">
+                            <h4>24/7 Support</h4>
+                            <p>Global customer service</p>
                         </div>
                     </div>
                 </div>
@@ -2221,72 +2396,130 @@
         </div>
     </section>
 
-    <!-- Investment Images Grid Section -->
-    <section class="investment-grid-section">
+    <!-- Large Banking Images Section -->
+    <section class="large-banking-images">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Global Investment Markets</h2>
+                <h2 class="section-title">Global Banking Excellence</h2>
                 <p class="section-subtitle">
-                    Access diverse investment opportunities across global markets and asset classes.
+                    Experience premium banking services across our global network of financial experts.
                 </p>
             </div>
             
-            <div class="investment-grid">
-                <!-- Verified Investment Images -->
-                <div class="investment-item">
-                    <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Stock Market">
-                    <div class="investment-overlay">
-                        <h4>Stock Market</h4>
-                        <p>Global equities</p>
+            <div class="large-images-grid">
+                <div class="large-banking-item">
+                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Banking Team">
+                    <div class="large-banking-overlay">
+                        <h3>Professional Banking Team</h3>
+                        <p>Our experienced bankers provide personalized financial solutions for all your transaction needs.</p>
+                        <a href="#contact" class="btn btn-secondary btn-small">Meet Our Team</a>
                     </div>
                 </div>
-                <div class="investment-item">
-                    <img src="https://images.etnownews.com/thumb/msid-152964052,updatedat-1759943924349,width-1280,height-720,resizemode-75/152964052.jpg" alt="Gold Trading">
-                    <div class="investment-overlay">
-                        <h4>Gold Trading</h4>
-                        <p>Precious metals</p>
+                
+                <div class="large-banking-item">
+                    <img src="https://images.unsplash.com/photo-1551836026-d5c2e0c49b61?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Bank Operations">
+                    <div class="large-banking-overlay">
+                        <h3>Modern Banking Facilities</h3>
+                        <p>State-of-the-art banking centers with advanced security and technology for global transactions.</p>
+                        <a href="#" class="btn btn-secondary btn-small">Find a Branch</a>
                     </div>
                 </div>
-                <div class="investment-item">
-                    <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Real Estate">
-                    <div class="investment-overlay">
-                        <h4>Real Estate</h4>
-                        <p>Property investments</p>
+                
+                <div class="large-banking-item">
+                    <img src="https://images.unsplash.com/photo-1579621970795-87facc2f976d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="International Banking">
+                    <div class="large-banking-overlay">
+                        <h3>Global Currency Exchange</h3>
+                        <p>Competitive rates for international transactions and currency exchange across 150+ countries.</p>
+                        <a href="#transfer" class="btn btn-secondary btn-small">Transfer Funds</a>
                     </div>
                 </div>
-                <div class="investment-item">
-                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Bonds">
-                    <div class="investment-overlay">
-                        <h4>Bonds</h4>
-                        <p>Fixed income</p>
+                
+                <div class="large-banking-item">
+                    <img src="https://images.unsplash.com/photo-1601597111158-2fceff292cdc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Digital Banking">
+                    <div class="large-banking-overlay">
+                        <h3>Digital Transaction Banking</h3>
+                        <p>Comprehensive digital platform for all your banking and transaction needs.</p>
+                        <a href="#" class="btn btn-secondary btn-small">Go Digital</a>
                     </div>
                 </div>
-                <div class="investment-item">
-                    <img src="https://goldprice.org/charts/gold_3d_b_o_USD_x.png" alt="Commodities">
-                    <div class="investment-overlay">
-                        <h4>Commodities</h4>
-                        <p>Raw materials</p>
+                
+                <div class="large-banking-item">
+                    <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Secure Banking">
+                    <div class="large-banking-overlay">
+                        <h3>Secure Banking Operations</h3>
+                        <p>Advanced security measures protecting your global transactions and assets.</p>
+                        <a href="#" class="btn btn-secondary btn-small">Security Features</a>
                     </div>
                 </div>
-                <div class="investment-item">
-                    <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Forex">
-                    <div class="investment-overlay">
-                        <h4>Forex Trading</h4>
-                        <p>Currency markets</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Banking Services Grid Section -->
+    <section class="banking-grid-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Global Banking Services</h2>
+                <p class="section-subtitle">
+                    Access all your global banking needs through our secure digital platform.
+                </p>
+            </div>
+            
+            <div class="banking-grid">
+                <div class="banking-item">
+                    <img src="https://images.unsplash.com/photo-1601597111158-2fceff292cdc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Checking Accounts">
+                    <div class="banking-overlay">
+                        <h4>Checking Accounts</h4>
+                        <p>Everyday global banking</p>
                     </div>
                 </div>
-                <div class="investment-item">
-                    <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Private Equity">
-                    <div class="investment-overlay">
-                        <h4>Private Equity</h4>
-                        <p>Direct investments</p>
+                <div class="banking-item">
+                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Savings Accounts">
+                    <div class="banking-overlay">
+                        <h4>Savings Accounts</h4>
+                        <p>Secure your money globally</p>
                     </div>
                 </div>
-                <div class="investment-item">
-                    <img src="https://images.unsplash.com/photo-1633158829875-e5316a358c6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Cryptocurrency">
-                    <div class="investment-overlay">
-                        <h4>Cryptocurrency</h4>
-                        <p>Digital assets</p>
+                <div class="banking-item">
+                    <img src="https://images.unsplash.com/photo-1579621970795-87facc2f976d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="International Loans">
+                    <div class="banking-overlay">
+                        <h4>International Loans</h4>
+                        <p>Global financing solutions</p>
+                    </div>
+                </div>
+                <div class="banking-item">
+                    <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Global Mortgages">
+                    <div class="banking-overlay">
+                        <h4>Global Mortgages</h4>
+                        <p>International property financing</p>
+                    </div>
+                </div>
+                <div class="banking-item">
+                    <img src="https://images.unsplash.com/photo-1551836026-d5c2e0c49b61?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Credit Cards">
+                    <div class="banking-overlay">
+                        <h4>Global Credit Cards</h4>
+                        <p>Worldwide acceptance & benefits</p>
+                    </div>
+                </div>
+                <div class="banking-item">
+                    <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Transaction Services">
+                    <div class="banking-overlay">
+                        <h4>Transaction Services</h4>
+                        <p>Global payment solutions</p>
+                    </div>
+                </div>
+                <div class="banking-item">
+                    <img src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Insurance">
+                    <div class="banking-overlay">
+                        <h4>Global Insurance</h4>
+                        <p>International coverage</p>
+                    </div>
+                </div>
+                <div class="banking-item">
+                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Business Banking">
+                    <div class="banking-overlay">
+                        <h4>Global Business Banking</h4>
+                        <p>International business solutions</p>
                     </div>
                 </div>
             </div>
@@ -2297,22 +2530,22 @@
     <section class="section features" id="features">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Investment Advantages</h2>
+                <h2 class="section-title">Global Banking Advantages</h2>
                 <p class="section-subtitle">
-                    Sophisticated investment solutions with institutional-grade research and execution.
+                    Experience banking that's secure, convenient, and designed for global transactions.
                 </p>
             </div>
             
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas fa-chart-bar"></i>
+                        <i class="fas fa-shield-alt"></i>
                     </div>
-                    <h3 class="feature-title">Market Research</h3>
+                    <h3 class="feature-title">Global Security</h3>
                     <p class="feature-description">
-                        Access to proprietary research and institutional-grade market analysis.
+                        Advanced encryption and multi-factor authentication protect your global accounts and transactions.
                     </p>
-                    <a href="#" class="feature-link">View research <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="feature-link">Learn more <i class="fas fa-arrow-right"></i></a>
                 </div>
                 
                 <div class="feature-card">
@@ -2321,68 +2554,67 @@
                     </div>
                     <h3 class="feature-title">Global Access</h3>
                     <p class="feature-description">
-                        Trade across 50+ global markets with multi-currency capabilities.
+                        Full banking capabilities across 150+ countries, 24/7 access to your global accounts.
                     </p>
-                    <a href="#" class="feature-link">Explore markets <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="feature-link">Get app <i class="fas fa-arrow-right"></i></a>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
+                        <i class="fas fa-exchange-alt"></i>
                     </div>
-                    <h3 class="feature-title">Risk Management</h3>
+                    <h3 class="feature-title">Instant Global Transfers</h3>
                     <p class="feature-description">
-                        Sophisticated risk management tools and portfolio protection.
+                        Send and receive money instantly between accounts worldwide and to other banks globally.
                     </p>
-                    <a href="#" class="feature-link">Risk tools <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="feature-link">Start transfer <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Investor Images Section -->
-    <section class="investor-images" id="investments">
+    <!-- Savings Accounts Section -->
+    <section class="savings-images" id="accounts">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Investment Portfolios</h2>
+                <h2 class="section-title">Global Account Types</h2>
                 <p class="section-subtitle">
-                    Diversified investment strategies tailored to institutional and private clients.
+                    Choose from a variety of accounts designed for your international financial needs.
                 </p>
             </div>
             
-            <div class="investor-grid">
-                <!-- Verified Investor Images -->
-                <div class="investor-item">
-                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Growth Portfolio">
-                    <div class="investor-label">Growth Portfolio</div>
+            <div class="savings-grid">
+                <div class="savings-item">
+                    <img src="https://images.unsplash.com/photo-1601597111158-2fceff292cdc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Global Checking">
+                    <div class="savings-label">Global Checking</div>
                 </div>
-                <div class="investor-item">
-                    <img src="https://images.unsplash.com/photo-1580519542036-c47de6196ba5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Income Portfolio">
-                    <div class="investor-label">Income Portfolio</div>
+                <div class="savings-item">
+                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Multi-Currency Accounts">
+                    <div class="savings-label">Multi-Currency Accounts</div>
                 </div>
-                <div class="investor-item">
-                    <img src="https://images.unsplash.com/photo-1601597111158-2fceff292cdc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Balanced Portfolio">
-                    <div class="investor-label">Balanced Portfolio</div>
+                <div class="savings-item">
+                    <img src="https://images.unsplash.com/photo-1579621970795-87facc2f976d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Global Savings">
+                    <div class="savings-label">Global Savings</div>
                 </div>
-                <div class="investor-item">
-                    <img src="https://lh3.googleusercontent.com/proxy/8LDerRD7aY8jlX5gOKHzJ0OrPcY-AA-7g_vjYL0DG2bNAW9JAl4kVHGZyuKsfryAny3VQhVbcakXl_RRI0wfGnG4BKLkZ1dzCGQCXle9sI4zKuBJGVKZaSj6SrrNevFKwv0qVg" alt="Conservative Portfolio">
-                    <div class="investor-label">Conservative Portfolio</div>
+                <div class="savings-item">
+                    <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="International Business">
+                    <div class="savings-label">International Business</div>
                 </div>
-                <div class="investor-item">
-                    <img src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="ESG Portfolio">
-                    <div class="investor-label">ESG Portfolio</div>
+                <div class="savings-item">
+                    <img src="https://images.unsplash.com/photo-1551836026-d5c2e0c49b61?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Student Accounts">
+                    <div class="savings-label">International Student</div>
                 </div>
-                <div class="investor-item">
-                    <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Tech Portfolio">
-                    <div class="investor-label">Technology Portfolio</div>
+                <div class="savings-item">
+                    <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Expat Accounts">
+                    <div class="savings-label">Expatriate Accounts</div>
                 </div>
-                <div class="investor-item">
-                    <img src="https://images.unsplash.com/photo-1633158829875-e5316a358c6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Global Portfolio">
-                    <div class="investor-label">Global Portfolio</div>
+                <div class="savings-item">
+                    <img src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Joint Accounts">
+                    <div class="savings-label">International Joint</div>
                 </div>
-                <div class="investor-item">
-                    <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Alternative Portfolio">
-                    <div class="investor-label">Alternative Portfolio</div>
+                <div class="savings-item">
+                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Premium Accounts">
+                    <div class="savings-label">Global Premium</div>
                 </div>
             </div>
         </div>
@@ -2392,217 +2624,213 @@
     <section class="section services" id="services">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Investment Services</h2>
+                <h2 class="section-title">Global Banking Services</h2>
                 <p class="section-subtitle">
-                    Comprehensive investment solutions for institutions and sophisticated investors.
+                    Comprehensive global financial solutions for individuals and businesses.
                 </p>
             </div>
             
             <div class="services-tabs">
-                <div class="tab-btn active" data-tab="institutional">Institutional</div>
-                <div class="tab-btn" data-tab="private">Private Banking</div>
-                <div class="tab-btn" data-tab="advisory">Advisory</div>
+                <div class="tab-btn active" data-tab="personal">Personal</div>
+                <div class="tab-btn" data-tab="business">Business</div>
+                <div class="tab-btn" data-tab="digital">Digital</div>
             </div>
             
-            <div class="tab-content active" id="institutional-tab">
+            <div class="tab-content active" id="personal-tab">
                 <div class="services-grid">
                     <div class="service-card">
                         <div class="service-icon">
-                            <i class="fas fa-building"></i>
+                            <i class="fas fa-home"></i>
                         </div>
-                        <h3 class="service-title">Corporate Finance</h3>
+                        <h3 class="service-title">Global Mortgages</h3>
                         <p class="service-description">
-                            Capital raising, M&A advisory, and corporate restructuring services.
+                            Competitive international mortgage rates for properties worldwide.
                         </p>
-                        <a href="#" class="feature-link">Learn more <i class="fas fa-arrow-right"></i></a>
+                        <a href="#" class="feature-link">Apply now <i class="fas fa-arrow-right"></i></a>
                     </div>
                     
                     <div class="service-card">
                         <div class="service-icon">
-                            <i class="fas fa-handshake"></i>
+                            <i class="fas fa-car"></i>
                         </div>
-                        <h3 class="service-title">Capital Markets</h3>
+                        <h3 class="service-title">International Auto Loans</h3>
                         <p class="service-description">
-                            Equity and debt capital markets with institutional execution.
+                            Global auto financing with quick approval process across countries.
                         </p>
-                        <a href="#" class="feature-link">Explore services <i class="fas fa-arrow-right"></i></a>
+                        <a href="#" class="feature-link">Get quote <i class="fas fa-arrow-right"></i></a>
                     </div>
                     
                     <div class="service-card">
                         <div class="service-icon">
-                            <i class="fas fa-balance-scale"></i>
+                            <i class="fas fa-credit-card"></i>
                         </div>
-                        <h3 class="service-title">Structured Products</h3>
+                        <h3 class="service-title">Global Credit Cards</h3>
                         <p class="service-description">
-                            Custom structured investment solutions for institutions.
+                            Credit cards with worldwide acceptance, rewards, and premium benefits.
                         </p>
-                        <a href="#" class="feature-link">View products <i class="fas fa-arrow-right"></i></a>
+                        <a href="#" class="feature-link">View cards <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
             
-            <div class="tab-content" id="private-tab">
+            <div class="tab-content" id="business-tab">
                 <div class="services-grid">
                     <div class="service-card">
                         <div class="service-icon">
-                            <i class="fas fa-user-tie"></i>
+                            <i class="fas fa-briefcase"></i>
                         </div>
-                        <h3 class="service-title">Wealth Management</h3>
+                        <h3 class="service-title">International Business Accounts</h3>
                         <p class="service-description">
-                            Comprehensive wealth management for high-net-worth individuals.
+                            Checking and savings accounts designed for global business needs.
+                        </p>
+                        <a href="userdashboard.html" class="feature-link">Open account <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <h3 class="service-title">Global Business Loans</h3>
+                        <p class="service-description">
+                            Capital for international expansion, equipment, and operational needs.
                         </p>
                         <a href="#" class="feature-link">Learn more <i class="fas fa-arrow-right"></i></a>
                     </div>
                     
                     <div class="service-card">
                         <div class="service-icon">
-                            <i class="fas fa-gem"></i>
+                            <i class="fas fa-cash-register"></i>
                         </div>
-                        <h3 class="service-title">Alternative Assets</h3>
+                        <h3 class="service-title">International Payment Processing</h3>
                         <p class="service-description">
-                            Access to private equity, hedge funds, and real estate.
+                            Global payment processing and merchant solutions.
                         </p>
-                        <a href="#" class="feature-link">Explore alternatives <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    
-                    <div class="service-card">
-                        <div class="service-icon">
-                            <i class="fas fa-landmark"></i>
-                        </div>
-                        <h3 class="service-title">Family Office</h3>
-                        <p class="service-description">
-                            Multi-generational wealth planning and family office services.
-                        </p>
-                        <a href="#" class="feature-link">Family services <i class="fas fa-arrow-right"></i></a>
+                        <a href="#" class="feature-link">Get started <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Gold Market Video Section -->
-    <section class="gold-market" id="gold-trading">
-        <div class="container gold-market-container">
-            <div class="gold-market-content">
-                <h2 class="gold-market-title">Gold Market Trading</h2>
-                <h3 class="gold-market-subtitle">Master Precious Metals Investment</h3>
-                <p class="gold-market-description">
-                    Discover institutional gold trading strategies and precious metals investment 
-                    opportunities. Our experts provide deep market insights for gold, silver, 
-                    and other precious commodities in global markets.
+    <!-- Digital Banking Video Section -->
+    <section class="digital-banking" id="digital-banking">
+        <div class="container digital-banking-container">
+            <div class="digital-banking-content">
+                <h2 class="digital-banking-title">Global Digital Banking</h2>
+                <h3 class="digital-banking-subtitle">Banking Without Borders</h3>
+                <p class="digital-banking-description">
+                    Discover our advanced global digital banking platform designed for modern international lifestyles. 
+                    Access your accounts, make international payments, and manage your global finances from anywhere 
+                    with our secure mobile and online banking services across 150+ countries.
                 </p>
                 <div class="hero-buttons">
-                    <a href="#contact" class="btn btn-secondary">Gold Trading Account</a>
-                    <a href="#" class="btn btn-outline" style="color: white; border-color: white;">Market Analysis</a>
+                    <a href="#contact" class="btn btn-secondary">Open Global Account</a>
+                    <a href="#" class="btn btn-outline" style="color: white; border-color: white;">Mobile App</a>
                 </div>
             </div>
             
             <div class="video-player-container">
-                <!-- Working YouTube Embed -->
-                
-                <iframe  class="video-iframe" width="560" height="315" src="https://www.youtube.com/embed/BTEdhchyI8E?si=aB2TBEpg3IUT9K3D" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <iframe class="video-iframe" width="560" height="315" src="https://www.youtube.com/embed/BTEdhchyI8E?si=aB2TBEpg3IUT9K3D" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 <div class="video-info">
-                    <div class="video-info-title">Gold Trading Masterclass</div>
+                    <div class="video-info-title">Global Digital Banking Tour</div>
                     <div class="video-info-description">
-                        Learn institutional gold trading strategies, market analysis, and portfolio 
-                        allocation techniques for precious metals investments.
+                        Learn how to use our global digital banking features including international transfers, 
+                        multi-currency accounts, and global account management tools.
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Investment Strategies Section -->
-    <section class="investment-strategies">
+    <!-- Financial Planning Section -->
+    <section class="financial-planning">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Investment Strategies</h2>
+                <h2 class="section-title">Global Transaction Services</h2>
                 <p class="section-subtitle">
-                    Advanced investment methodologies for sophisticated portfolio management.
+                    Tools and services to manage your international financial transactions.
                 </p>
             </div>
             
-            <div class="strategies-grid">
-                <!-- Verified Strategy Images -->
-                <div class="strategy-item">
-                    <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Quantitative Trading">
-                    <div class="strategy-label">Quantitative Trading</div>
+            <div class="planning-grid">
+                <div class="planning-item">
+                    <img src="https://images.unsplash.com/photo-1601597111158-2fceff292cdc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="International Transfers">
+                    <div class="planning-label">International Transfers</div>
                 </div>
-                <div class="strategy-item">
-                    <img src="https://www.etmoney.com/learn/wp-content/uploads/2022/09/Growth-Investing-vs.-Value-Investing.jpg" alt="Value Investing">
-                    <div class="strategy-label">Value Investing</div>
+                <div class="planning-item">
+                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Currency Exchange">
+                    <div class="planning-label">Currency Exchange</div>
                 </div>
-                <div class="strategy-item">
-                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Growth Investing">
-                    <div class="strategy-label">Growth Investing</div>
+                <div class="planning-item">
+                    <img src="https://images.unsplash.com/photo-1579621970795-87facc2f976d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Bill Payments">
+                    <div class="planning-label">Global Bill Payments</div>
                 </div>
-                <div class="strategy-item">
-                    <img src="https://hbwealth.com/wp-content/uploads/2023/01/HB-Blog_Personal-Tax-Strategy_2023_v2.png" alt="Income Strategy">
-                    <div class="strategy-label">Income Strategy</div>
+                <div class="planning-item">
+                    <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Trade Finance">
+                    <div class="planning-label">Trade Finance</div>
                 </div>
-                <div class="strategy-item">
-                    <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Momentum Trading">
-                    <div class="strategy-label">Momentum Trading</div>
+                <div class="planning-item">
+                    <img src="https://images.unsplash.com/photo-1551836026-d5c2e0c49b61?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Remittances">
+                    <div class="planning-label">Remittance Services</div>
                 </div>
-                <div class="strategy-item">
-                    <img src="https://images.unsplash.com/photo-1633158829875-e5316a358c6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Arbitrage">
-                    <div class="strategy-label">Arbitrage</div>
+                <div class="planning-item">
+                    <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Cash Management">
+                    <div class="planning-label">Cash Management</div>
                 </div>
-                <div class="strategy-item">
-                    <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Hedging">
-                    <div class="strategy-label">Hedging Strategies</div>
+                <div class="planning-item">
+                    <img src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Letters of Credit">
+                    <div class="planning-label">Letters of Credit</div>
                 </div>
-                <div class="strategy-item">
-                    <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Algorithmic Trading">
-                    <div class="strategy-label">Algorithmic Trading</div>
+                <div class="planning-item">
+                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Guarantees">
+                    <div class="planning-label">Bank Guarantees</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Additional Investment Images -->
-    <section class="additional-investments">
+    <!-- Additional Banking Services -->
+    <section class="additional-services">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Market Opportunities</h2>
+                <h2 class="section-title">Additional Global Services</h2>
                 <p class="section-subtitle">
-                    Explore diverse investment opportunities across global markets and sectors.
+                    Explore our full range of global banking and financial services.
                 </p>
             </div>
             
             <div class="additional-grid">
-                <!-- Verified Additional Images -->
                 <div class="additional-item">
-                    <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Emerging Markets">
-                    <div class="additional-label">Emerging Markets</div>
+                    <img src="https://images.unsplash.com/photo-1601597111158-2fceff292cdc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Wire Transfers">
+                    <div class="additional-label">Global Wire Transfers</div>
                 </div>
                 <div class="additional-item">
-                    <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Technology">
-                    <div class="additional-label">Technology</div>
+                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Online Banking">
+                    <div class="additional-label">Online Global Banking</div>
                 </div>
                 <div class="additional-item">
-                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Healthcare">
-                    <div class="additional-label">Healthcare</div>
+                    <img src="https://images.unsplash.com/photo-1579621970795-87facc2f976d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Mobile Banking">
+                    <div class="additional-label">Mobile Global Banking</div>
                 </div>
                 <div class="additional-item">
-                    <img src="https://ourfuture.energy/wp-content/uploads/2021/08/energy-transition-1800-shutterstock_1278873550.jpg" alt="Energy">
-                    <div class="additional-label">Energy</div>
+                    <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="ATM Access">
+                    <div class="additional-label">Global ATM Network</div>
                 </div>
                 <div class="additional-item">
-                    <img src="https://images.unsplash.com/photo-1633158829875-e5316a358c6f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Financials">
-                    <div class="additional-label">Financials</div>
+                    <img src="https://images.unsplash.com/photo-1551836026-d5c2e0c49b61?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Account Alerts">
+                    <div class="additional-label">Global Account Alerts</div>
                 </div>
                 <div class="additional-item">
-                    <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Consumer">
-                    <div class="additional-label">Consumer</div>
+                    <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Financial Tools">
+                    <div class="additional-label">Global Financial Tools</div>
                 </div>
                 <div class="additional-item">
-                    <img src="https://www.brookings.edu/wp-content/uploads/2023/01/shutterstock_2069789348.jpg?quality=75&w=1500" alt="Infrastructure">
-                    <div class="additional-label">Infrastructure</div>
+                    <img src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Customer Support">
+                    <div class="additional-label">24/7 Global Support</div>
                 </div>
                 <div class="additional-item">
-                    <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Real Assets">
-                    <div class="additional-label">Real Assets</div>
+                    <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Safe Deposit">
+                    <div class="additional-label">Global Safe Deposit</div>
                 </div>
             </div>
         </div>
@@ -2612,17 +2840,17 @@
     <section class="section transfer-demo" id="transfer">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Global Capital Movement</h2>
+                <h2 class="section-title">Global Money Transfers</h2>
                 <p class="section-subtitle">
-                    Execute cross-border transfers with institutional efficiency and security.
+                    Send money securely and instantly to anyone, anywhere in the world.
                 </p>
             </div>
             
             <div class="transfer-container">
                 <div class="transfer-visual">
                     <div class="transfer-card from">
-                        <h3>From: Zorynth Investment</h3>
-                        <div class="transfer-amount">$500,000.00</div>
+                        <h3>From: New York, USA</h3>
+                        <div class="transfer-amount">$2,500.00</div>
                         <div class="transfer-details">
                             <div class="transfer-info">
                                 <h4>Alexander Thorne</h4>
@@ -2636,20 +2864,20 @@
                     </div>
                     
                     <div class="transfer-arrow">
-                        <i class="fas fa-long-arrow-alt-down"></i>
+                        <i class="fas fa-globe"></i>
                     </div>
                     
                     <div class="transfer-card to">
-                        <h3>To: Singapore Investment</h3>
-                        <div class="transfer-amount">SGD 670,000.00</div>
+                        <h3>To: London, UK</h3>
+                        <div class="transfer-amount">£2,025.00</div>
                         <div class="transfer-details">
                             <div class="transfer-info">
-                                <h4>Asia Growth Fund</h4>
+                                <h4>Sarah Johnson</h4>
                                 <p>Account •••• 9922</p>
                             </div>
                             <div class="transfer-info text-right">
-                                <h4>SGD</h4>
-                                <p>Singapore Dollar</p>
+                                <h4>GBP</h4>
+                                <p>British Pound</p>
                             </div>
                         </div>
                     </div>
@@ -2661,8 +2889,8 @@
                             <i class="fas fa-bolt"></i>
                         </div>
                         <div class="transfer-stat-text">
-                            <h4>Institutional Speed</h4>
-                            <p>Same-day settlement for large transactions</p>
+                            <h4>Instant Global Transfer</h4>
+                            <p>Money arrives within minutes worldwide</p>
                         </div>
                     </div>
                     
@@ -2671,8 +2899,8 @@
                             <i class="fas fa-percentage"></i>
                         </div>
                         <div class="transfer-stat-text">
-                            <h4>Competitive Pricing</h4>
-                            <p>Institutional FX rates and low fees</p>
+                            <h4>Competitive Rates</h4>
+                            <p>Best exchange rates and minimal fees globally</p>
                         </div>
                     </div>
                     
@@ -2681,13 +2909,13 @@
                             <i class="fas fa-user-shield"></i>
                         </div>
                         <div class="transfer-stat-text">
-                            <h4>Enhanced Security</h4>
-                            <p>Multi-level authentication and monitoring</p>
+                            <h4>Global Security</h4>
+                            <p>Encrypted international transactions and fraud protection</p>
                         </div>
                     </div>
                     
                     <a href="#" class="btn btn-primary btn-block mt-3">
-                        <i class="fas fa-exchange-alt"></i> Initiate Transfer
+                        <i class="fas fa-globe"></i> Send Money Globally
                     </a>
                 </div>
             </div>
@@ -2698,9 +2926,9 @@
     <section class="section bankers">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Investment Team</h2>
+                <h2 class="section-title">Global Banking Team</h2>
                 <p class="section-subtitle">
-                    Our team of experienced investment professionals provides sophisticated guidance.
+                    Our team of international banking professionals is here to assist you worldwide.
                 </p>
             </div>
             
@@ -2711,9 +2939,9 @@
                     </div>
                     <div class="banker-info">
                         <h3 class="banker-name">James Wellington</h3>
-                        <p class="banker-title">Chief Investment Officer</p>
+                        <p class="banker-title">Global Banking Manager</p>
                         <p class="banker-bio">
-                            20+ years in global markets and portfolio management.
+                            15+ years in international retail banking and global customer relationship management.
                         </p>
                         <div class="banker-contact">
                             <a href="#" class="banker-contact-btn">Schedule</a>
@@ -2728,9 +2956,9 @@
                     </div>
                     <div class="banker-info">
                         <h3 class="banker-name">Victoria Sterling</h3>
-                        <p class="banker-title">Portfolio Manager</p>
+                        <p class="banker-title">International Banker</p>
                         <p class="banker-bio">
-                            Specializes in alternative investments and global equities.
+                            Specializes in global account management and international financial services.
                         </p>
                         <div class="banker-contact">
                             <a href="#" class="banker-contact-btn">Schedule</a>
@@ -2744,10 +2972,10 @@
                         <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Isabella Chen">
                     </div>
                     <div class="banker-info">
-                        <h3 class="banker-name">Isabella Chen, CFA</h3>
-                        <p class="banker-title">Asia Markets Director</p>
+                        <h3 class="banker-name">Isabella Chen</h3>
+                        <p class="banker-title">International Loan Officer</p>
                         <p class="banker-bio">
-                            Expertise in Asian markets and emerging economy investments.
+                            Expertise in global mortgage, international auto, and cross-border personal loans.
                         </p>
                         <div class="banker-contact">
                             <a href="#" class="banker-contact-btn">Schedule</a>
@@ -2763,9 +2991,9 @@
     <section class="section contact" id="contact">
         <div class="container contact-container">
             <div class="contact-info">
-                <h2 class="contact-title">Investment Consultation</h2>
+                <h2 class="contact-title">Global Customer Support</h2>
                 <p class="contact-description">
-                    Schedule a consultation with our investment team to discuss your objectives.
+                    Our international banking team is ready to assist with all your global financial needs across 150+ countries.
                 </p>
                 
                 <div class="contact-details">
@@ -2774,9 +3002,9 @@
                             <i class="fas fa-phone-alt"></i>
                         </div>
                         <div class="contact-text">
-                            <h4>Investment Desk</h4>
-                            <p>+1 (212) 555-0200</p>
-                            <p>Institutional clients</p>
+                            <h4>Global Customer Service</h4>
+                            <p>1-800-ZORYNTH</p>
+                            <p>24/7 international support available</p>
                         </div>
                     </div>
                     
@@ -2785,9 +3013,9 @@
                             <i class="fas fa-envelope"></i>
                         </div>
                         <div class="contact-text">
-                            <h4>Investment Email</h4>
-                            <p>investments@zorynth.com</p>
-                            <p>Secure communication</p>
+                            <h4>International Email Support</h4>
+                            <p>support@zorynth.com</p>
+                            <p>Response within 2 hours globally</p>
                         </div>
                     </div>
                     
@@ -2796,21 +3024,21 @@
                             <i class="fas fa-map-marker-alt"></i>
                         </div>
                         <div class="contact-text">
-                            <h4>Investment Office</h4>
+                            <h4>Global Headquarters</h4>
                             <p>425 Park Avenue</p>
-                            <p>New York, NY 10022</p>
+                            <p>New York, NY 10022, USA</p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="hero-buttons mt-4">
-                    <a href="#" class="btn btn-primary">Schedule Meeting</a>
-                    <a href="#" class="btn btn-light">Download Forms</a>
+                    <a href="#" class="btn btn-primary">Schedule Global Appointment</a>
+                    <a href="#" class="btn btn-light">Find International Branches</a>
                 </div>
             </div>
             
             <div class="contact-form">
-                <h3 class="form-title">Investment Inquiry</h3>
+                <h3 class="form-title">Global Account Inquiry</h3>
                 <form id="contactForm">
                     <div class="form-group">
                         <label for="name" class="form-label">Full Name *</label>
@@ -2823,23 +3051,25 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="subject" class="form-label">Investment Interest *</label>
+                        <label for="subject" class="form-label">Service Interest *</label>
                         <select id="subject" class="form-control" required>
-                            <option value="">Select interest</option>
-                            <option value="institutional">Institutional Services</option>
-                            <option value="private">Private Banking</option>
-                            <option value="gold">Gold Trading</option>
+                            <option value="">Select service</option>
+                            <option value="checking">Global Checking Account</option>
+                            <option value="savings">International Savings Account</option>
+                            <option value="loan">International Loan Application</option>
+                            <option value="transfer">Global Money Transfer</option>
+                            <option value="business">International Business Banking</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
-                        <label for="message" class="form-label">Investment Objectives</label>
-                        <textarea id="message" class="form-control" rows="5" placeholder="Brief overview of investment objectives"></textarea>
+                        <label for="message" class="form-label">How can we help with your global banking needs?</label>
+                        <textarea id="message" class="form-control" rows="5" placeholder="Tell us about your international banking needs"></textarea>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary btn-block">Submit Inquiry</button>
+                    <button type="submit" class="btn btn-primary btn-block">Submit Global Inquiry</button>
                     <p class="text-center mt-3" style="font-size: 0.75rem; color: var(--slate);">
-                        All inquiries are strictly confidential.
+                        All international inquiries are confidential and secure.
                     </p>
                 </form>
             </div>
@@ -2853,8 +3083,8 @@
                 <div class="footer-col">
                     <div class="footer-logo">Zorynth<span>Bank</span></div>
                     <p class="footer-description">
-                        Institutional investment banking and wealth management services 
-                        for sophisticated clients worldwide since 1847.
+                        Modern global transaction banking with traditional values.
+                        Serving customers across 150+ countries since 1847.
                     </p>
                     <div class="social-links">
                         <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
@@ -2864,38 +3094,38 @@
                 </div>
                 
                 <div class="footer-col">
-                    <h3 class="footer-title">Investment Services</h3>
+                    <h3 class="footer-title">Global Personal Banking</h3>
                     <ul class="footer-links">
-                        <li><a href="#" class="footer-link">Portfolio Management</a></li>
-                        <li><a href="#" class="footer-link">Investment Advisory</a></li>
-                        <li><a href="#" class="footer-link">Gold Trading</a></li>
-                        <li><a href="#" class="footer-link">Family Office</a></li>
+                        <li><a href="#" class="footer-link">International Checking</a></li>
+                        <li><a href="#" class="footer-link">Global Savings Accounts</a></li>
+                        <li><a href="#" class="footer-link">Worldwide Credit Cards</a></li>
+                        <li><a href="#" class="footer-link">International Loans</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-col">
-                    <h3 class="footer-title">Institutional</h3>
+                    <h3 class="footer-title">Global Business Banking</h3>
                     <ul class="footer-links">
-                        <li><a href="#" class="footer-link">Corporate Finance</a></li>
-                        <li><a href="#" class="footer-link">Capital Markets</a></li>
-                        <li><a href="#" class="footer-link">Structured Products</a></li>
-                        <li><a href="#" class="footer-link">Research</a></li>
+                        <li><a href="#" class="footer-link">International Business Accounts</a></li>
+                        <li><a href="#" class="footer-link">Global Commercial Loans</a></li>
+                        <li><a href="#" class="footer-link">International Merchant Services</a></li>
+                        <li><a href="#" class="footer-link">Global Business Tools</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-col">
-                    <h3 class="footer-title">Legal</h3>
+                    <h3 class="footer-title">Legal & Security</h3>
                     <ul class="footer-links">
-                        <li><a href="#" class="footer-link">Privacy Policy</a></li>
-                        <li><a href="#" class="footer-link">Terms of Service</a></li>
-                        <li><a href="#" class="footer-link">Disclosures</a></li>
-                        <li><a href="#" class="footer-link">Compliance</a></li>
+                        <li><a href="#" class="footer-link">International Privacy Policy</a></li>
+                        <li><a href="#" class="footer-link">Global Terms of Service</a></li>
+                        <li><a href="#" class="footer-link">Security Center</a></li>
+                        <li><a href="#" class="footer-link">International Compliance</a></li>
                     </ul>
                 </div>
             </div>
             
             <div class="copyright">
-                <p>&copy; 2023 Zorynth Bank. All rights reserved. Member FDIC.</p>
+                <p>&copy; 2023 Zorynth Bank. All rights reserved. Member of global banking consortium. Regulated internationally.</p>
             </div>
         </div>
     </footer>
@@ -2906,21 +3136,21 @@
             <i class="fas fa-home nav-icon"></i>
             <span class="nav-label">Home</span>
         </a>
-        <a href="#investments" class="nav-item">
-            <i class="fas fa-chart-line nav-icon"></i>
-            <span class="nav-label">Invest</span>
+        <a href="#accounts" class="nav-item">
+            <i class="fas fa-piggy-bank nav-icon"></i>
+            <span class="nav-label">Accounts</span>
         </a>
         <a href="#transfer" class="nav-item">
             <i class="fas fa-exchange-alt nav-icon"></i>
             <span class="nav-label">Transfer</span>
         </a>
-        <a href="#gold-trading" class="nav-item">
-            <i class="fas fa-gem nav-icon"></i>
-            <span class="nav-label">Gold</span>
+        <a href="#digital-banking" class="nav-item">
+            <i class="fas fa-globe nav-icon"></i>
+            <span class="nav-label">Global</span>
         </a>
         <a href="#contact" class="nav-item">
             <i class="fas fa-user nav-icon"></i>
-            <span class="nav-label">Contact</span>
+            <span class="nav-label">Support</span>
         </a>
     </div>
 
@@ -2989,11 +3219,11 @@
         });
 
         // ========== IMAGE INTERACTION ==========
-        document.querySelectorAll('.investment-item, .investor-item, .additional-item, .strategy-item').forEach(item => {
+        document.querySelectorAll('.banking-item, .savings-item, .additional-item, .planning-item').forEach(item => {
             item.addEventListener('click', function() {
                 const title = this.querySelector('h4') ? this.querySelector('h4').textContent : 
-                            this.querySelector('.investor-label, .additional-label, .strategy-label').textContent;
-                alert(`Investment Opportunity: ${title}\n\nClick "Learn More" for detailed information.`);
+                            this.querySelector('.savings-label, .additional-label, .planning-label').textContent;
+                alert(`Global Banking Service: ${title}\n\nClick "Learn More" for detailed information about our international services.`);
             });
         });
 
@@ -3005,7 +3235,7 @@
             const name = document.getElementById('name').value;
             const service = document.getElementById('subject').value;
             
-            alert(`Thank you, ${name}. Your investment inquiry has been submitted. Our team will contact you within 24 hours.`);
+            alert(`Thank you, ${name}. Your global banking inquiry has been submitted. Our international team will contact you within 24 hours.`);
             
             contactForm.reset();
         });
@@ -3087,7 +3317,7 @@
             const balanceElement = document.querySelector('.nav-balance-amount');
             if (balanceElement) {
                 setTimeout(() => {
-                    balanceElement.textContent = '$348,521.20';
+                    balanceElement.textContent = '$48,521.20';
                     balanceElement.style.color = 'var(--forest)';
                     
                     setTimeout(() => {
@@ -3141,7 +3371,7 @@
         document.head.appendChild(style);
         
         // ========== IMAGE HOVER EFFECT ENHANCEMENT ==========
-        document.querySelectorAll('.investment-item, .investor-item, .additional-item, .strategy-item').forEach(item => {
+        document.querySelectorAll('.banking-item, .savings-item, .additional-item, .planning-item, .large-banking-item').forEach(item => {
             item.addEventListener('mouseenter', function() {
                 this.style.transform = 'translateY(-3px)';
                 this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
@@ -3185,5 +3415,17 @@
             });
         });
     </script>
+    <script type="text/javascript">
+        var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+        (function(){
+        var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+        s1.async=true;
+        s1.src='https://embed.tawk.to/6984ad4424574a1c3c2f755d/1jgn49l5m';
+        s1.charset='UTF-8';
+        s1.setAttribute('crossorigin','*');
+        s0.parentNode.insertBefore(s1,s0);
+        })();
+        </script>
+        <!--End of Tawk.to Script-->
 </body>
 </html>

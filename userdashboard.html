@@ -2422,6 +2422,11 @@
             color: var(--danger-red);
         }
 
+        .status-suspended {
+            background-color: rgba(211, 47, 47, 0.08);
+            color: var(--danger-red);
+        }
+
         /* Help Center */
         .help-categories {
             display: grid;
@@ -5186,7 +5191,7 @@
         }
 
         // ==============================
-        // AUTHENTICATION FUNCTIONS
+        // AUTHENTICATION FUNCTIONS - UPDATED WITH ACCOUNT SUSPENSION CHECK
         // ==============================
         async function authenticateUser(email, password, rememberMe) {
             console.log("Starting authentication for:", email);
@@ -5218,14 +5223,19 @@
                     throw new Error('auth/user-not-found');
                 }
                 
-                // User exists in Firestore, now try to sign in with Firebase Auth
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                console.log("Firebase Auth successful!");
-                
-                // Get user data from Firestore
+                // User exists in Firestore, get user data
                 const userDoc = usersSnapshot.docs[0];
                 userData = userDoc.data();
                 userData.id = userDoc.id;
+                
+                // CHECK FOR ACCOUNT SUSPENSION
+                if (userData.status === 'suspended') {
+                    throw new Error('auth/account-suspended');
+                }
+                
+                // User exists and is not suspended, now try to sign in with Firebase Auth
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                console.log("Firebase Auth successful!");
                 
                 // Get user PIN from Firestore - IMPORTANT: This loads the PIN from Firebase
                 userPin = userData.pin || null;
@@ -5283,6 +5293,9 @@
                         break;
                     case 'auth/network-request-failed':
                         errorMessage = 'Network error. Please check your connection.';
+                        break;
+                    case 'auth/account-suspended':
+                        errorMessage = 'Your account has been suspended. Please contact customer support.';
                         break;
                     default:
                         errorMessage = error.message || 'Login failed. Please contact your administrator.';
@@ -5370,7 +5383,7 @@
                     },
                     pin: accountData.pin, // Store PIN in Firestore - IMPORTANT!
                     role: accountData.role || 'user',
-                    status: 'active',
+                    status: 'active', // Default status is active
                     profilePicture: accountData.profilePicture || '',
                     createdAt: new Date().toISOString(),
                     lastLogin: new Date().toISOString(),
@@ -5647,6 +5660,17 @@
                     
                     console.log("Loaded user PIN from Firestore:", userPin ? "PIN loaded (hidden for security)" : "No PIN found");
                     
+                    // Check if account is suspended
+                    if (userData.status === 'suspended') {
+                        // Sign out the user if account is suspended
+                        await auth.signOut();
+                        localStorage.removeItem('userLoggedIn');
+                        localStorage.removeItem('userEmail');
+                        showToast('Account Suspended', 'Your account has been suspended. Please contact customer support.', 'error');
+                        showLoginPage();
+                        return;
+                    }
+                    
                     // Load profile picture
                     await loadProfilePicture();
                     
@@ -5892,7 +5916,7 @@
                     description: 'Grocery Store',
                     category: 'shopping',
                     date: new Date(Date.now() - 86400000).toISOString(),
-                    status: 'completed',
+                    status: 'pending', // PENDING TRANSACTION
                     bank: 'Chase Bank',
                     recipientName: 'Walmart'
                 },
@@ -6043,7 +6067,7 @@
         }
 
         // ==============================
-        // UI UPDATES
+        // UI UPDATES - UPDATED TO SHOW PENDING STATUS
         // ==============================
         function updateUserProfile() {
             const firstName = userData.firstName || 'User';
@@ -6061,6 +6085,11 @@
             // Update account number
             const checkingAccount = userAccounts.checking?.accountNumber || '•••• 5678';
             document.getElementById('accountNumber').textContent = `Account: ${checkingAccount}`;
+            
+            // Show suspension warning if account is suspended
+            if (userData.status === 'suspended') {
+                showToast('Account Suspended', 'Your account has been suspended. Please contact customer support.', 'error');
+            }
         }
 
         function updateProfileSection() {
@@ -6200,13 +6229,24 @@
                     iconColor = 'var(--admin-purple)';
                 }
                 
+                // Determine status color and text
+                let statusBadge = '';
+                if (transaction.status === 'pending') {
+                    statusBadge = `<span class="transaction-status status-pending" style="font-size: 9px; padding: 2px 6px; margin-left: 8px;">PENDING</span>`;
+                } else if (transaction.status === 'failed') {
+                    statusBadge = `<span class="transaction-status status-failed" style="font-size: 9px; padding: 2px 6px; margin-left: 8px;">FAILED</span>`;
+                }
+                
                 // Only show download button, edit button removed for non-admin users
                 transactionItem.innerHTML = `
                     <div class="transaction-icon" style="background-color: ${iconColor}20; color: ${iconColor};">
                         <i class="${iconClass}"></i>
                     </div>
                     <div class="transaction-details">
-                        <div class="transaction-name">${transaction.description}</div>
+                        <div style="display: flex; align-items: center;">
+                            <div class="transaction-name">${transaction.description}</div>
+                            ${statusBadge}
+                        </div>
                         <div class="transaction-date">${dateStr} • ${formatCategory(transaction.category)}</div>
                         ${transaction.bank ? `<div class="transaction-date" style="font-size: 10px;">Bank: ${transaction.bank}</div>` : ''}
                     </div>
@@ -6532,35 +6572,29 @@
                     recipientAccount: transferData.recipientAccount,
                     transferType: transferData.transferType,
                     date: new Date().toISOString(),
-                    status: 'completed',
+                    status: 'pending', // TRANSACTION STARTS AS PENDING
                     reference: generateReferenceNumber(),
                     pinVerified: true
                 };
                 
-                // Update account balance in Firestore
+                // Update account balance in Firestore (only when completed)
+                // For pending transactions, we don't deduct from balance yet
                 const fromAccountData = userAccounts[transferData.fromAccount];
-                const newBalance = fromAccountData.balance - transferData.amount;
-                
-                // Update in Firestore
-                await db.collection('users').doc(currentUser.uid).update({
-                    [`accounts.${transferData.fromAccount}.balance`]: newBalance
-                });
                 
                 // Save transaction to Firestore
                 const transactionRef = await db.collection('users').doc(currentUser.uid)
                     .collection('transactions').add(transactionData);
                 
                 // Update local data
-                fromAccountData.balance = newBalance;
                 userTransactions.unshift({
                     ...transactionData,
                     id: transactionRef.id
                 });
                 
                 // Update UI
-                updateDashboardUI();
+                updateTransactionsList();
                 
-                // Show success modal
+                // Show pending modal
                 const now = new Date();
                 document.getElementById('successAmount').textContent = formatCurrency(transferData.amount);
                 document.getElementById('successFrom').textContent = 
@@ -6579,6 +6613,12 @@
                         hour12: true 
                     });
                 
+                // Update modal title and message for pending transaction
+                document.getElementById('modalTitle').textContent = 'Transfer Pending';
+                document.getElementById('modalMessage').textContent = 
+                    'Your transfer has been initiated and is pending approval. ' +
+                    'You will receive a notification once it is completed.';
+                
                 document.getElementById('successModal').classList.add('active');
                 
                 // Reset forms
@@ -6588,7 +6628,7 @@
                     document.getElementById('transferForm').reset();
                 }
                 
-                showToast('Success', 'Transfer completed successfully!', 'success');
+                showToast('Success', 'Transfer initiated and pending approval!', 'success');
                 
             } catch (error) {
                 console.error('Error processing transfer:', error);

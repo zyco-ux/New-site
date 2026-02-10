@@ -336,7 +336,7 @@
             color: var(--primary-blue);
         }
 
-        .email-icon, .password-icon {
+        .account-number-icon, .password-icon {
             position: absolute;
             left: 12px;
             top: 50%;
@@ -344,8 +344,51 @@
             color: var(--text-light);
         }
 
-        .email-input, .password-input {
+        .account-number-input, .password-input {
             padding-left: 36px;
+        }
+
+        /* Account Number Input with Generate Button */
+        .account-number-group {
+            position: relative;
+        }
+
+        .generate-account-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            padding: 6px 12px;
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .generate-account-btn:hover {
+            background-color: var(--dark-blue);
+        }
+
+        .generate-account-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .account-number-display {
+            padding: 12px;
+            background-color: var(--light-blue);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-family: monospace;
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--primary-blue);
+            text-align: center;
+            letter-spacing: 1px;
+            margin-top: 8px;
         }
 
         /* Form Options */
@@ -3103,6 +3146,51 @@
             font-weight: 500;
             font-size: var(--font-size-sm);
         }
+        
+        /* Account Number Display in Profile */
+        .account-number-display-profile {
+            background-color: var(--light-blue);
+            border: 1px solid var(--primary-blue);
+            border-radius: var(--border-radius-sm);
+            padding: 12px;
+            margin: 12px 0;
+            text-align: center;
+            font-family: monospace;
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--primary-blue);
+            letter-spacing: 1.5px;
+        }
+        
+        /* Account Number Generator */
+        .account-number-generator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .account-number-generator input {
+            flex: 1;
+            font-family: monospace;
+            font-size: var(--font-size-md);
+            letter-spacing: 1px;
+        }
+        
+        .account-number-generator button {
+            padding: 8px 16px;
+            background-color: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .account-number-generator button:hover {
+            background-color: var(--dark-blue);
+        }
     </style>
 </head>
 <body>
@@ -3138,8 +3226,7 @@
             <div class="branding-content">
                 <h1 class="branding-title">Secure Banking For Your Financial Future</h1>
                 <p class="branding-subtitle">
-                    Access your accounts with confidence using our military-grade encryption 
-                    and multi-factor authentication.
+                    Access your accounts with confidence using your account number and secure PIN.
                 </p>
 
                 <ul class="features-list">
@@ -3180,7 +3267,7 @@
             <div class="login-header">
                 <p class="welcome-text">Welcome Back</p>
                 <h1 class="login-title">Log In to Your Account</h1>
-                <p class="login-subtitle">Enter your credentials to access your banking dashboard</p>
+                <p class="login-subtitle">Enter your account number and password to access your banking dashboard</p>
             </div>
 
             <div class="login-form-container">
@@ -3191,17 +3278,19 @@
 
                 <form class="login-form" id="loginForm">
                     <div class="form-group">
-                        <label for="email" class="form-label">Email Address</label>
+                        <label for="accountNumber" class="form-label">Account Number</label>
                         <div class="input-container">
-                            <span class="email-icon">
-                                <i class="fas fa-envelope"></i>
+                            <span class="account-number-icon">
+                                <i class="fas fa-credit-card"></i>
                             </span>
                             <input 
-                                type="email" 
-                                id="email" 
-                                class="form-input email-input" 
-                                placeholder="Enter your email address"
+                                type="text" 
+                                id="accountNumber" 
+                                class="form-input account-number-input" 
+                                placeholder="Enter your 12-digit account number"
                                 required
+                                pattern="[0-9]{12}"
+                                maxlength="12"
                             >
                         </div>
                     </div>
@@ -3239,7 +3328,7 @@
                     </div>
 
                     <button type="submit" class="login-button" id="loginButton">
-                        <i class="fas fa-sign-in-alt"></i> Access Your Account
+                        <i class="fas fa-sign-in-alt"></i> ACCESS DASHBOARD
                     </button>
 
                     <div class="divider">
@@ -3259,7 +3348,7 @@
                         <i class="fas fa-lock"></i>
                         <div>
                             <strong>Security Notice:</strong> We use advanced security measures to protect your information. 
-                            Never share your login credentials with anyone.
+                            Never share your account number or password with anyone.
                         </div>
                     </div>
                 </form>
@@ -3385,7 +3474,7 @@
                             </div>
                             <div class="profile-info">
                                 <div class="profile-name" id="displayName">Loading...</div>
-                                <div class="profile-account" id="accountNumber">Account: •••• ••••</div>
+                                <div class="profile-account" id="accountNumberDisplay">Account: •••• ••••</div>
                             </div>
                             <div class="profile-arrow">
                                 <i class="fas fa-chevron-down"></i>
@@ -3400,7 +3489,7 @@
                                 </div>
                                 <div class="profile-details">
                                     <h4 id="menuUserName">Loading...</h4>
-                                    <p id="menuUserEmail">Loading...</p>
+                                    <p id="menuUserAccount">Account: •••• ••••</p>
                                 </div>
                             </div>
                             <div class="menu-items">
@@ -4300,15 +4389,16 @@
                                 <img id="profileSectionImage" src="" alt="Profile Picture" style="display: none;">
                             </div>
                             <h3 id="profileSectionName">Loading...</h3>
-                            <p id="profileSectionEmail" style="color: var(--text-light);">Loading...</p>
+                            <div class="account-number-display-profile" id="profileSectionAccountNumber">
+                                Loading...
+                            </div>
                         </div>
                         
                         <div class="setting-item">
                             <div class="setting-info">
-                                <h5>Email Address</h5>
-                                <p id="profileSectionEmailDisplay">Loading...</p>
+                                <h5>Account Number</h5>
+                                <p id="profileSectionAccountNumberText">Loading...</p>
                             </div>
-                            <button class="action-btn edit">Change</button>
                         </div>
                         <div class="setting-item">
                             <div class="setting-info">
@@ -4668,10 +4758,7 @@
                         <input type="text" id="lastName" class="form-control" required>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="newEmail" class="form-label">Email Address *</label>
-                        <input type="email" id="newEmail" class="form-control" required>
-                    </div>
+                    <!-- EMAIL FIELD REMOVED -->
                     
                     <div class="form-group">
                         <label for="phoneNumber" class="form-label">Phone Number *</label>
@@ -4723,6 +4810,16 @@
                                 <option value="AU">Australia</option>
                             </select>
                         </div>
+                    </div>
+                    
+                    <!-- Account Number Generation -->
+                    <div class="form-group">
+                        <label for="accountNumberField" class="form-label">Account Number *</label>
+                        <div class="account-number-generator">
+                            <input type="text" id="accountNumberField" class="form-control" readonly required>
+                            <button type="button" id="generateAccountNumberBtn">Generate</button>
+                        </div>
+                        <small style="color: var(--text-light); font-size: var(--font-size-xs);">Click Generate to create your account number</small>
                     </div>
                     
                     <div class="form-group">
@@ -4877,10 +4974,10 @@
     <!-- Hidden File Input for Avatar Upload -->
     <input type="file" id="avatarInput" accept="image/*" style="display: none;">
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK - Only Firestore and Storage -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     
     <script>
         // ==============================
@@ -4896,10 +4993,10 @@
             measurementId: "G-N6JBRJ339S"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase (NO AUTHENTICATION)
         const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
+        const storage = firebase.storage();
 
         // ==============================
         // CLOUDINARY CONFIGURATION
@@ -4946,13 +5043,13 @@
         // INITIALIZATION
         // ==============================
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("DOM loaded, checking authentication...");
+            console.log("DOM loaded, checking session...");
             
             // Set current date for dashboard
             updateCurrentDate();
             
-            // Check if user is already logged in (with session persistence)
-            checkAuthState();
+            // Check if user is already logged in from localStorage
+            checkSession();
             
             // Initialize event listeners
             initEventListeners();
@@ -4966,6 +5063,32 @@
             // Initialize statement features
             initStatementFeatures();
         });
+
+        // Check if user has an active session
+        function checkSession() {
+            const savedUserData = localStorage.getItem('userData');
+            const savedUserId = localStorage.getItem('userId');
+            
+            if (savedUserData && savedUserId) {
+                try {
+                    currentUser = { uid: savedUserId };
+                    userData = JSON.parse(savedUserData);
+                    isAdmin = userData.role === 'admin';
+                    userPin = userData.pin || null;
+                    
+                    console.log("User session found:", userData.firstName);
+                    showDashboardPage();
+                    loadUserData();
+                } catch (error) {
+                    console.error("Error loading session:", error);
+                    localStorage.removeItem('userData');
+                    localStorage.removeItem('userId');
+                    showLoginPage();
+                }
+            } else {
+                showLoginPage();
+            }
+        }
 
         // Initialize bank suggestions
         function initBankSuggestions() {
@@ -5097,52 +5220,6 @@
         }
 
         // ==============================
-        // AUTHENTICATION STATE CHECKING
-        // ==============================
-        function checkAuthState() {
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    console.log("User is already logged in:", user.email);
-                    currentUser = user;
-                    
-                    // Set persistence
-                    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-                    
-                    // Load user data
-                    await loadUserData();
-                    
-                    // Show dashboard page
-                    showDashboardPage();
-                    
-                    // Update login status in localStorage
-                    localStorage.setItem('userLoggedIn', 'true');
-                    localStorage.setItem('userEmail', user.email);
-                } else {
-                    console.log("No user logged in, showing login page");
-                    
-                    // Check if we should stay on login page or show create account
-                    const urlParams = new URLSearchParams(window.location.search);
-                    if (urlParams.get('action') === 'create-account') {
-                        showCreateAccountModal();
-                    }
-                    
-                    showLoginPage();
-                    
-                    // Clear login status from localStorage
-                    localStorage.removeItem('userLoggedIn');
-                    localStorage.removeItem('userEmail');
-                }
-            });
-        }
-
-        // Update current date function
-        function updateCurrentDate() {
-            const currentDate = new Date();
-            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-            document.getElementById('currentDate').textContent = currentDate.toLocaleDateString('en-US', options);
-        }
-
-        // ==============================
         // PAGE MANAGEMENT FUNCTIONS
         // ==============================
         function showLoginPage() {
@@ -5153,16 +5230,16 @@
             // Reset form
             document.getElementById('loginForm').reset();
             
-            // Auto-focus email input
-            const emailInput = document.getElementById('email');
-            if (emailInput && window.innerWidth >= 992) {
-                emailInput.focus();
+            // Auto-focus account number input
+            const accountNumberInput = document.getElementById('accountNumber');
+            if (accountNumberInput && window.innerWidth >= 992) {
+                accountNumberInput.focus();
             }
             
-            // Load remembered email if exists
-            const rememberedEmail = localStorage.getItem('rememberedEmail');
-            if (rememberedEmail) {
-                emailInput.value = rememberedEmail;
+            // Load remembered account number if exists
+            const rememberedAccount = localStorage.getItem('rememberedAccount');
+            if (rememberedAccount) {
+                accountNumberInput.value = rememberedAccount;
                 document.getElementById('rememberMe').checked = true;
             }
         }
@@ -5191,10 +5268,10 @@
         }
 
         // ==============================
-        // AUTHENTICATION FUNCTIONS - UPDATED WITH ACCOUNT SUSPENSION CHECK
+        // AUTHENTICATION FUNCTIONS - UPDATED FOR ACCOUNT NUMBER LOGIN
         // ==============================
-        async function authenticateUser(email, password, rememberMe) {
-            console.log("Starting authentication for:", email);
+        async function authenticateUser(accountNumber, password, rememberMe) {
+            console.log("Starting authentication for account number:", accountNumber);
             
             try {
                 // Show loading state
@@ -5205,22 +5282,15 @@
                 loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
                 loginButton.disabled = true;
                 
-                // Set persistence mode
-                const persistence = rememberMe ? 
-                    firebase.auth.Auth.Persistence.LOCAL : 
-                    firebase.auth.Auth.Persistence.SESSION;
-                
-                await auth.setPersistence(persistence);
-                
-                // Check if user exists in Firestore
+                // Check if user exists in Firestore by account number
                 const usersSnapshot = await db.collection('users')
-                    .where('email', '==', email.toLowerCase())
+                    .where('accountNumber', '==', accountNumber)
                     .limit(1)
                     .get();
                 
                 if (usersSnapshot.empty) {
-                    console.log("No user found in Firestore");
-                    throw new Error('auth/user-not-found');
+                    console.log("No user found with this account number");
+                    throw new Error('User not found');
                 }
                 
                 // User exists in Firestore, get user data
@@ -5230,35 +5300,35 @@
                 
                 // CHECK FOR ACCOUNT SUSPENSION
                 if (userData.status === 'suspended') {
-                    throw new Error('auth/account-suspended');
+                    throw new Error('Account suspended');
                 }
                 
-                // User exists and is not suspended, now try to sign in with Firebase Auth
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                console.log("Firebase Auth successful!");
+                // Check if password matches
+                if (userData.password !== password) {
+                    throw new Error('Incorrect password');
+                }
                 
-                // Get user PIN from Firestore - IMPORTANT: This loads the PIN from Firebase
+                // Get user PIN from Firestore
                 userPin = userData.pin || null;
-                console.log("User PIN loaded from Firestore:", userPin ? "PIN loaded (hidden for security)" : "No PIN found");
+                console.log("User PIN loaded from Firestore:", userPin ? "PIN loaded" : "No PIN found");
                 
                 // Update last login
                 await db.collection('users').doc(userDoc.id).update({
                     lastLogin: new Date().toISOString()
                 });
                 
-                // Save to localStorage if remember me is checked
+                // Save to localStorage
                 if (rememberMe) {
-                    localStorage.setItem('rememberedEmail', email);
-                    localStorage.setItem('userLoggedIn', 'true');
-                    localStorage.setItem('userEmail', email);
+                    localStorage.setItem('rememberedAccount', accountNumber);
                 } else {
-                    localStorage.removeItem('rememberedEmail');
-                    localStorage.setItem('userLoggedIn', 'true');
-                    localStorage.setItem('userEmail', email);
+                    localStorage.removeItem('rememberedAccount');
                 }
                 
+                localStorage.setItem('userData', JSON.stringify(userData));
+                localStorage.setItem('userId', userDoc.id);
+                
                 // Set global user variables
-                currentUser = userCredential.user;
+                currentUser = { uid: userDoc.id };
                 isAdmin = userData.role === 'admin';
                 
                 // Show success message
@@ -5272,29 +5342,17 @@
                 console.error("Authentication error:", error);
                 const loginButton = document.getElementById('loginButton');
                 
-                // Handle specific Firebase errors
+                // Handle specific errors
                 let errorMessage = 'Login failed. Please try again.';
                 
-                switch (error.code || error.message) {
-                    case 'auth/invalid-email':
-                        errorMessage = 'Invalid email address format.';
+                switch (error.message) {
+                    case 'User not found':
+                        errorMessage = 'No account found with this account number.';
                         break;
-                    case 'auth/user-disabled':
-                        errorMessage = 'This account has been disabled by the administrator.';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage = 'No account found with this email. Please check your credentials or contact your administrator.';
-                        break;
-                    case 'auth/wrong-password':
+                    case 'Incorrect password':
                         errorMessage = 'Incorrect password. Please try again.';
                         break;
-                    case 'auth/too-many-requests':
-                        errorMessage = 'Too many failed attempts. Please try again later.';
-                        break;
-                    case 'auth/network-request-failed':
-                        errorMessage = 'Network error. Please check your connection.';
-                        break;
-                    case 'auth/account-suspended':
+                    case 'Account suspended':
                         errorMessage = 'Your account has been suspended. Please contact customer support.';
                         break;
                     default:
@@ -5313,7 +5371,7 @@
         }
 
         // ==============================
-        // CREATE ACCOUNT FUNCTIONS - UPDATED TO STORE PIN IN FIREBASE
+        // CREATE ACCOUNT FUNCTIONS - UPDATED FOR ACCOUNT NUMBER
         // ==============================
         function showCreateAccountModal() {
             document.getElementById('createAccountModal').classList.add('active');
@@ -5341,6 +5399,7 @@
             document.getElementById('profilePreview').style.display = 'none';
             document.getElementById('profileInitialsPreview').style.display = 'flex';
             document.getElementById('removeProfilePictureBtn').style.display = 'none';
+            document.getElementById('accountNumberField').value = '';
             
             // Reset PIN inputs
             document.querySelectorAll('.pin-input').forEach(input => {
@@ -5354,24 +5413,39 @@
             document.getElementById('profileInitialsPreview').textContent = initials;
         }
 
+        // Generate a 12-digit account number
+        function generateAccountNumber() {
+            let accountNumber = '';
+            for (let i = 0; i < 12; i++) {
+                accountNumber += Math.floor(Math.random() * 10);
+            }
+            return accountNumber;
+        }
+
         async function createNewAccount(accountData) {
             try {
-                console.log("Creating new account for:", accountData.email);
+                console.log("Creating new account for:", accountData.firstName);
                 
                 // Show loading
                 showToast('Creating Account', 'Setting up your new account...', 'info');
                 
-                // Create user in Firebase Auth
-                const userCredential = await auth.createUserWithEmailAndPassword(
-                    accountData.email, 
-                    accountData.password
-                );
+                // Check if account number already exists
+                const existingUser = await db.collection('users')
+                    .where('accountNumber', '==', accountData.accountNumber)
+                    .limit(1)
+                    .get();
                 
-                // Prepare user data for Firestore - INCLUDING PIN
+                if (!existingUser.empty) {
+                    throw new Error('Account number already exists');
+                }
+                
+                // Generate a unique user ID
+                const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                // Prepare user data for Firestore
                 const userData = {
                     firstName: accountData.firstName,
                     lastName: accountData.lastName,
-                    email: accountData.email.toLowerCase(),
                     phone: accountData.phone,
                     dateOfBirth: accountData.dateOfBirth,
                     address: {
@@ -5381,13 +5455,14 @@
                         zipCode: accountData.zipCode,
                         country: accountData.country
                     },
-                    pin: accountData.pin, // Store PIN in Firestore - IMPORTANT!
+                    accountNumber: accountData.accountNumber,
+                    password: accountData.password,
+                    pin: accountData.pin,
                     role: accountData.role || 'user',
-                    status: 'active', // Default status is active
+                    status: 'active',
                     profilePicture: accountData.profilePicture || '',
                     createdAt: new Date().toISOString(),
                     lastLogin: new Date().toISOString(),
-                    accountNumber: generateAccountNumber(),
                     accounts: {
                         checking: {
                             balance: 1000.00,
@@ -5414,14 +5489,18 @@
                     }
                 };
                 
-                // Save user data to Firestore (including PIN)
-                await db.collection('users').doc(userCredential.user.uid).set(userData);
+                // Save user data to Firestore
+                await db.collection('users').doc(userId).set(userData);
                 
                 // Set current user and data
-                currentUser = userCredential.user;
-                userData.id = userCredential.user.uid;
+                currentUser = { uid: userId };
+                userData.id = userId;
                 isAdmin = userData.role === 'admin';
-                userPin = accountData.pin; // Store PIN locally for verification
+                userPin = accountData.pin;
+                
+                // Save to localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                localStorage.setItem('userId', userId);
                 
                 // Update UI
                 updateUserProfile();
@@ -5429,8 +5508,8 @@
                 // Close create account modal
                 document.getElementById('createAccountModal').classList.remove('active');
                 
-                // Show success message
-                showToast('Account Created', 'Your account has been created successfully!', 'success');
+                // Show success message with account number
+                showToast('Account Created', `Your account has been created successfully! Your account number is: ${accountData.accountNumber}`, 'success');
                 
                 // Load user data and show dashboard
                 await loadUserData();
@@ -5441,34 +5520,20 @@
                 
                 let errorMessage = 'Failed to create account. Please try again.';
                 
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        errorMessage = 'This email is already registered.';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage = 'Invalid email address.';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = 'Password is too weak. Use at least 8 characters.';
-                        break;
-                    case 'auth/network-request-failed':
-                        errorMessage = 'Network error. Please check your connection.';
+                switch (error.message) {
+                    case 'Account number already exists':
+                        errorMessage = 'This account number already exists. Please generate a new one.';
                         break;
                     default:
-                        errorMessage = error.message;
+                        errorMessage = error.message || 'Please check all fields and try again.';
                 }
                 
                 showToast('Account Creation Failed', errorMessage, 'error');
             }
         }
 
-        function generateAccountNumber() {
-            const randomNum = Math.floor(1000000000 + Math.random() * 9000000000);
-            return `BZ${randomNum}`;
-        }
-
         // ==============================
-        // PROFILE PICTURE FUNCTIONS - FIXED
+        // PROFILE PICTURE FUNCTIONS
         // ==============================
         function initCloudinaryWidget() {
             if (!cloudinaryWidget) {
@@ -5533,11 +5598,11 @@
                 // Update local data
                 userData.profilePicture = imageUrl;
                 
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
                 // Update UI
                 updateAvatarDisplay(imageUrl);
-                
-                // Store in localStorage for faster access
-                localStorage.setItem(`profilePic_${currentUser.uid}`, imageUrl);
                 
                 showToast('Success', 'Profile picture updated!', 'success');
                 
@@ -5596,17 +5661,9 @@
             try {
                 if (!currentUser || !userData) return;
                 
-                // Check localStorage first for faster loading
-                const cachedImage = localStorage.getItem(`profilePic_${currentUser.uid}`);
-                if (cachedImage) {
-                    updateAvatarDisplay(cachedImage);
-                    return cachedImage;
-                }
-                
                 // Check user data for profile picture
                 if (userData.profilePicture) {
                     updateAvatarDisplay(userData.profilePicture);
-                    localStorage.setItem(`profilePic_${currentUser.uid}`, userData.profilePicture);
                     return userData.profilePicture;
                 }
                 
@@ -5643,7 +5700,7 @@
         }
 
         // ==============================
-        // FIREBASE DATA LOADING - FIXED
+        // FIREBASE DATA LOADING - UPDATED FOR ACCOUNT NUMBER
         // ==============================
         async function loadUserData() {
             try {
@@ -5658,14 +5715,12 @@
                     isAdmin = userData.role === 'admin';
                     userPin = userData.pin || null;
                     
-                    console.log("Loaded user PIN from Firestore:", userPin ? "PIN loaded (hidden for security)" : "No PIN found");
+                    console.log("Loaded user PIN from Firestore:", userPin ? "PIN loaded" : "No PIN found");
                     
                     // Check if account is suspended
                     if (userData.status === 'suspended') {
-                        // Sign out the user if account is suspended
-                        await auth.signOut();
-                        localStorage.removeItem('userLoggedIn');
-                        localStorage.removeItem('userEmail');
+                        localStorage.removeItem('userData');
+                        localStorage.removeItem('userId');
                         showToast('Account Suspended', 'Your account has been suspended. Please contact customer support.', 'error');
                         showLoginPage();
                         return;
@@ -5715,11 +5770,10 @@
                     document.getElementById('dashboardContent').style.display = 'block';
                     
                 } else {
-                    // User document doesn't exist, sign out
-                    console.log("User document not found, signing out");
-                    await auth.signOut();
-                    localStorage.removeItem('userLoggedIn');
-                    localStorage.removeItem('userEmail');
+                    // User document doesn't exist
+                    console.log("User document not found");
+                    localStorage.removeItem('userData');
+                    localStorage.removeItem('userId');
                     showToast('Error', 'User account not found. Please contact administrator.', 'error');
                     showLoginPage();
                 }
@@ -5819,6 +5873,10 @@
             });
             
             userAccounts = defaultAccounts;
+            userData.accounts = defaultAccounts;
+            
+            // Update localStorage
+            localStorage.setItem('userData', JSON.stringify(userData));
             
             showToast('Info', 'Default accounts created successfully.', 'info');
         }
@@ -5916,7 +5974,7 @@
                     description: 'Grocery Store',
                     category: 'shopping',
                     date: new Date(Date.now() - 86400000).toISOString(),
-                    status: 'pending', // PENDING TRANSACTION
+                    status: 'pending',
                     bank: 'Chase Bank',
                     recipientName: 'Walmart'
                 },
@@ -6067,24 +6125,23 @@
         }
 
         // ==============================
-        // UI UPDATES - UPDATED TO SHOW PENDING STATUS
+        // UI UPDATES - UPDATED TO SHOW ACCOUNT NUMBER
         // ==============================
         function updateUserProfile() {
             const firstName = userData.firstName || 'User';
             const lastName = userData.lastName || '';
             const fullName = `${firstName} ${lastName}`.trim();
             const initials = (firstName[0] + (lastName[0] || '')).toUpperCase();
-            const email = userData.email || currentUser.email;
+            const accountNumber = userData.accountNumber || '•••• •••• ••••';
 
             // Update name displays
             document.getElementById('userName').textContent = firstName;
             document.getElementById('displayName').textContent = fullName;
             document.getElementById('menuUserName').textContent = fullName;
-            document.getElementById('menuUserEmail').textContent = email;
+            document.getElementById('menuUserAccount').textContent = `Account: ${formatAccountNumber(accountNumber)}`;
 
-            // Update account number
-            const checkingAccount = userAccounts.checking?.accountNumber || '•••• 5678';
-            document.getElementById('accountNumber').textContent = `Account: ${checkingAccount}`;
+            // Update account number display
+            document.getElementById('accountNumberDisplay').textContent = `Account: ${formatAccountNumber(accountNumber)}`;
             
             // Show suspension warning if account is suspended
             if (userData.status === 'suspended') {
@@ -6096,11 +6153,11 @@
             const firstName = userData.firstName || 'User';
             const lastName = userData.lastName || '';
             const fullName = `${firstName} ${lastName}`.trim();
-            const email = userData.email || currentUser.email;
+            const accountNumber = userData.accountNumber || '•••• •••• ••••';
             
             document.getElementById('profileSectionName').textContent = fullName;
-            document.getElementById('profileSectionEmail').textContent = email;
-            document.getElementById('profileSectionEmailDisplay').textContent = email;
+            document.getElementById('profileSectionAccountNumber').textContent = formatAccountNumber(accountNumber);
+            document.getElementById('profileSectionAccountNumberText').textContent = formatAccountNumber(accountNumber);
             
             // Update phone and address if available
             if (userData.phone) {
@@ -6112,6 +6169,13 @@
                 document.getElementById('profileSectionAddress').textContent = 
                     `${address.street || ''}, ${address.city || ''}, ${address.state || ''} ${address.zipCode || ''}`;
             }
+        }
+
+        // Format account number for display
+        function formatAccountNumber(accountNumber) {
+            if (!accountNumber) return '•••• •••• ••••';
+            // Format as XXXX XXXX XXXX
+            return accountNumber.replace(/(\d{4})(?=\d)/g, '$1 ');
         }
 
         function updateDashboardUI() {
@@ -6492,7 +6556,7 @@
         }
 
         // ==============================
-        // PIN VERIFICATION FUNCTIONS - FIXED
+        // PIN VERIFICATION FUNCTIONS
         // ==============================
         function showPinVerificationModal(transferData) {
             currentTransferData = transferData;
@@ -6548,7 +6612,7 @@
         }
 
         // ==============================
-        // TRANSFER PROCESSING FUNCTIONS - FIXED
+        // TRANSFER PROCESSING FUNCTIONS
         // ==============================
         async function processTransfer(transferData) {
             try {
@@ -6572,13 +6636,12 @@
                     recipientAccount: transferData.recipientAccount,
                     transferType: transferData.transferType,
                     date: new Date().toISOString(),
-                    status: 'pending', // TRANSACTION STARTS AS PENDING
+                    status: 'pending',
                     reference: generateReferenceNumber(),
                     pinVerified: true
                 };
                 
                 // Update account balance in Firestore (only when completed)
-                // For pending transactions, we don't deduct from balance yet
                 const fromAccountData = userAccounts[transferData.fromAccount];
                 
                 // Save transaction to Firestore
@@ -6647,7 +6710,7 @@
         }
 
         // ==============================
-        // ADMIN FUNCTIONS - BALANCE EDITOR - FIXED
+        // ADMIN FUNCTIONS - BALANCE EDITOR
         // ==============================
         function showAdminBalanceEditor() {
             // Create a simple balance editor modal
@@ -6713,6 +6776,10 @@
                 
                 await db.collection('users').doc(currentUser.uid).update(updates);
                 
+                // Update local userData
+                userData.accounts = userAccounts;
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
                 // Update UI
                 updateDashboardUI();
                 
@@ -6728,7 +6795,7 @@
         }
 
         // ==============================
-        // EVENT LISTENERS INITIALIZATION - FIXED
+        // EVENT LISTENERS INITIALIZATION
         // ==============================
         function initEventListeners() {
             // Initialize Cloudinary widget
@@ -6739,23 +6806,23 @@
                 e.preventDefault();
                 e.stopPropagation();
                 
-                const email = document.getElementById('email').value.trim();
+                const accountNumber = document.getElementById('accountNumber').value.trim();
                 const password = document.getElementById('password').value;
                 const rememberMe = document.getElementById('rememberMe').checked;
                 
                 // Validation
-                if (!email || !password) {
+                if (!accountNumber || !password) {
                     showToast('Error', 'Please fill in all required fields.', 'error');
                     return;
                 }
                 
-                if (!isValidEmail(email)) {
-                    showToast('Error', 'Please enter a valid email address.', 'error');
+                if (!/^\d{12}$/.test(accountNumber)) {
+                    showToast('Error', 'Please enter a valid 12-digit account number.', 'error');
                     return;
                 }
                 
-                // Authenticate with Firebase
-                await authenticateUser(email, password, rememberMe);
+                // Authenticate with account number and password
+                await authenticateUser(accountNumber, password, rememberMe);
             });
 
             // Toggle password visibility
@@ -6793,17 +6860,11 @@
                 // Validate step 1
                 const firstName = document.getElementById('firstName').value.trim();
                 const lastName = document.getElementById('lastName').value.trim();
-                const email = document.getElementById('newEmail').value.trim();
                 const phone = document.getElementById('phoneNumber').value.trim();
                 const dob = document.getElementById('dateOfBirth').value;
                 
-                if (!firstName || !lastName || !email || !phone || !dob) {
+                if (!firstName || !lastName || !phone || !dob) {
                     showToast('Error', 'Please fill all required fields.', 'error');
-                    return;
-                }
-                
-                if (!isValidEmail(email)) {
-                    showToast('Error', 'Please enter a valid email address.', 'error');
                     return;
                 }
                 
@@ -6816,6 +6877,13 @@
                 document.getElementById('step2').classList.add('active');
                 document.querySelectorAll('.step')[1].classList.add('active');
                 currentStep = 2;
+            });
+
+            // Generate account number button
+            document.getElementById('generateAccountNumberBtn').addEventListener('click', function() {
+                const accountNumber = generateAccountNumber();
+                document.getElementById('accountNumberField').value = accountNumber;
+                showToast('Account Number Generated', `Your account number is: ${accountNumber}`, 'success');
             });
 
             // Step 2 navigation
@@ -6833,11 +6901,17 @@
                 const state = document.getElementById('state').value.trim();
                 const zip = document.getElementById('zipCode').value.trim();
                 const country = document.getElementById('country').value;
+                const accountNumber = document.getElementById('accountNumberField').value.trim();
                 const password = document.getElementById('newPassword').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
                 
-                if (!street || !city || !state || !zip || !country || !password || !confirmPassword) {
+                if (!street || !city || !state || !zip || !country || !accountNumber || !password || !confirmPassword) {
                     showToast('Error', 'Please fill all required fields.', 'error');
+                    return;
+                }
+                
+                if (!/^\d{12}$/.test(accountNumber)) {
+                    showToast('Error', 'Please generate a valid 12-digit account number.', 'error');
                     return;
                 }
                 
@@ -6942,7 +7016,6 @@
                 const accountData = {
                     firstName: document.getElementById('firstName').value.trim(),
                     lastName: document.getElementById('lastName').value.trim(),
-                    email: document.getElementById('newEmail').value.trim(),
                     phone: document.getElementById('phoneNumber').value.trim(),
                     dateOfBirth: document.getElementById('dateOfBirth').value,
                     streetAddress: document.getElementById('streetAddress').value.trim(),
@@ -6950,6 +7023,7 @@
                     state: document.getElementById('state').value.trim(),
                     zipCode: document.getElementById('zipCode').value.trim(),
                     country: document.getElementById('country').value,
+                    accountNumber: document.getElementById('accountNumberField').value.trim(),
                     password: document.getElementById('newPassword').value,
                     profilePicture: document.getElementById('profilePictureUrl').value,
                     role: document.querySelector('input[name="accountType"]:checked').value,
@@ -7024,7 +7098,7 @@
                 showSection('admin');
             });
 
-            // Transfer form submission - FIXED TO SHOW PIN VERIFICATION MODAL
+            // Transfer form submission
             document.getElementById('transferForm')?.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -7081,7 +7155,7 @@
                 showPinVerificationModal(transferData);
             });
 
-            // Mobile transfer form submission - FIXED TO SHOW PIN VERIFICATION MODAL
+            // Mobile transfer form submission
             document.getElementById('mobileTransferForm')?.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -7155,9 +7229,15 @@
             document.getElementById('logoutMenuItem')?.addEventListener('click', async (e) => {
                 e.preventDefault();
                 try {
-                    await auth.signOut();
-                    localStorage.removeItem('userLoggedIn');
-                    localStorage.removeItem('userEmail');
+                    // Clear all user data
+                    currentUser = null;
+                    userData = null;
+                    userAccounts = {};
+                    userTransactions = [];
+                    localStorage.removeItem('userData');
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('rememberedAccount');
+                    
                     showToast('Signed Out', 'You have been successfully signed out.', 'success');
                     setTimeout(() => {
                         showLoginPage();
@@ -7190,7 +7270,7 @@
                 document.getElementById('adminModal').classList.remove('active');
             });
 
-            // Receipt modal close button - FIX ADDED HERE
+            // Receipt modal close button
             document.getElementById('closeReceiptBtn')?.addEventListener('click', () => {
                 document.getElementById('receiptModal').classList.remove('active');
             });
@@ -7265,11 +7345,6 @@
         // ==============================
         // HELPER FUNCTIONS
         // ==============================
-        function isValidEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-
         function formatCurrency(amount) {
             return new Intl.NumberFormat('en-US', {
                 style: 'currency',
@@ -7611,134 +7686,110 @@
         // OTHER FUNCTIONS (for compatibility)
         // ==============================
         function showTransactionDetails(transaction) {
-            // Implementation for showing transaction details
             console.log('Showing transaction details:', transaction);
         }
 
         function payBill(bill) {
-            // Implementation for paying a bill
             console.log('Paying bill:', bill);
             showToast('Bill Payment', `Paying ${bill.name}...`, 'info');
         }
 
         function showAccountDetails(account) {
-            // Implementation for showing account details
             console.log('Showing account details:', account);
         }
 
         function showInvestmentDetails() {
-            // Implementation for showing investment details
             console.log('Showing investment details');
         }
 
         function showAllTransactions() {
-            // Implementation for showing all transactions
             console.log('Showing all transactions');
         }
 
         function showTransferHistory() {
-            // Implementation for showing transfer history
             console.log('Showing transfer history');
         }
 
         function showManageContacts() {
-            // Implementation for managing contacts
             console.log('Managing contacts');
         }
 
         function showAddContactModal() {
-            // Implementation for adding a contact
             console.log('Adding contact modal');
         }
 
         function showAllBills() {
-            // Implementation for showing all bills
             console.log('Showing all bills');
         }
 
         function showSetupBills() {
-            // Implementation for setting up bills
             console.log('Setting up bills');
         }
 
         function showBillPaymentSection() {
-            // Implementation for showing bill payment section
             console.log('Showing bill payment section');
         }
 
         function showCheckDepositModal() {
-            // Implementation for check deposit modal
             console.log('Showing check deposit modal');
         }
 
         function showWireTransferModal() {
-            // Implementation for wire transfer modal
             console.log('Showing wire transfer modal');
         }
 
         function showAtmLocator() {
-            // Implementation for ATM locator
             console.log('Showing ATM locator');
         }
 
         function showAddMoneyModal() {
-            // Implementation for add money modal
             console.log('Showing add money modal');
         }
 
         function showWithdrawModal() {
-            // Implementation for withdraw modal
             console.log('Showing withdraw modal');
         }
 
         function showLoanApplication() {
-            // Implementation for loan application
             console.log('Showing loan application');
         }
 
         function showInvestmentOptions() {
-            // Implementation for investment options
             console.log('Showing investment options');
         }
 
         function showPortfolioPerformance() {
-            // Implementation for portfolio performance
             console.log('Showing portfolio performance');
         }
 
         function showNotifications() {
-            // Implementation for notifications
             console.log('Showing notifications');
         }
 
         function showManageUsers() {
-            // Implementation for managing users
             console.log('Managing users');
         }
 
         function showHelpCenter() {
-            // Implementation for help center
             console.log('Showing help center');
         }
 
         function showInterestDetails(account) {
-            // Implementation for interest details
             console.log('Showing interest details for:', account);
         }
 
         // Initialize the app when DOM is fully loaded
         window.addEventListener('load', function() {
-            // Check if user was logged in before page refresh
-            const wasLoggedIn = localStorage.getItem('userLoggedIn');
-            const userEmail = localStorage.getItem('userEmail');
-            
-            if (wasLoggedIn && userEmail) {
-                console.log("User was previously logged in, checking auth state...");
-            }
-            
             // Initialize Cloudinary widget
             initCloudinaryWidget();
         });
+
+        // Update current date function
+        function updateCurrentDate() {
+            const currentDate = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            document.getElementById('currentDate').textContent = currentDate.toLocaleDateString('en-US', options);
+        }
 
     </script>
     <script type="text/javascript">
@@ -7754,4 +7805,3 @@
     </script>
 </body>
 </html>
-

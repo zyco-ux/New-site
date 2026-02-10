@@ -651,6 +651,78 @@
             border-color: var(--admin-purple);
         }
 
+        /* Transaction Status Toggle */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--success-green);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .transaction-status-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .transaction-status-label.approved {
+            color: var(--success-green);
+        }
+
+        .transaction-status-label.pending {
+            color: var(--warning-orange);
+        }
+
+        /* Account Number Styles */
+        .account-number {
+            font-family: monospace;
+            font-size: 13px;
+            background-color: var(--bg-light);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
         /* Modal Styles */
         .modal-overlay {
             position: fixed;
@@ -1224,7 +1296,8 @@
                                 <tr>
                                     <th>User</th>
                                     <th>Email</th>
-                                    <th>Phone</th>
+                                    <th>Account Number</th>
+                                    <th>Transaction Status</th>
                                     <th>Status</th>
                                     <th>Role</th>
                                     <th>Accounts</th>
@@ -1343,6 +1416,7 @@
                                 <tr>
                                     <th>User</th>
                                     <th>Email</th>
+                                    <th>Account Number</th>
                                     <th>Current PIN</th>
                                     <th>PIN Status</th>
                                     <th>Last PIN Change</th>
@@ -1386,6 +1460,28 @@
                             <div class="form-group">
                                 <label class="form-label">Phone Number *</label>
                                 <input type="tel" class="form-input" id="createPhone" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Account Number *</label>
+                                <input type="text" class="form-input" id="createAccountNumber" required placeholder="e.g., 4500 1234 5678 9012">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Transaction Approval</label>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="createTransactionApproval" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="transaction-status-label approved" id="createTransactionStatusLabel">
+                                        <i class="fas fa-check-circle"></i> Approved
+                                    </span>
+                                </div>
+                                <small style="color: var(--text-light); font-size: 12px;">
+                                    When off, all user transactions will be marked as pending
+                                </small>
                             </div>
                         </div>
                         
@@ -1527,7 +1623,7 @@
         </div>
         <div class="toast-content">
             <div class="toast-title" id="toastTitle">Notification</div>
-            <div class="toast-message" id="toastMessage">This is a notification message.</div>
+            <div class="toastMessage" id="toastMessage">This is a notification message.</div>
         </div>
         <button class="toast-close" id="toastClose">
             <i class="fas fa-times"></i>
@@ -1760,9 +1856,28 @@
                 const usersSnapshot = await db.collection('users').get();
                 allUsers = [];
                 usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
                     allUsers.push({
                         id: doc.id,
-                        ...doc.data()
+                        // Ensure all required fields exist
+                        firstName: userData.firstName || '',
+                        lastName: userData.lastName || '',
+                        email: userData.email || '',
+                        phone: userData.phone || '',
+                        role: userData.role || 'user',
+                        status: userData.status || 'inactive',
+                        profilePicture: userData.profilePicture || null,
+                        accountNumber: userData.accountNumber || userData.accounts?.checking?.accountNumber || 'Not Set',
+                        transactionApproval: userData.transactionApproval !== undefined ? userData.transactionApproval : true,
+                        pin: userData.pin || null,
+                        pinUpdatedAt: userData.pinUpdatedAt || null,
+                        lastLogin: userData.lastLogin || null,
+                        accounts: userData.accounts || {
+                            checking: { balance: 0, accountNumber: '' },
+                            savings: { balance: 0 },
+                            investment: { balance: 0 }
+                        },
+                        createdAt: userData.createdAt || new Date().toISOString()
                     });
                 });
                 console.log('Loaded all users:', allUsers.length);
@@ -1909,7 +2024,7 @@
             if (allUsers.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="9" style="text-align: center; padding: 40px; color: var(--text-light);">
+                        <td colspan="10" style="text-align: center; padding: 40px; color: var(--text-light);">
                             <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; display: block; color: var(--light-blue);"></i>
                             <div>No users found. Create your first user in the "Create User" section.</div>
                         </td>
@@ -1931,6 +2046,15 @@
                 }
                 avatarHtml += `</div>`;
                 
+                // Account number
+                const accountNumber = user.accountNumber || user.accounts?.checking?.accountNumber || 'Not Set';
+                const formattedAccountNumber = accountNumber.length > 12 ? 
+                    `${accountNumber.substring(0, 4)} **** **** ${accountNumber.substring(accountNumber.length - 4)}` : 
+                    accountNumber;
+                
+                // Transaction approval status
+                const transactionApproval = user.transactionApproval !== false; // Default to true if not set
+                
                 // PIN status
                 const pinStatus = user.pin ? 
                     `<span style="color: var(--success-green); font-weight: 600;">✓ Set</span>` : 
@@ -1951,14 +2075,29 @@
                         </div>
                     </td>
                     <td>${user.email}</td>
-                    <td>${user.phone || 'N/A'}</td>
+                    <td>
+                        <div class="account-number">${formattedAccountNumber}</div>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label class="toggle-switch">
+                                <input type="checkbox" ${transactionApproval ? 'checked' : ''} 
+                                       onchange="toggleTransactionApproval('${user.id}', this.checked)">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="transaction-status-label ${transactionApproval ? 'approved' : 'pending'}">
+                                <i class="fas ${transactionApproval ? 'fa-check-circle' : 'fa-clock'}"></i>
+                                ${transactionApproval ? 'Approved' : 'Pending'}
+                            </span>
+                        </div>
+                    </td>
                     <td><span class="user-status ${user.status === 'active' ? 'status-active' : 'status-inactive'}">${user.status || 'inactive'}</span></td>
                     <td><span class="role-badge ${user.role === 'admin' ? 'role-admin' : 'role-user'}">${user.role || 'user'}</span></td>
                     <td>
                         <div style="font-size: 11px;">
-                            ${user.accounts?.checking?.accountNumber ? '✓ Checking<br>' : ''}
-                            ${user.accounts?.savings?.accountNumber ? '✓ Savings<br>' : ''}
-                            ${user.accounts?.investment?.portfolioType ? '✓ Investment' : ''}
+                            ${user.accounts?.checking?.balance !== undefined ? '✓ Checking<br>' : ''}
+                            ${user.accounts?.savings?.balance !== undefined ? '✓ Savings<br>' : ''}
+                            ${user.accounts?.investment?.balance !== undefined ? '✓ Investment' : ''}
                         </div>
                     </td>
                     <td>${pinStatus}</td>
@@ -1980,6 +2119,27 @@
                 
                 tableBody.appendChild(row);
             });
+        }
+
+        async function toggleTransactionApproval(userId, approved) {
+            try {
+                // Update in Firestore
+                await db.collection('users').doc(userId).update({
+                    transactionApproval: approved
+                });
+                
+                // Update local data
+                const userIndex = allUsers.findIndex(u => u.id === userId);
+                if (userIndex !== -1) {
+                    allUsers[userIndex].transactionApproval = approved;
+                }
+                
+                showToast('Success', `Transaction approval ${approved ? 'enabled' : 'disabled'} for user`, 'success');
+                
+            } catch (error) {
+                console.error('Error updating transaction approval:', error);
+                showToast('Error', 'Failed to update transaction approval.', 'error');
+            }
         }
 
         function updateTransactionsTable() {
@@ -2136,7 +2296,7 @@
             if (allUsers.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-light);">
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-light);">
                             <i class="fas fa-key" style="font-size: 48px; margin-bottom: 16px; display: block; color: var(--light-blue);"></i>
                             <div>No users found. Create your first user to manage PINs.</div>
                         </td>
@@ -2147,6 +2307,12 @@
             
             allUsers.forEach(user => {
                 const row = document.createElement('tr');
+                
+                // Account number
+                const accountNumber = user.accountNumber || user.accounts?.checking?.accountNumber || 'Not Set';
+                const formattedAccountNumber = accountNumber.length > 12 ? 
+                    `${accountNumber.substring(0, 4)} **** **** ${accountNumber.substring(accountNumber.length - 4)}` : 
+                    accountNumber;
                 
                 // PIN display (masked for security)
                 const pinDisplay = user.pin ? 
@@ -2170,6 +2336,9 @@
                         </div>
                     </td>
                     <td>${user.email}</td>
+                    <td>
+                        <div class="account-number">${formattedAccountNumber}</div>
+                    </td>
                     <td style="font-family: monospace; font-size: 16px; letter-spacing: 2px;">${pinDisplay}</td>
                     <td>${pinStatus}</td>
                     <td>${user.pinUpdatedAt ? new Date(user.pinUpdatedAt).toLocaleDateString() : 'Never'}</td>
@@ -2321,6 +2490,9 @@
                 const userDoc = await db.collection('users').doc(userId).get();
                 const userData = userDoc.data();
                 
+                // Get account number
+                const accountNumber = userData.accountNumber || userData.accounts?.checking?.accountNumber || '';
+                
                 // Create edit form
                 const editForm = document.createElement('form');
                 editForm.id = 'editUserForm';
@@ -2345,6 +2517,29 @@
                         <div class="form-group">
                             <label class="form-label">Phone Number</label>
                             <input type="tel" class="form-input" id="editPhone" value="${userData.phone || ''}">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Account Number *</label>
+                            <input type="text" class="form-input" id="editAccountNumber" value="${accountNumber}" required placeholder="e.g., 4500 1234 5678 9012">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Transaction Approval</label>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="editTransactionApproval" ${userData.transactionApproval !== false ? 'checked' : ''}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="transaction-status-label ${userData.transactionApproval !== false ? 'approved' : 'pending'}" id="editTransactionStatusLabel">
+                                    <i class="fas ${userData.transactionApproval !== false ? 'fa-check-circle' : 'fa-clock'}"></i>
+                                    ${userData.transactionApproval !== false ? 'Approved' : 'Pending'}
+                                </span>
+                            </div>
+                            <small style="color: var(--text-light); font-size: 12px;">
+                                When off, all user transactions will be marked as pending
+                            </small>
                         </div>
                     </div>
                     
@@ -2407,6 +2602,18 @@
                     });
                 }
                 
+                // Transaction approval toggle listener
+                document.getElementById('editTransactionApproval').addEventListener('change', function() {
+                    const label = document.getElementById('editTransactionStatusLabel');
+                    if (this.checked) {
+                        label.innerHTML = '<i class="fas fa-check-circle"></i> Approved';
+                        label.className = 'transaction-status-label approved';
+                    } else {
+                        label.innerHTML = '<i class="fas fa-clock"></i> Pending';
+                        label.className = 'transaction-status-label pending';
+                    }
+                });
+                
                 document.getElementById('editUserForm').addEventListener('submit', async (e) => {
                     e.preventDefault();
                     await saveUserEdits(userId);
@@ -2424,11 +2631,13 @@
                 const lastName = document.getElementById('editLastName').value.trim();
                 const email = document.getElementById('editEmail').value.trim();
                 const phone = document.getElementById('editPhone').value.trim();
+                const accountNumber = document.getElementById('editAccountNumber').value.trim();
+                const transactionApproval = document.getElementById('editTransactionApproval').checked;
                 const role = document.getElementById('editRole').value;
                 const status = document.getElementById('editStatus').value;
                 const profilePicture = document.getElementById('editProfilePictureUrl').value;
                 
-                if (!firstName || !lastName || !email) {
+                if (!firstName || !lastName || !email || !accountNumber) {
                     showToast('Error', 'Please fill in all required fields.', 'error');
                     return;
                 }
@@ -2439,10 +2648,13 @@
                     lastName,
                     email: email.toLowerCase(),
                     phone,
+                    accountNumber,
+                    transactionApproval,
                     role,
                     status,
                     profilePicture: profilePicture || null,
-                    updatedAt: new Date().toISOString()
+                    updatedAt: new Date().toISOString(),
+                    'accounts.checking.accountNumber': accountNumber
                 });
                 
                 // Update local data
@@ -2454,10 +2666,20 @@
                         lastName,
                         email: email.toLowerCase(),
                         phone,
+                        accountNumber,
+                        transactionApproval,
                         role,
                         status,
                         profilePicture: profilePicture || null
                     };
+                    
+                    // Update accounts if they exist
+                    if (allUsers[userIndex].accounts) {
+                        if (!allUsers[userIndex].accounts.checking) {
+                            allUsers[userIndex].accounts.checking = {};
+                        }
+                        allUsers[userIndex].accounts.checking.accountNumber = accountNumber;
+                    }
                 }
                 
                 // Update UI
@@ -2876,6 +3098,8 @@
                     lastName: userData.lastName,
                     email: userData.email.toLowerCase(),
                     phone: userData.phone,
+                    accountNumber: userData.accountNumber,
+                    transactionApproval: userData.transactionApproval,
                     role: userData.role,
                     status: userData.status,
                     pin: userData.pin,
@@ -2885,21 +3109,21 @@
                     accounts: {
                         checking: {
                             balance: userData.checkingBalance,
-                            accountNumber: '•••• 5678',
-                            fullNumber: '4500 1234 5678 9012',
+                            accountNumber: userData.accountNumber,
+                            fullNumber: userData.accountNumber,
                             type: 'checking',
                             currency: 'USD'
                         },
                         savings: {
                             balance: userData.savingsBalance,
-                            accountNumber: '•••• 9012',
-                            fullNumber: '4500 9876 5432 1098',
+                            accountNumber: `•••• ${userData.accountNumber.substring(userData.accountNumber.length - 4)}`,
+                            fullNumber: userData.accountNumber.replace(/\d{4}(?= \d{4})/g, '****'),
                             type: 'savings',
                             currency: 'USD'
                         },
                         investment: {
                             balance: userData.investmentBalance,
-                            accountNumber: '•••• 3456',
+                            accountNumber: `•••• ${userData.accountNumber.substring(userData.accountNumber.length - 4)}`,
                             type: 'investment',
                             portfolioType: 'IRA • Roth Account',
                             currency: 'USD',
@@ -2967,6 +3191,18 @@
             document.querySelectorAll('#createPin1, #createPin2, #createPin3, #createPin4').forEach(input => {
                 input.value = '';
             });
+            
+            // Reset account number to random one
+            const randomAccount = '4500 ' + 
+                Math.floor(1000 + Math.random() * 9000) + ' ' + 
+                Math.floor(1000 + Math.random() * 9000) + ' ' + 
+                Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('createAccountNumber').value = randomAccount;
+            
+            // Reset transaction approval
+            document.getElementById('createTransactionApproval').checked = true;
+            document.getElementById('createTransactionStatusLabel').innerHTML = '<i class="fas fa-check-circle"></i> Approved';
+            document.getElementById('createTransactionStatusLabel').className = 'transaction-status-label approved';
             
             // Reset balances
             document.getElementById('createCheckingBalance').value = 1000;
@@ -3333,6 +3569,8 @@
                 const lastName = document.getElementById('createLastName').value.trim();
                 const email = document.getElementById('createEmail').value.trim();
                 const phone = document.getElementById('createPhone').value.trim();
+                const accountNumber = document.getElementById('createAccountNumber').value.trim();
+                const transactionApproval = document.getElementById('createTransactionApproval').checked;
                 const password = document.getElementById('createPassword').value;
                 const confirmPassword = document.getElementById('createConfirmPassword').value;
                 const role = document.getElementById('createRole').value;
@@ -3352,7 +3590,7 @@
                 const investmentBalance = parseFloat(document.getElementById('createInvestmentBalance').value) || 0;
                 
                 // Validation
-                if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
+                if (!firstName || !lastName || !email || !phone || !accountNumber || !password || !confirmPassword) {
                     showToast('Error', 'Please fill in all required fields.', 'error');
                     return;
                 }
@@ -3367,6 +3605,11 @@
                     return;
                 }
                 
+                if (accountNumber.replace(/\s/g, '').length < 12) {
+                    showToast('Error', 'Please enter a valid account number (at least 12 digits).', 'error');
+                    return;
+                }
+                
                 if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
                     showToast('Error', 'Please enter a valid 4-digit PIN.', 'error');
                     return;
@@ -3378,6 +3621,8 @@
                     lastName,
                     email,
                     phone,
+                    accountNumber,
+                    transactionApproval,
                     password,
                     role,
                     status,
@@ -3394,6 +3639,18 @@
             // Create user - upload picture button
             document.getElementById('createUploadPictureBtn').addEventListener('click', () => {
                 openCloudinaryWidget('create');
+            });
+            
+            // Create user - transaction approval toggle
+            document.getElementById('createTransactionApproval').addEventListener('change', function() {
+                const label = document.getElementById('createTransactionStatusLabel');
+                if (this.checked) {
+                    label.innerHTML = '<i class="fas fa-check-circle"></i> Approved';
+                    label.className = 'transaction-status-label approved';
+                } else {
+                    label.innerHTML = '<i class="fas fa-clock"></i> Pending';
+                    label.className = 'transaction-status-label pending';
+                }
             });
             
             // Create user - reset form button
@@ -3588,6 +3845,10 @@
                     return;
                 }
                 
+                // Check user's transaction approval status
+                const userTransactionApproval = user.transactionApproval !== false;
+                const finalStatus = userTransactionApproval ? status : 'pending';
+                
                 // Create transaction in Firestore
                 const transactionRef = await db.collection('users').doc(userId)
                     .collection('transactions').add({
@@ -3596,7 +3857,7 @@
                         description,
                         bank,
                         recipientName,
-                        status,
+                        status: finalStatus,
                         date: transactionDate.toISOString(),
                         category,
                         notes,
@@ -3615,7 +3876,7 @@
                     description,
                     bank,
                     recipientName,
-                    status,
+                    status: finalStatus,
                     date: transactionDate.toISOString(),
                     category,
                     notes

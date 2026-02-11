@@ -1853,7 +1853,10 @@
 
         async function loadAllUsers() {
             try {
-                const usersSnapshot = await db.collection('users').get();
+                const usersSnapshot = await db.collection('users')
+                    .where('status', '!=', 'deleted')  // Only load non-deleted users
+                    .get();
+                
                 allUsers = [];
                 usersSnapshot.forEach(doc => {
                     const userData = doc.data();
@@ -2642,8 +2645,8 @@
                     return;
                 }
                 
-                // Update user in Firestore
-                await db.collection('users').doc(userId).update({
+                // Prepare update data for Firestore
+                const updateData = {
                     firstName,
                     lastName,
                     email: email.toLowerCase(),
@@ -2654,24 +2657,27 @@
                     status,
                     profilePicture: profilePicture || null,
                     updatedAt: new Date().toISOString(),
-                    'accounts.checking.accountNumber': accountNumber
-                });
+                    'accounts.checking.accountNumber': accountNumber,
+                    'accounts.checking.fullNumber': accountNumber,
+                    'accounts.savings.accountNumber': `•••• ${accountNumber.substring(accountNumber.length - 4)}`,
+                    'accounts.savings.fullNumber': accountNumber.replace(/\d{4}(?= \d{4})/g, '****')
+                };
+                
+                // Update user in Firestore
+                await db.collection('users').doc(userId).update(updateData);
                 
                 // Update local data
                 const userIndex = allUsers.findIndex(u => u.id === userId);
                 if (userIndex !== -1) {
-                    allUsers[userIndex] = {
-                        ...allUsers[userIndex],
-                        firstName,
-                        lastName,
-                        email: email.toLowerCase(),
-                        phone,
-                        accountNumber,
-                        transactionApproval,
-                        role,
-                        status,
-                        profilePicture: profilePicture || null
-                    };
+                    allUsers[userIndex].firstName = firstName;
+                    allUsers[userIndex].lastName = lastName;
+                    allUsers[userIndex].email = email.toLowerCase();
+                    allUsers[userIndex].phone = phone;
+                    allUsers[userIndex].accountNumber = accountNumber;
+                    allUsers[userIndex].transactionApproval = transactionApproval;
+                    allUsers[userIndex].role = role;
+                    allUsers[userIndex].status = status;
+                    allUsers[userIndex].profilePicture = profilePicture || null;
                     
                     // Update accounts if they exist
                     if (allUsers[userIndex].accounts) {
@@ -2679,6 +2685,13 @@
                             allUsers[userIndex].accounts.checking = {};
                         }
                         allUsers[userIndex].accounts.checking.accountNumber = accountNumber;
+                        allUsers[userIndex].accounts.checking.fullNumber = accountNumber;
+                        
+                        if (!allUsers[userIndex].accounts.savings) {
+                            allUsers[userIndex].accounts.savings = {};
+                        }
+                        allUsers[userIndex].accounts.savings.accountNumber = `•••• ${accountNumber.substring(accountNumber.length - 4)}`;
+                        allUsers[userIndex].accounts.savings.fullNumber = accountNumber.replace(/\d{4}(?= \d{4})/g, '****');
                     }
                 }
                 
@@ -3211,7 +3224,7 @@
         }
 
         // ==============================
-        // DELETE FUNCTIONS
+        // DELETE FUNCTIONS - FIXED
         // ==============================
         async function deleteUser(userId) {
             if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
@@ -3221,21 +3234,26 @@
             try {
                 // Delete user from Firebase Auth
                 // Note: This requires admin privileges and proper setup
-                // For now, we'll just mark as deleted in Firestore
+                // For now, we'll mark the user as deleted in Firestore
                 
                 await db.collection('users').doc(userId).update({
                     status: 'deleted',
                     deletedAt: new Date().toISOString()
                 });
                 
-                // Remove from local data
+                // Remove from local data - FIXED: Use filter instead of marking
                 allUsers = allUsers.filter(user => user.id !== userId);
+                
+                // Also remove user's transactions from local data
+                allTransactions = allTransactions.filter(t => t.userId !== userId);
                 
                 // Update UI
                 updateUsersTable();
                 updateBalancesTable();
                 updatePinsTable();
                 updateDashboardStats();
+                updateTransactionsTable();
+                populateUserFilter();
                 
                 // Close edit modal if open
                 closeEditModal();

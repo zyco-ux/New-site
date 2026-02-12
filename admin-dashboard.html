@@ -2047,7 +2047,9 @@
                 
                 // 1. Update the user's transaction approval flag in Firestore
                 await db.collection('users').doc(userId).update({
-                    transactionApproval: approved
+                    transactionApproval: approved,
+                    approvalUpdatedAt: new Date().toISOString(),
+                    approvalUpdatedBy: ADMIN_CREDENTIALS.email
                 });
                 
                 // 2. Update local user data
@@ -2123,6 +2125,9 @@
                 const userEmail = userIndex !== -1 ? allUsers[userIndex].email : 'Unknown';
                 logAdminActivity(`Transaction approval ${approved ? 'ENABLED' : 'DISABLED'} for user: ${userEmail}`);
                 
+                // 6. FORCE SYNC: Update the document again to trigger real-time listeners on all clients
+                await forceUserSync(userId);
+                
             } catch (error) {
                 console.error('Error updating transaction approval:', error);
                 showToast('Error', 'Failed to update transaction approval. Please try again.', 'error');
@@ -2135,6 +2140,40 @@
                         toggle.checked = !approved;
                     }
                 }
+            }
+        }
+
+        // ==============================
+        // FIX 5: FORCE REAL-TIME UPDATE TO USER'S BROWSER
+        // ==============================
+        async function forceUserSync(userId) {
+            try {
+                console.log(`🔄 Force syncing user ${userId} to all connected clients...`);
+                
+                // Get the updated user data
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (!userDoc.exists) {
+                    console.log('User document not found');
+                    return;
+                }
+                
+                const userData = userDoc.data();
+                
+                // Update a timestamp field to trigger Firestore snapshot listeners
+                // This ensures all connected clients get the real-time update immediately
+                await db.collection('users').doc(userId).update({
+                    lastSync: firebase.firestore.FieldValue.serverTimestamp(),
+                    transactionApproval: userData.transactionApproval // Explicitly set again to trigger listeners
+                });
+                
+                console.log(`✅ Force sync complete for user ${userId}. All clients will receive update.`);
+                
+                // Log the sync action
+                logAdminActivity(`Force sync triggered for user: ${userData.email || userId}`);
+                
+            } catch (error) {
+                console.error('Error force syncing user:', error);
+                // Don't show toast for this - it's a background operation
             }
         }
 
@@ -2284,6 +2323,9 @@
                     passwordResetRequested: new Date().toISOString(),
                     passwordResetRequestedBy: ADMIN_CREDENTIALS.email
                 });
+                
+                // 4. Force sync to trigger real-time updates
+                await forceUserSync(userId);
                 
                 // Show success message
                 showToast('Success', `✓ Password reset email sent to ${user.email}\n✓ User will receive instructions to set new password`, 'success');
@@ -3129,6 +3171,9 @@
                     showToast('Success', 'User updated successfully!', 'success');
                 }
                 
+                // Force sync to trigger real-time updates on all clients
+                await forceUserSync(userId);
+                
                 updateUsersTable();
                 updateBalancesTable();
                 updatePinsTable();
@@ -3227,6 +3272,9 @@
                     allUsers[userIndex].accounts.lastUpdated = new Date().toISOString();
                 }
                 
+                // Force sync to trigger real-time updates on all clients
+                await forceUserSync(userId);
+                
                 updateBalancesTable();
                 updateDashboardStats();
                 
@@ -3313,6 +3361,9 @@
                     allUsers[userIndex].pin = newPin;
                     allUsers[userIndex].pinUpdatedAt = new Date().toISOString();
                 }
+                
+                // Force sync to trigger real-time updates on all clients
+                await forceUserSync(userId);
                 
                 updatePinsTable();
                 updateUsersTable();
@@ -3501,6 +3552,9 @@
                     };
                 }
                 
+                // Force sync to trigger real-time updates on all clients
+                await forceUserSync(userId);
+                
                 updateTransactionsTable();
                 updateDashboardStats();
                 updateActivityLog();
@@ -3658,6 +3712,9 @@
                 allUsers = allUsers.filter(user => user.id !== userId);
                 allTransactions = allTransactions.filter(t => t.userId !== userId);
                 
+                // Force sync to trigger real-time updates on all clients
+                await forceUserSync(userId);
+                
                 updateUsersTable();
                 updateBalancesTable();
                 updatePinsTable();
@@ -3690,6 +3747,9 @@
                 allTransactions = allTransactions.filter(t => 
                     !(t.userId === userId && t.id === transactionId)
                 );
+                
+                // Force sync to trigger real-time updates on all clients
+                await forceUserSync(userId);
                 
                 updateTransactionsTable();
                 updateDashboardStats();
@@ -3734,6 +3794,9 @@
                     allUsers[userIndex].accounts.lastUpdated = new Date().toISOString();
                 }
                 
+                // Force sync to trigger real-time updates on all clients
+                await forceUserSync(userId);
+                
                 updateBalancesTable();
                 updateDashboardStats();
                 
@@ -3763,6 +3826,9 @@
                     allUsers[userIndex].pin = null;
                     allUsers[userIndex].pinUpdatedAt = null;
                 }
+                
+                // Force sync to trigger real-time updates on all clients
+                await forceUserSync(userId);
                 
                 updatePinsTable();
                 updateUsersTable();
@@ -4065,6 +4131,9 @@
                     category,
                     notes
                 });
+                
+                // Force sync to trigger real-time updates on all clients
+                await forceUserSync(userId);
                 
                 updateTransactionsTable();
                 updateDashboardStats();

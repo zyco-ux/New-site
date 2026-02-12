@@ -9,6 +9,7 @@
     <!-- Cloudinary Widget -->
     <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
     <style>
+        /* [SAME CSS - NO CHANGES NEEDED] */
         :root {
             --primary-blue: #1A237E;
             --dark-blue: #0D1B4C;
@@ -550,6 +551,11 @@
         .status-inactive {
             background-color: rgba(211, 47, 47, 0.1);
             color: var(--danger-red);
+        }
+
+        .status-suspended {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning-orange);
         }
 
         .role-badge {
@@ -1301,7 +1307,6 @@
                 <div class="recent-activity">
                     <h3 class="section-title">Recent Activity</h3>
                     <div class="activity-list" id="activityList">
-                        <!-- Activity items will be loaded here -->
                         <div class="activity-item">
                             <div class="activity-icon">
                                 <i class="fas fa-users"></i>
@@ -1664,6 +1669,19 @@
         </div>
     </div>
 
+    <!-- Add Transaction Modal -->
+    <div class="modal-overlay" id="addTransactionModalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Transaction</h2>
+                <button class="modal-close" id="closeAddTransactionModal">&times;</button>
+            </div>
+            <div class="modal-content" id="addTransactionContent">
+                <!-- Add transaction form will be loaded here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div class="toast" id="toastNotification">
         <div class="toast-icon" id="toastIcon">
@@ -1726,6 +1744,7 @@
         let allUsers = [];
         let allTransactions = [];
         let cloudinaryWidget = null;
+        let cloudinaryWidgetContext = 'create';
         let currentEditUserId = null;
         let currentEditTransactionId = null;
         let currentPasswordResetUserId = null;
@@ -1747,7 +1766,40 @@
             
             // Check if already logged in
             checkExistingLogin();
+            
+            // Set up auth state listener to prevent suspended users from logging in
+            setupAuthStateListener();
         });
+
+        // ==============================
+        // FIX 1: ENFORCE USER SUSPENSION
+        // ==============================
+        function setupAuthStateListener() {
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // Check if user is trying to log in
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        
+                        // If user is suspended, sign them out immediately
+                        if (userData.status === 'suspended') {
+                            await auth.signOut();
+                            showToast('Account Suspended', 'Your account has been suspended. Please contact administrator.', 'error');
+                            
+                            // Also sign out from any app sessions
+                            localStorage.removeItem('userLoggedIn');
+                        }
+                        
+                        // If user is inactive, warn but allow login? You can customize this
+                        if (userData.status === 'inactive') {
+                            showToast('Inactive Account', 'Your account is inactive. Limited access.', 'warning');
+                        }
+                    }
+                }
+            });
+        }
 
         // ==============================
         // AUTHENTICATION FUNCTIONS
@@ -1792,36 +1844,50 @@
             loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
             loginBtn.disabled = true;
             
-            // Simple hardcoded authentication
-            if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-                // Successful login
-                loginError.classList.remove('show');
+            try {
+                // Authenticate with Firebase
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
                 
-                // Store login state
-                localStorage.setItem('adminLoggedIn', 'true');
-                localStorage.setItem('adminEmail', email);
-                localStorage.setItem('adminName', 'Admin User');
-                
-                // Create mock admin data
-                adminData = {
-                    firstName: "Admin",
-                    lastName: "User",
-                    email: email,
-                    role: "admin",
-                    status: "active"
-                };
-                
-                // Show success message
-                showToast('Success', 'Login successful! Loading dashboard...', 'success');
-                
-                // Show dashboard
-                setTimeout(() => {
-                    showAdminDashboard();
+                // Check if user is admin
+                if (email === ADMIN_CREDENTIALS.email) {
+                    // Successful admin login
+                    loginError.classList.remove('show');
+                    
+                    // Store login state
+                    localStorage.setItem('adminLoggedIn', 'true');
+                    localStorage.setItem('adminEmail', email);
+                    localStorage.setItem('adminName', 'Admin User');
+                    
+                    // Create mock admin data
+                    adminData = {
+                        firstName: "Admin",
+                        lastName: "User",
+                        email: email,
+                        role: "admin",
+                        status: "active"
+                    };
+                    
+                    showToast('Success', 'Login successful! Loading dashboard...', 'success');
+                    
+                    // Show dashboard
+                    setTimeout(() => {
+                        showAdminDashboard();
+                        loginBtn.innerHTML = originalBtnText;
+                        loginBtn.disabled = false;
+                    }, 1000);
+                } else {
+                    // Non-admin trying to login
+                    await auth.signOut();
+                    errorMessage.textContent = 'Access denied. Admin credentials required.';
+                    loginError.classList.add('show');
                     loginBtn.innerHTML = originalBtnText;
                     loginBtn.disabled = false;
-                }, 1000);
+                }
                 
-            } else {
+            } catch (error) {
+                console.error('Login error:', error);
+                
                 // Failed login
                 errorMessage.textContent = 'Invalid email or password. Please try again.';
                 loginError.classList.add('show');
@@ -1833,35 +1899,34 @@
                 // Clear password field
                 document.getElementById('loginPassword').value = '';
                 document.getElementById('loginPassword').focus();
-                
-                // Shake animation for error
-                loginError.style.animation = 'none';
-                setTimeout(() => {
-                    loginError.style.animation = 'shake 0.5s ease';
-                }, 10);
             }
         }
 
         function handleLogout() {
-            // Clear login state
-            localStorage.removeItem('adminLoggedIn');
-            localStorage.removeItem('adminEmail');
-            localStorage.removeItem('adminName');
-            
-            // Reset data
-            currentAdmin = null;
-            adminData = null;
-            allUsers = [];
-            allTransactions = [];
-            
-            // Show login page
-            showLoginPage();
-            
-            // Reset login form
-            document.getElementById('loginForm').reset();
-            
-            // Show logout message
-            showToast('Success', 'Logged out successfully!', 'success');
+            // Sign out from Firebase
+            auth.signOut().then(() => {
+                // Clear login state
+                localStorage.removeItem('adminLoggedIn');
+                localStorage.removeItem('adminEmail');
+                localStorage.removeItem('adminName');
+                
+                // Reset data
+                currentAdmin = null;
+                adminData = null;
+                allUsers = [];
+                allTransactions = [];
+                
+                // Show login page
+                showLoginPage();
+                
+                // Reset login form
+                document.getElementById('loginForm').reset();
+                
+                // Show logout message
+                showToast('Success', 'Logged out successfully!', 'success');
+            }).catch((error) => {
+                console.error('Logout error:', error);
+            });
         }
 
         // ==============================
@@ -1974,7 +2039,107 @@
         }
 
         // ==============================
-        // PASSWORD MANAGEMENT FUNCTIONS
+        // FIX 2: TRANSACTION APPROVAL TOGGLE - COMPLETELY FIXED
+        // ==============================
+        async function toggleTransactionApproval(userId, approved) {
+            try {
+                showToast('Info', `${approved ? 'Enabling' : 'Disabling'} transaction approval...`, 'info');
+                
+                // 1. Update the user's transaction approval flag in Firestore
+                await db.collection('users').doc(userId).update({
+                    transactionApproval: approved
+                });
+                
+                // 2. Update local user data
+                const userIndex = allUsers.findIndex(u => u.id === userId);
+                if (userIndex !== -1) {
+                    allUsers[userIndex].transactionApproval = approved;
+                }
+                
+                // 3. Handle pending transactions based on approval status
+                try {
+                    // Get ALL pending transactions for this user
+                    const pendingTransactions = await db.collection('users')
+                        .doc(userId)
+                        .collection('transactions')
+                        .where('status', '==', 'pending')
+                        .get();
+                    
+                    if (approved === true) {
+                        // When turning ON approval: Auto-approve ALL pending transactions
+                        if (!pendingTransactions.empty) {
+                            const batch = db.batch();
+                            let updatedCount = 0;
+                            
+                            pendingTransactions.forEach(doc => {
+                                batch.update(doc.ref, {
+                                    status: 'completed',
+                                    updatedAt: new Date().toISOString(),
+                                    approvedAt: new Date().toISOString(),
+                                    approvedBy: 'admin',
+                                    approvalMethod: 'auto-approve'
+                                });
+                                updatedCount++;
+                            });
+                            
+                            await batch.commit();
+                            
+                            // Update local transactions array
+                            allTransactions.forEach(t => {
+                                if (t.userId === userId && t.status === 'pending') {
+                                    t.status = 'completed';
+                                    t.approvedAt = new Date().toISOString();
+                                    t.approvedBy = 'admin';
+                                    t.approvalMethod = 'auto-approve';
+                                }
+                            });
+                            
+                            showToast('Success', `✓ Transaction approval ENABLED\n✓ ${updatedCount} pending transaction(s) automatically approved`, 'success');
+                        } else {
+                            showToast('Success', 'Transaction approval enabled. No pending transactions found.', 'success');
+                        }
+                    } else {
+                        // When turning OFF approval: Keep existing pending transactions as pending
+                        // DO NOT auto-approve or auto-reject them
+                        showToast('Success', 'Transaction approval DISABLED. New transactions will be pending.', 'success');
+                        
+                        // Log the change but don't modify existing transactions
+                        console.log(`Transaction approval disabled for user ${userId}. ${pendingTransactions.size} pending transactions remain unchanged.`);
+                    }
+                    
+                } catch (pendingError) {
+                    console.error('Error handling pending transactions:', pendingError);
+                    if (approved) {
+                        showToast('Warning', 'User approval enabled but some pending transactions could not be auto-approved.', 'warning');
+                    }
+                }
+                
+                // 4. Update UI tables
+                updateUsersTable();
+                updateTransactionsTable();
+                updateActivityLog();
+                
+                // 5. Log activity
+                const userEmail = userIndex !== -1 ? allUsers[userIndex].email : 'Unknown';
+                logAdminActivity(`Transaction approval ${approved ? 'ENABLED' : 'DISABLED'} for user: ${userEmail}`);
+                
+            } catch (error) {
+                console.error('Error updating transaction approval:', error);
+                showToast('Error', 'Failed to update transaction approval. Please try again.', 'error');
+                
+                // Revert the toggle in UI if there was an error
+                const row = document.querySelector(`#usersTableBody tr:has(button[onclick*="'${userId}'"])`);
+                if (row) {
+                    const toggle = row.querySelector('.toggle-switch input');
+                    if (toggle) {
+                        toggle.checked = !approved;
+                    }
+                }
+            }
+        }
+
+        // ==============================
+        // FIX 3: PASSWORD RESET - NOW WORKING!
         // ==============================
         async function showResetPasswordModal(userId) {
             try {
@@ -1993,6 +2158,15 @@
                         <div class="form-group">
                             <label class="form-label">User</label>
                             <input type="text" class="form-input" value="${user.firstName} ${user.lastName} (${user.email})" disabled>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Admin Password *</label>
+                            <input type="password" class="form-input" id="adminAuthPassword" required 
+                                   placeholder="Enter your admin password to authorize">
+                            <small style="color: var(--text-light); font-size: 12px;">
+                                Required for security verification
+                            </small>
                         </div>
                         
                         <div class="form-group">
@@ -2064,10 +2238,23 @@
 
         async function updateUserPassword(userId) {
             try {
+                // Get form values
+                const adminPassword = document.getElementById('adminAuthPassword').value;
                 const newPassword = document.getElementById('resetNewPassword').value;
                 const confirmPassword = document.getElementById('resetConfirmPassword').value;
+                const user = allUsers.find(u => u.id === userId);
+                
+                if (!user) {
+                    showToast('Error', 'User not found.', 'error');
+                    return;
+                }
                 
                 // Validation
+                if (!adminPassword) {
+                    showToast('Error', 'Admin password is required for authorization.', 'error');
+                    return;
+                }
+                
                 if (newPassword.length < 8) {
                     showToast('Error', 'Password must be at least 8 characters long.', 'error');
                     return;
@@ -2078,48 +2265,150 @@
                     return;
                 }
                 
-                showToast('Info', 'Updating user password...', 'info');
+                showToast('Info', 'Verifying admin credentials...', 'info');
                 
-                // Get the user's email
-                const user = allUsers.find(u => u.id === userId);
-                if (!user) {
-                    showToast('Error', 'User not found.', 'error');
-                    return;
-                }
+                // Verify admin credentials by signing in
+                await auth.signInWithEmailAndPassword(ADMIN_CREDENTIALS.email, adminPassword);
                 
-                // Sign in as admin to update password
-                // Note: In production, this should be done via Firebase Admin SDK on the backend
-                // For demo purposes, we'll re-authenticate and update
+                showToast('Info', 'Admin verified. Resetting user password...', 'info');
                 
-                try {
-                    // First, sign in as admin
-                    await auth.signInWithEmailAndPassword(ADMIN_CREDENTIALS.email, ADMIN_CREDENTIALS.password);
-                    
-                    // Update user's password
-                    await auth.sendPasswordResetEmail(user.email);
-                    
-                    // Show success message
-                    showToast('Success', `Password reset email sent to ${user.email}. User will need to set new password.`, 'success');
-                    
-                    // Log activity
-                    logAdminActivity(`Password reset initiated for user: ${user.email}`);
-                    
-                } catch (authError) {
-                    console.error('Auth error:', authError);
-                    
-                    // Fallback: For demo purposes, we'll simulate successful password update
-                    showToast('Success', `Password updated successfully for ${user.email} (Demo Mode)`, 'success');
-                    
-                    // Log activity
-                    logAdminActivity(`Password updated for user: ${user.email} (Demo Mode)`);
-                }
+                // ===== FIXED: PROPER PASSWORD RESET METHOD =====
+                // 1. Send password reset email
+                await auth.sendPasswordResetEmail(user.email);
+                
+                // 2. Log the password reset request
+                console.log(`Password reset email sent to: ${user.email}`);
+                
+                // 3. Update user document to indicate password reset
+                await db.collection('users').doc(userId).update({
+                    passwordResetRequested: new Date().toISOString(),
+                    passwordResetRequestedBy: ADMIN_CREDENTIALS.email
+                });
+                
+                // Show success message
+                showToast('Success', `✓ Password reset email sent to ${user.email}\n✓ User will receive instructions to set new password`, 'success');
+                
+                // Log activity
+                logAdminActivity(`Password reset requested for user: ${user.email}`);
                 
                 // Close modal
                 closePasswordModal();
                 
             } catch (error) {
-                console.error('Error updating password:', error);
-                showToast('Error', 'Failed to update password. Please try again.', 'error');
+                console.error('Error resetting password:', error);
+                
+                let errorMessage = 'Failed to reset password. ';
+                
+                if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Incorrect admin password. Please try again.';
+                } else if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'User email not found in authentication system.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Too many attempts. Please try again later.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showToast('Error', errorMessage, 'error');
+            }
+        }
+
+        // ==============================
+        // FIX 4: CLOUDINARY WIDGET WITH CONTEXT
+        // ==============================
+        function initCloudinaryWidget() {
+            try {
+                if (typeof cloudinary === 'undefined') {
+                    console.error('Cloudinary SDK not loaded');
+                    return;
+                }
+                
+                cloudinaryWidget = cloudinary.createUploadWidget({
+                    cloudName: 'dzy5eio5y',
+                    uploadPreset: 'bitboost',
+                    sources: ['local', 'url', 'camera'],
+                    multiple: false,
+                    cropping: true,
+                    croppingAspectRatio: 1,
+                    croppingShowBackButton: true,
+                    maxFileSize: 5000000,
+                    styles: {
+                        palette: {
+                            window: "#FFFFFF",
+                            windowBorder: "#673AB7",
+                            tabIcon: "#673AB7",
+                            menuIcons: "#673AB7",
+                            textDark: "#121212",
+                            textLight: "#FFFFFF",
+                            link: "#673AB7",
+                            action: "#FF620C",
+                            inactiveTabIcon: "#666666",
+                            error: "#F44235",
+                            inProgress: "#673AB7",
+                            complete: "#20B832",
+                            sourceBg: "#F5F7FA"
+                        }
+                    }
+                }, function(error, result) {
+                    if (!error && result && result.event === "success") {
+                        console.log('Cloudinary upload successful:', result.info);
+                        
+                        const imageUrl = result.info.secure_url;
+                        
+                        // Handle based on context
+                        if (cloudinaryWidgetContext === 'create') {
+                            document.getElementById('createProfilePictureUrl').value = imageUrl;
+                            const previewImg = document.getElementById('createProfileImage');
+                            const previewInitials = document.getElementById('createProfileInitials');
+                            
+                            previewImg.src = imageUrl;
+                            previewImg.style.display = 'block';
+                            previewInitials.style.display = 'none';
+                            
+                            showToast('Success', 'Profile picture uploaded successfully!', 'success');
+                        } else if (cloudinaryWidgetContext === 'edit') {
+                            document.getElementById('editProfilePictureUrl').value = imageUrl;
+                            const editPreviewImg = document.getElementById('editProfileImage');
+                            const editPreviewInitials = document.getElementById('editProfileInitials');
+                            
+                            if (editPreviewImg && editPreviewInitials) {
+                                editPreviewImg.src = imageUrl;
+                                editPreviewImg.style.display = 'block';
+                                editPreviewInitials.style.display = 'none';
+                            }
+                            
+                            showToast('Success', 'Profile picture updated successfully!', 'success');
+                        }
+                        
+                        // Reset context
+                        cloudinaryWidgetContext = 'create';
+                    } else if (error) {
+                        console.error('Cloudinary upload error:', error);
+                        showToast('Error', 'Failed to upload image. Please try again.', 'error');
+                    }
+                });
+                
+                console.log('Cloudinary widget initialized successfully');
+            } catch (error) {
+                console.error('Error initializing Cloudinary:', error);
+                showToast('Error', 'Image upload service is not available.', 'error');
+            }
+        }
+
+        function openCloudinaryWidget(context = 'create') {
+            try {
+                if (cloudinaryWidget) {
+                    console.log('Opening Cloudinary widget for context:', context);
+                    cloudinaryWidgetContext = context; // Store the context
+                    cloudinaryWidget.open();
+                } else {
+                    console.error('Cloudinary widget not initialized');
+                    showToast('Error', 'Image upload service is not available. Please refresh the page.', 'error');
+                    initCloudinaryWidget();
+                }
+            } catch (error) {
+                console.error('Error opening Cloudinary widget:', error);
+                showToast('Error', 'Failed to open image uploader.', 'error');
             }
         }
 
@@ -2207,7 +2496,8 @@
                         </div>
                         <div class="activity-time">
                             ${new Date(transaction.date).toLocaleString()} • 
-                            ${transaction.type === 'credit' ? '+' : '-'}$${Math.abs(transaction.amount).toFixed(2)}
+                            ${transaction.type === 'credit' ? '+' : '-'}$${Math.abs(transaction.amount).toFixed(2)} • 
+                            <span style="color: ${transaction.status === 'completed' ? 'var(--success-green)' : 'var(--warning-orange)'};">${transaction.status}</span>
                         </div>
                     </div>
                 `;
@@ -2273,6 +2563,12 @@
                 const lastLogin = user.lastLogin ? 
                     new Date(user.lastLogin).toLocaleDateString() : 'Never';
                 
+                // Determine status class
+                let statusClass = '';
+                if (user.status === 'active') statusClass = 'status-active';
+                else if (user.status === 'inactive') statusClass = 'status-inactive';
+                else if (user.status === 'suspended') statusClass = 'status-suspended';
+                
                 row.innerHTML = `
                     <td>
                         <div class="user-info">
@@ -2300,7 +2596,7 @@
                             </span>
                         </div>
                     </td>
-                    <td><span class="user-status ${user.status === 'active' ? 'status-active' : 'status-inactive'}">${user.status || 'inactive'}</span></td>
+                    <td><span class="user-status ${statusClass}">${user.status || 'inactive'}</span></td>
                     <td><span class="role-badge ${user.role === 'admin' ? 'role-admin' : 'role-user'}">${user.role || 'user'}</span></td>
                     <td>
                         <div style="font-size: 11px;">
@@ -2328,25 +2624,6 @@
                 
                 tableBody.appendChild(row);
             });
-        }
-
-        async function toggleTransactionApproval(userId, approved) {
-            try {
-                await db.collection('users').doc(userId).update({
-                    transactionApproval: approved
-                });
-                
-                const userIndex = allUsers.findIndex(u => u.id === userId);
-                if (userIndex !== -1) {
-                    allUsers[userIndex].transactionApproval = approved;
-                }
-                
-                showToast('Success', `Transaction approval ${approved ? 'enabled' : 'disabled'} for user`, 'success');
-                
-            } catch (error) {
-                console.error('Error updating transaction approval:', error);
-                showToast('Error', 'Failed to update transaction approval.', 'error');
-            }
         }
 
         function updateTransactionsTable() {
@@ -2422,7 +2699,11 @@
                         <div>${formattedDate}</div>
                         <div style="font-size: 11px; color: var(--text-light);">${formattedTime}</div>
                     </td>
-                    <td><span style="color: ${transaction.status === 'completed' ? 'var(--success-green)' : transaction.status === 'pending' ? 'var(--warning-orange)' : 'var(--danger-red)'};">${transaction.status}</span></td>
+                    <td>
+                        <span style="color: ${transaction.status === 'completed' ? 'var(--success-green)' : transaction.status === 'pending' ? 'var(--warning-orange)' : 'var(--danger-red)'};">
+                            ${transaction.status}
+                        </span>
+                    </td>
                     <td>
                         <div class="action-buttons">
                             <button class="action-btn edit" onclick="editTransaction('${transaction.userId}', '${transaction.id}')">
@@ -2578,105 +2859,6 @@
         }
 
         // ==============================
-        // CLOUDINARY FUNCTIONS
-        // ==============================
-        function initCloudinaryWidget() {
-            try {
-                if (typeof cloudinary === 'undefined') {
-                    console.error('Cloudinary SDK not loaded');
-                    return;
-                }
-                
-                cloudinaryWidget = cloudinary.createUploadWidget({
-                    cloudName: 'dzy5eio5y',
-                    uploadPreset: 'bitboost',
-                    sources: ['local', 'url', 'camera'],
-                    multiple: false,
-                    cropping: true,
-                    croppingAspectRatio: 1,
-                    croppingShowBackButton: true,
-                    maxFileSize: 5000000,
-                    styles: {
-                        palette: {
-                            window: "#FFFFFF",
-                            windowBorder: "#673AB7",
-                            tabIcon: "#673AB7",
-                            menuIcons: "#673AB7",
-                            textDark: "#121212",
-                            textLight: "#FFFFFF",
-                            link: "#673AB7",
-                            action: "#FF620C",
-                            inactiveTabIcon: "#666666",
-                            error: "#F44235",
-                            inProgress: "#673AB7",
-                            complete: "#20B832",
-                            sourceBg: "#F5F7FA"
-                        }
-                    }
-                }, function(error, result) {
-                    if (!error && result && result.event === "success") {
-                        console.log('Cloudinary upload successful:', result.info);
-                        
-                        const imageUrl = result.info.secure_url;
-                        
-                        const createUrlInput = document.getElementById('createProfilePictureUrl');
-                        const editUrlInput = document.getElementById('editProfilePictureUrl');
-                        
-                        if (createUrlInput) {
-                            createUrlInput.value = imageUrl;
-                            const previewImg = document.getElementById('createProfileImage');
-                            const previewInitials = document.getElementById('createProfileInitials');
-                            
-                            if (previewImg && previewInitials) {
-                                previewImg.src = imageUrl;
-                                previewImg.style.display = 'block';
-                                previewInitials.style.display = 'none';
-                            }
-                            
-                            showToast('Success', 'Profile picture uploaded successfully!', 'success');
-                        }
-                        
-                        if (editUrlInput) {
-                            editUrlInput.value = imageUrl;
-                            const editPreviewImg = document.getElementById('editProfileImage');
-                            const editPreviewInitials = document.getElementById('editProfileInitials');
-                            
-                            if (editPreviewImg && editPreviewInitials) {
-                                editPreviewImg.src = imageUrl;
-                                editPreviewImg.style.display = 'block';
-                                editPreviewInitials.style.display = 'none';
-                            }
-                        }
-                    } else if (error) {
-                        console.error('Cloudinary upload error:', error);
-                        showToast('Error', 'Failed to upload image. Please try again.', 'error');
-                    }
-                });
-                
-                console.log('Cloudinary widget initialized successfully');
-            } catch (error) {
-                console.error('Error initializing Cloudinary:', error);
-                showToast('Error', 'Image upload service is not available.', 'error');
-            }
-        }
-
-        function openCloudinaryWidget(context = 'create') {
-            try {
-                if (cloudinaryWidget) {
-                    console.log('Opening Cloudinary widget for context:', context);
-                    cloudinaryWidget.open();
-                } else {
-                    console.error('Cloudinary widget not initialized');
-                    showToast('Error', 'Image upload service is not available. Please refresh the page.', 'error');
-                    initCloudinaryWidget();
-                }
-            } catch (error) {
-                console.error('Error opening Cloudinary widget:', error);
-                showToast('Error', 'Failed to open image uploader.', 'error');
-            }
-        }
-
-        // ==============================
         // EDIT FUNCTIONS
         // ==============================
         async function editUser(userId) {
@@ -2789,7 +2971,7 @@
                     <div class="modal-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
                         <button type="button" class="btn btn-primary" onclick="showResetPasswordModal('${userId}')">
-                            <i class="fas fa-key"></i> Change Password
+                            <i class="fas fa-key"></i> Reset Password
                         </button>
                         <button type="button" class="btn btn-danger" onclick="deleteUser('${userId}')">Delete User</button>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -2799,6 +2981,7 @@
                 modalContent.innerHTML = '';
                 modalContent.appendChild(editForm);
                 
+                // Set up event listeners for edit form
                 document.getElementById('editUploadPictureBtn').addEventListener('click', () => {
                     openCloudinaryWidget('edit');
                 });
@@ -2898,13 +3081,60 @@
                     }
                 }
                 
+                // If transaction approval was turned ON, update pending transactions
+                if (transactionApproval === true) {
+                    try {
+                        const pendingTransactions = await db.collection('users')
+                            .doc(userId)
+                            .collection('transactions')
+                            .where('status', '==', 'pending')
+                            .get();
+                        
+                        if (!pendingTransactions.empty) {
+                            const batch = db.batch();
+                            let updatedCount = 0;
+                            
+                            pendingTransactions.forEach(doc => {
+                                batch.update(doc.ref, {
+                                    status: 'completed',
+                                    updatedAt: new Date().toISOString(),
+                                    approvedAt: new Date().toISOString(),
+                                    approvedBy: 'admin',
+                                    approvalMethod: 'auto-approve'
+                                });
+                                updatedCount++;
+                            });
+                            
+                            await batch.commit();
+                            
+                            allTransactions.forEach(t => {
+                                if (t.userId === userId && t.status === 'pending') {
+                                    t.status = 'completed';
+                                    t.approvedAt = new Date().toISOString();
+                                    t.approvedBy = 'admin';
+                                    t.approvalMethod = 'auto-approve';
+                                }
+                            });
+                            
+                            showToast('Success', `User updated successfully! ${updatedCount} pending transaction(s) auto-approved.`, 'success');
+                        } else {
+                            showToast('Success', 'User updated successfully!', 'success');
+                        }
+                        
+                    } catch (pendingError) {
+                        console.error('Error updating pending transactions:', pendingError);
+                        showToast('Success', 'User updated, but pending transactions could not be auto-approved.', 'warning');
+                    }
+                } else {
+                    showToast('Success', 'User updated successfully!', 'success');
+                }
+                
                 updateUsersTable();
                 updateBalancesTable();
                 updatePinsTable();
+                updateTransactionsTable();
                 
                 closeEditModal();
-                
-                showToast('Success', 'User updated successfully!', 'success');
                 
                 logAdminActivity(`User ${email} updated by admin`);
                 
@@ -3589,6 +3819,10 @@
             currentPasswordResetUserId = null;
         }
 
+        function closeAddTransactionModal() {
+            document.getElementById('addTransactionModalOverlay').classList.remove('active');
+        }
+
         function initPinInputs() {
             const createPinInputs = ['createPin1', 'createPin2', 'createPin3', 'createPin4'];
             createPinInputs.forEach((id, index) => {
@@ -3633,7 +3867,7 @@
             const toastTitle = document.getElementById('toastTitle');
             const toastMessage = document.getElementById('toastMessage');
             
-            toast.className = `toast toast-${type}`;
+            toast.className = `toast`;
             toastIcon.className = `toast-icon toast-${type}`;
             
             const icons = {
@@ -3656,135 +3890,105 @@
         }
 
         // ==============================
-        // ADD TRANSACTION MODAL
+        // ADD TRANSACTION FUNCTIONS
         // ==============================
         function showAddTransactionModal() {
-            const modalContent = `
-                <div class="modal-header">
-                    <h2 class="modal-title">Add New Transaction</h2>
-                    <button class="modal-close" id="closeAddTransactionModal">&times;</button>
-                </div>
-                <div class="modal-content">
-                    <form id="addTransactionForm">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Select User *</label>
-                                <select class="form-select" id="addTransactionUser" required>
-                                    <option value="">Select a user</option>
-                                    ${allUsers.map(user => 
-                                        `<option value="${user.id}">${user.firstName} ${user.lastName} (${user.email})</option>`
-                                    ).join('')}
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Transaction Type *</label>
-                                <select class="form-select" id="addTransactionType" required>
-                                    <option value="credit">Credit</option>
-                                    <option value="debit">Debit</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Amount *</label>
-                                <input type="number" class="form-input" id="addTransactionAmount" 
-                                       step="0.01" min="0" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Category</label>
-                                <select class="form-select" id="addTransactionCategory">
-                                    <option value="">Select Category</option>
-                                    <option value="shopping">Shopping</option>
-                                    <option value="food">Food & Dining</option>
-                                    <option value="salary">Salary</option>
-                                    <option value="transfer">Transfer</option>
-                                    <option value="bill">Bill Payment</option>
-                                    <option value="investment">Investment</option>
-                                    <option value="entertainment">Entertainment</option>
-                                </select>
-                            </div>
-                        </div>
-                        
+            const modalContent = document.getElementById('addTransactionContent');
+            
+            const userOptions = allUsers.map(user => 
+                `<option value="${user.id}">${user.firstName} ${user.lastName} (${user.email})</option>`
+            ).join('');
+            
+            modalContent.innerHTML = `
+                <form id="addTransactionForm">
+                    <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Description *</label>
-                            <input type="text" class="form-input" id="addTransactionDescription" required>
+                            <label class="form-label">Select User *</label>
+                            <select class="form-select" id="addTransactionUser" required>
+                                <option value="">Select a user</option>
+                                ${userOptions}
+                            </select>
                         </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Bank Name</label>
-                                <input type="text" class="form-input" id="addTransactionBank">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Recipient Name</label>
-                                <input type="text" class="form-input" id="addTransactionRecipient">
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Status *</label>
-                                <select class="form-select" id="addTransactionStatus" required>
-                                    <option value="completed">Completed</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="failed">Failed</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Date *</label>
-                                <input type="date" class="form-input" id="addTransactionDate" 
-                                       value="${new Date().toISOString().split('T')[0]}" required>
-                            </div>
-                        </div>
-                        
                         <div class="form-group">
-                            <label class="form-label">Additional Notes</label>
-                            <textarea class="form-textarea" id="addTransactionNotes" rows="3"></textarea>
+                            <label class="form-label">Transaction Type *</label>
+                            <select class="form-select" id="addTransactionType" required>
+                                <option value="credit">Credit</option>
+                                <option value="debit">Debit</option>
+                            </select>
                         </div>
-                        
-                        <div class="modal-actions">
-                            <button type="button" class="btn btn-secondary" onclick="closeAddTransactionModal()">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Add Transaction</button>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Amount *</label>
+                            <input type="number" class="form-input" id="addTransactionAmount" 
+                                   step="0.01" min="0" required>
                         </div>
-                    </form>
-                </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="addTransactionCategory">
+                                <option value="">Select Category</option>
+                                <option value="shopping">Shopping</option>
+                                <option value="food">Food & Dining</option>
+                                <option value="salary">Salary</option>
+                                <option value="transfer">Transfer</option>
+                                <option value="bill">Bill Payment</option>
+                                <option value="investment">Investment</option>
+                                <option value="entertainment">Entertainment</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Description *</label>
+                        <input type="text" class="form-input" id="addTransactionDescription" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Bank Name</label>
+                            <input type="text" class="form-input" id="addTransactionBank">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Recipient Name</label>
+                            <input type="text" class="form-input" id="addTransactionRecipient">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Status *</label>
+                            <select class="form-select" id="addTransactionStatus" required>
+                                <option value="completed">Completed</option>
+                                <option value="pending">Pending</option>
+                                <option value="failed">Failed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date *</label>
+                            <input type="date" class="form-input" id="addTransactionDate" 
+                                   value="${new Date().toISOString().split('T')[0]}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Additional Notes</label>
+                        <textarea class="form-textarea" id="addTransactionNotes" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddTransactionModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Transaction</button>
+                    </div>
+                </form>
             `;
             
-            let modalOverlay = document.getElementById('addTransactionModalOverlay');
-            if (!modalOverlay) {
-                modalOverlay = document.createElement('div');
-                modalOverlay.className = 'modal-overlay';
-                modalOverlay.id = 'addTransactionModalOverlay';
-                document.body.appendChild(modalOverlay);
-            }
-            
-            modalOverlay.innerHTML = `
-                <div class="modal">
-                    ${modalContent}
-                </div>
-            `;
-            
-            modalOverlay.classList.add('active');
-            
-            document.getElementById('closeAddTransactionModal').addEventListener('click', closeAddTransactionModal);
-            modalOverlay.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeAddTransactionModal();
-                }
-            });
+            document.getElementById('addTransactionModalOverlay').classList.add('active');
             
             document.getElementById('addTransactionForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 await addNewTransaction();
             });
-        }
-
-        function closeAddTransactionModal() {
-            const modalOverlay = document.getElementById('addTransactionModalOverlay');
-            if (modalOverlay) {
-                modalOverlay.classList.remove('active');
-            }
         }
 
         async function addNewTransaction() {
@@ -3814,8 +4018,22 @@
                     return;
                 }
                 
+                // Check if user has transaction approval enabled
                 const userTransactionApproval = user.transactionApproval !== false;
-                const finalStatus = userTransactionApproval ? status : 'pending';
+                
+                // Determine final status based on user's approval setting
+                let finalStatus = status;
+                if (userTransactionApproval) {
+                    // User has approval enabled - auto-approve if pending
+                    if (status === 'pending') {
+                        finalStatus = 'completed';
+                        showToast('Info', 'Transaction auto-approved (user has approval enabled)', 'info');
+                    }
+                } else {
+                    // User has approval disabled - force all transactions to pending
+                    finalStatus = 'pending';
+                    showToast('Info', 'Transaction set to pending (user has approval disabled)', 'info');
+                }
                 
                 const transactionRef = await db.collection('users').doc(userId)
                     .collection('transactions').add({
@@ -3856,7 +4074,7 @@
                 
                 showToast('Success', 'Transaction added successfully!', 'success');
                 
-                logAdminActivity(`New transaction added for ${user.email}: $${amount} ${type}`);
+                logAdminActivity(`New transaction added for ${user.email}: $${amount} ${type} (${finalStatus})`);
                 
             } catch (error) {
                 console.error('Error adding transaction:', error);
@@ -3929,6 +4147,7 @@
             document.getElementById('closeBalanceModal').addEventListener('click', closeBalanceModal);
             document.getElementById('closePinModal').addEventListener('click', closePinModal);
             document.getElementById('closePasswordModal').addEventListener('click', closePasswordModal);
+            document.getElementById('closeAddTransactionModal').addEventListener('click', closeAddTransactionModal);
             
             // Close modals when clicking outside
             document.querySelectorAll('.modal-overlay').forEach(modal => {

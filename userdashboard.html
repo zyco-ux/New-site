@@ -5262,9 +5262,10 @@
         ];
         
         // ==============================
-        // NEW: REAL-TIME TRANSACTION LISTENER
+        // REAL-TIME LISTENERS
         // ==============================
         let unsubscribeTransactions = null;
+        let unsubscribeUserData = null;
 
         // ==============================
         // INITIALIZATION
@@ -5293,6 +5294,50 @@
             // Initialize transfer buttons from account cards
             initAccountCardButtons();
         });
+
+        // ==============================
+        // REAL-TIME APPROVAL STATUS LISTENER
+        // ==============================
+        function setupApprovalListener() {
+            if (!currentUser) return;
+            
+            // Clean up previous listener
+            if (unsubscribeUserData) {
+                unsubscribeUserData();
+            }
+            
+            // Listen for real-time changes to user document
+            unsubscribeUserData = db.collection('users').doc(currentUser.uid).onSnapshot((doc) => {
+                if (doc.exists) {
+                    const freshUserData = doc.data();
+                    
+                    // Update global userData with latest approval status
+                    if (userData) {
+                        userData.transactionApproval = freshUserData.transactionApproval;
+                        userData.status = freshUserData.status;
+                        
+                        console.log(`🔄 REAL-TIME UPDATE: Transaction approval is now ${freshUserData.transactionApproval === false ? 'DISABLED (pending)' : 'ENABLED (completed)'}`);
+                        
+                        // Show toast notification when admin changes approval setting
+                        if (freshUserData.approvalUpdatedAt) {
+                            showToast('Settings Updated', 
+                                `Transaction approval is now ${freshUserData.transactionApproval === false ? 'DISABLED' : 'ENABLED'}.`, 
+                                'info');
+                        }
+                        
+                        // Check if account was suspended
+                        if (freshUserData.status === 'suspended') {
+                            showToast('Account Suspended', 'Your account has been suspended. Please contact customer support.', 'error');
+                            setTimeout(() => {
+                                handleLogout();
+                            }, 3000);
+                        }
+                    }
+                }
+            }, (error) => {
+                console.error('Error in approval listener:', error);
+            });
+        }
 
         // ==============================
         // NEW: Initialize Account Card Buttons for Transfer
@@ -5526,10 +5571,14 @@
                 document.getElementById('rememberMe').checked = true;
             }
             
-            // Clean up transaction listener
+            // Clean up listeners
             if (unsubscribeTransactions) {
                 unsubscribeTransactions();
                 unsubscribeTransactions = null;
+            }
+            if (unsubscribeUserData) {
+                unsubscribeUserData();
+                unsubscribeUserData = null;
             }
         }
 
@@ -5658,6 +5707,32 @@
             }
         }
 
+        function handleLogout() {
+            // Clear all user data
+            currentUser = null;
+            userData = null;
+            userAccounts = {};
+            userTransactions = [];
+            localStorage.removeItem('userData');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('rememberedAccount');
+            
+            // Clean up listeners
+            if (unsubscribeTransactions) {
+                unsubscribeTransactions();
+                unsubscribeTransactions = null;
+            }
+            if (unsubscribeUserData) {
+                unsubscribeUserData();
+                unsubscribeUserData = null;
+            }
+            
+            showToast('Signed Out', 'You have been successfully signed out.', 'success');
+            setTimeout(() => {
+                showLoginPage();
+            }, 1500);
+        }
+
         // ==============================
         // CREATE ACCOUNT FUNCTIONS - UPDATED FOR ACCOUNT NUMBER
         // ==============================
@@ -5748,6 +5823,7 @@
                     pin: accountData.pin,
                     role: accountData.role || 'user',
                     status: 'active',
+                    transactionApproval: true, // Default to approved
                     profilePicture: accountData.profilePicture || '',
                     createdAt: new Date().toISOString(),
                     lastLogin: new Date().toISOString(),
@@ -5783,7 +5859,7 @@
                 // Set global variables with the complete user data
                 currentUser = { uid: userId };
                 userData = userDataForFirestore;
-                userData.id = userId; // Add the ID to the userData object
+                userData.id = userId;
                 isAdmin = userData.role === 'admin';
                 userPin = accountData.pin;
                 
@@ -5797,7 +5873,7 @@
                 // Close create account modal
                 document.getElementById('createAccountModal').classList.remove('active');
                 
-                // FIX: Show account success modal with details
+                // Show account success modal with details
                 showAccountSuccessModal(accountData);
                 
             } catch (error) {
@@ -5817,7 +5893,7 @@
             }
         }
 
-        // FIX: Show account creation success modal
+        // Show account creation success modal
         function showAccountSuccessModal(accountData) {
             const successDetails = document.getElementById('accountSuccessDetails');
             
@@ -6052,6 +6128,7 @@
                     userPin = userData.pin || null;
                     
                     console.log("Loaded user PIN from Firestore:", userPin ? "PIN loaded" : "No PIN found");
+                    console.log("Transaction approval setting:", userData.transactionApproval === false ? 'DISABLED' : 'ENABLED');
                     
                     // Check if account is suspended
                     if (userData.status === 'suspended') {
@@ -6082,6 +6159,9 @@
                     
                     // Load transactions with real-time listener
                     await setupTransactionListener();
+                    
+                    // SETUP REAL-TIME APPROVAL LISTENER
+                    setupApprovalListener();
                     
                     // Load contacts
                     await loadContacts();
@@ -6121,7 +6201,7 @@
         }
 
         // ==============================
-        // NEW: SETUP REAL-TIME TRANSACTION LISTENER
+        // SETUP REAL-TIME TRANSACTION LISTENER
         // ==============================
         function setupTransactionListener() {
             // Clean up previous listener
@@ -6148,7 +6228,7 @@
                     
                     // Log each transaction status for debugging
                     userTransactions.forEach(t => {
-                        console.log(`Transaction ${t.reference || t.id}: Status = ${t.status}`);
+                        console.log(`Transaction ${t.reference || t.id}: Status = ${t.status || 'completed'}`);
                     });
                     
                     // Update UI with latest transactions
@@ -6316,12 +6396,7 @@
             }
         }
 
-        // ==============================
-        // FIXED: loadTransactions function - now uses the listener
-        // ==============================
         async function loadTransactions() {
-            // This function is now handled by setupTransactionListener
-            // Keeping for backward compatibility
             if (!unsubscribeTransactions) {
                 await setupTransactionListener();
             }
@@ -6593,7 +6668,7 @@
         }
 
         // ==============================
-        // FIXED: updateTransactionsList - shows correct status from Firestore
+        // updateTransactionsList - FIXED
         // ==============================
         function updateTransactionsList() {
             const transactionsList = document.getElementById('transactionsList');
@@ -6628,8 +6703,8 @@
                     day: 'numeric' 
                 });
                 
-                // DEBUG: Log the status we're getting from Firestore
-                console.log(`Rendering transaction ${transaction.reference || transaction.id}: Status = ${transaction.status}`);
+                // Default status is 'completed' if not set
+                const status = transaction.status || 'completed';
                 
                 // Get appropriate icon
                 let iconClass = 'fas fa-exchange-alt';
@@ -6663,13 +6738,13 @@
                     iconColor = 'var(--admin-purple)';
                 }
                 
-                // Determine status color and text - USING THE ACTUAL STATUS FROM FIRESTORE
+                // Determine status color and text
                 let statusBadge = '';
-                if (transaction.status === 'pending') {
+                if (status === 'pending') {
                     statusBadge = `<span class="transaction-status status-pending" style="font-size: 9px; padding: 2px 6px; margin-left: 8px;">PENDING</span>`;
-                } else if (transaction.status === 'failed') {
+                } else if (status === 'failed') {
                     statusBadge = `<span class="transaction-status status-failed" style="font-size: 9px; padding: 2px 6px; margin-left: 8px;">FAILED</span>`;
-                } else if (transaction.status === 'completed') {
+                } else if (status === 'completed') {
                     statusBadge = `<span class="transaction-status status-completed" style="font-size: 9px; padding: 2px 6px; margin-left: 8px;">COMPLETED</span>`;
                 }
                 
@@ -6983,7 +7058,7 @@
         }
 
         // ==============================
-        // TRANSFER PROCESSING FUNCTIONS - FIXED: Balance updates AND STATUS SET FROM FIRESTORE
+        // TRANSFER PROCESSING FUNCTIONS - FIXED: NOW RESPECTS ADMIN APPROVAL SETTING
         // ==============================
         async function processTransfer(transferData) {
             try {
@@ -7012,7 +7087,16 @@
                 // Update localStorage
                 localStorage.setItem('userData', JSON.stringify(userData));
                 
-                // Create transaction record - FIXED: Set status to 'pending' (default for new transfers)
+                // ============== FIX: CHECK USER'S TRANSACTION APPROVAL SETTING ==============
+                // Determine transaction status based on admin approval setting
+                // If transactionApproval is explicitly false, set status to 'pending', otherwise 'completed'
+                const transactionStatus = userData?.transactionApproval === false ? 'pending' : 'completed';
+                
+                console.log(`Transaction approval status: ${userData?.transactionApproval === false ? 'DISABLED' : 'ENABLED'}`);
+                console.log(`Transaction will be created with status: ${transactionStatus}`);
+                // ============================================================================
+                
+                // Create transaction record - Status is NOW BASED ON ADMIN SETTING
                 const transactionData = {
                     type: 'debit',
                     amount: transferData.amount,
@@ -7024,7 +7108,7 @@
                     recipientAccount: transferData.recipientAccount,
                     transferType: transferData.transferType,
                     date: new Date().toISOString(),
-                    status: 'pending', // Default status for new transfers
+                    status: transactionStatus, // ← NOW CORRECT: 'completed' OR 'pending' based on admin setting
                     reference: generateReferenceNumber(),
                     pinVerified: true
                 };
@@ -7036,7 +7120,7 @@
                 // Add transaction ID
                 transactionData.id = transactionRef.id;
                 
-                // Show success modal
+                // Show success modal with CORRECT message based on status
                 const now = new Date();
                 document.getElementById('successAmount').textContent = formatCurrency(transferData.amount);
                 document.getElementById('successFrom').textContent = 
@@ -7055,11 +7139,20 @@
                         hour12: true 
                     });
                 
-                // Update modal title and message
-                document.getElementById('modalTitle').textContent = 'Transfer Initiated!';
-                document.getElementById('modalMessage').textContent = 
-                    'Your transfer has been initiated successfully and is pending approval. ' +
-                    'You will be notified when the transaction is completed.';
+                // Update modal title and message based on ACTUAL transaction status
+                if (transactionStatus === 'pending') {
+                    document.getElementById('modalTitle').textContent = 'Transfer Initiated!';
+                    document.getElementById('modalMessage').textContent = 
+                        'Your transfer has been initiated successfully and is pending approval. ' +
+                        'You will be notified when the transaction is completed.';
+                    showToast('Info', 'Transfer initiated! Status: Pending Approval', 'info');
+                } else {
+                    document.getElementById('modalTitle').textContent = 'Transfer Successful!';
+                    document.getElementById('modalMessage').textContent = 
+                        'Your money transfer has been completed successfully. ' +
+                        'The funds have been sent to the recipient.';
+                    showToast('Success', 'Transfer completed successfully!', 'success');
+                }
                 
                 document.getElementById('successModal').classList.add('active');
                 
@@ -7069,8 +7162,6 @@
                 } else {
                     document.getElementById('transferForm').reset();
                 }
-                
-                showToast('Success', 'Transfer initiated! Status: Pending', 'success');
                 
             } catch (error) {
                 console.error('Error processing transfer:', error);
@@ -7089,7 +7180,7 @@
         }
 
         // ==============================
-        // NEW: Show All Transactions Modal
+        // Show All Transactions Modal
         // ==============================
         function showAllTransactionsModal() {
             const modal = document.getElementById('allTransactionsModal');
@@ -7139,19 +7230,19 @@
                     year: 'numeric'
                 });
                 
-                // DEBUG: Log the status for modal rendering
-                console.log(`Rendering modal transaction ${transaction.reference || transaction.id}: Status = ${transaction.status}`);
+                // Default status is 'completed' if not set
+                const status = transaction.status || 'completed';
                 
-                // Determine status color and text - USING ACTUAL STATUS FROM FIRESTORE
+                // Determine status color and text
                 let statusBadge = '';
                 let statusClass = '';
-                if (transaction.status === 'pending') {
+                if (status === 'pending') {
                     statusBadge = 'PENDING';
                     statusClass = 'status-pending';
-                } else if (transaction.status === 'failed') {
+                } else if (status === 'failed') {
                     statusBadge = 'FAILED';
                     statusClass = 'status-failed';
-                } else if (transaction.status === 'completed') {
+                } else if (status === 'completed') {
                     statusBadge = 'COMPLETED';
                     statusClass = 'status-completed';
                 }
@@ -7230,7 +7321,7 @@
                     filteredTransactions = [...userTransactions];
                     break;
                 case 'completed':
-                    filteredTransactions = userTransactions.filter(t => t.status === 'completed');
+                    filteredTransactions = userTransactions.filter(t => (t.status || 'completed') === 'completed');
                     break;
                 case 'pending':
                     filteredTransactions = userTransactions.filter(t => t.status === 'pending');
@@ -7372,7 +7463,7 @@
         }
 
         // ==============================
-        // EVENT LISTENERS INITIALIZATION - ADDED NEW LISTENERS
+        // EVENT LISTENERS INITIALIZATION
         // ==============================
         function initEventListeners() {
             // Initialize Cloudinary widget
@@ -7802,32 +7893,10 @@
                 }
             });
 
-            // Profile menu items
+            // Profile menu items - Logout
             document.getElementById('logoutMenuItem')?.addEventListener('click', async (e) => {
                 e.preventDefault();
-                try {
-                    // Clear all user data
-                    currentUser = null;
-                    userData = null;
-                    userAccounts = {};
-                    userTransactions = [];
-                    localStorage.removeItem('userData');
-                    localStorage.removeItem('userId');
-                    localStorage.removeItem('rememberedAccount');
-                    
-                    // Clean up transaction listener
-                    if (unsubscribeTransactions) {
-                        unsubscribeTransactions();
-                        unsubscribeTransactions = null;
-                    }
-                    
-                    showToast('Signed Out', 'You have been successfully signed out.', 'success');
-                    setTimeout(() => {
-                        showLoginPage();
-                    }, 1500);
-                } catch (error) {
-                    showToast('Error', 'Failed to sign out. Please try again.', 'error');
-                }
+                handleLogout();
             });
 
             // Admin buttons
@@ -7896,17 +7965,13 @@
                 });
             });
 
-            // ==============================
-            // NEW: View All Transactions Button
-            // ==============================
+            // View All Transactions Button
             document.getElementById('viewAllTransactions')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 showAllTransactionsModal();
             });
 
-            // ==============================
-            // NEW: All Transactions Modal Filters
-            // ==============================
+            // All Transactions Modal Filters
             document.querySelectorAll('.transaction-filter-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.transaction-filter-btn').forEach(b => {
@@ -7919,16 +7984,12 @@
                 });
             });
 
-            // ==============================
-            // NEW: Transaction Search
-            // ==============================
+            // Transaction Search
             document.getElementById('transactionSearchInput')?.addEventListener('input', function() {
                 searchTransactions(this.value);
             });
 
-            // ==============================
-            // NEW: Close All Transactions Modal
-            // ==============================
+            // Close All Transactions Modal
             document.getElementById('closeAllTransactionsModal')?.addEventListener('click', function() {
                 document.getElementById('allTransactionsModal').classList.remove('active');
             });
@@ -7940,10 +8001,6 @@
                 }
             });
 
-            // ==============================
-            // ADDITIONAL RECEIPT MODAL CLOSE HANDLERS
-            // ==============================
-            
             // Close all modals when pressing Escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
@@ -7979,10 +8036,7 @@
                 });
             });
             
-            // ==============================
-            // FIX: Re-initialize account card buttons after dashboard loads
-            // ==============================
-            // This ensures the transfer buttons work after dynamic content loads
+            // Re-initialize account card buttons after dashboard loads
             setTimeout(() => {
                 initAccountCardButtons();
             }, 1000);
@@ -8192,8 +8246,6 @@
             document.getElementById('printReceiptBtn').onclick = () => {
                 window.print();
             };
-            
-            // The close button is already handled in the initEventListeners function
         }
 
         function generateReceiptHTML(transaction) {
@@ -8232,8 +8284,8 @@
                         </div>
                         <div class="receipt-row">
                             <span class="receipt-label">Status:</span>
-                            <span class="receipt-value" style="color: ${transaction.status === 'completed' ? 'var(--success-green)' : transaction.status === 'pending' ? 'var(--warning-orange)' : 'var(--danger-red)'};">
-                                ${transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                            <span class="receipt-value" style="color: ${(transaction.status || 'completed') === 'completed' ? 'var(--success-green)' : (transaction.status || 'completed') === 'pending' ? 'var(--warning-orange)' : 'var(--danger-red)'};">
+                                ${(transaction.status || 'completed').charAt(0).toUpperCase() + (transaction.status || 'completed').slice(1)}
                             </span>
                         </div>
                         ${transaction.bank ? `

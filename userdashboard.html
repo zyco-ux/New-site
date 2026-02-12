@@ -3304,6 +3304,52 @@
             font-family: monospace;
             font-size: var(--font-size-sm);
         }
+        
+        /* ============================================
+           TRANSACTION MODAL STYLES - NEW
+        ============================================ */
+        .transaction-modal-content {
+            max-height: 70vh;
+            overflow-y: auto;
+            margin: 16px 0;
+        }
+
+        .transaction-filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .transaction-filter-btn {
+            padding: 8px 16px;
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-filter-btn.active {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            border-color: var(--primary-blue);
+        }
+
+        .transaction-filter-btn:hover:not(.active) {
+            background-color: var(--light-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .transaction-list-full {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -5103,6 +5149,49 @@
             <i class="fas fa-times"></i>
         </button>
     </div>
+    
+    <!-- ============================================
+         ALL TRANSACTIONS MODAL - NEW
+    ============================================ -->
+    <div class="modal-overlay" id="allTransactionsModal">
+        <div class="modal admin-modal" style="max-width: 800px;">
+            <div class="modal-icon" style="background-color: rgba(26, 35, 126, 0.1); color: var(--primary-blue);">
+                <i class="fas fa-history"></i>
+            </div>
+            <h2 class="modal-title">All Transactions</h2>
+            
+            <div class="transaction-modal-content">
+                <!-- Filter Buttons -->
+                <div class="transaction-filters">
+                    <button class="transaction-filter-btn active" data-filter="all">All</button>
+                    <button class="transaction-filter-btn" data-filter="completed">Completed</button>
+                    <button class="transaction-filter-btn" data-filter="pending">Pending</button>
+                    <button class="transaction-filter-btn" data-filter="credit">Deposits</button>
+                    <button class="transaction-filter-btn" data-filter="debit">Withdrawals</button>
+                    <button class="transaction-filter-btn" data-filter="failed">Failed</button>
+                </div>
+                
+                <!-- Search Bar -->
+                <div style="margin: 16px 0;">
+                    <input type="text" id="transactionSearchInput" class="form-control" placeholder="Search by description, recipient, or reference...">
+                </div>
+                
+                <!-- Transactions List Full -->
+                <div id="allTransactionsList" class="transaction-list-full">
+                    <!-- Transactions will be populated here -->
+                </div>
+                
+                <div id="noTransactionsAll" class="empty-state" style="display: none;">
+                    <i class="fas fa-exchange-alt"></i>
+                    <p>No transactions found</p>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                <button class="admin-form-button secondary" id="closeAllTransactionsModal">Close</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Hidden File Input for Avatar Upload -->
     <input type="file" id="avatarInput" accept="image/*" style="display: none;">
@@ -5171,6 +5260,11 @@
             "Charles Schwab",
             "American Express"
         ];
+        
+        // ==============================
+        // NEW: REAL-TIME TRANSACTION LISTENER
+        // ==============================
+        let unsubscribeTransactions = null;
 
         // ==============================
         // INITIALIZATION
@@ -5195,7 +5289,63 @@
             
             // Initialize statement features
             initStatementFeatures();
+            
+            // Initialize transfer buttons from account cards
+            initAccountCardButtons();
         });
+
+        // ==============================
+        // NEW: Initialize Account Card Buttons for Transfer
+        // ==============================
+        function initAccountCardButtons() {
+            // Add event listeners for all card buttons with data-action="transfer"
+            document.querySelectorAll('.card-btn[data-action="transfer"]').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const accountType = this.dataset.account;
+                    navigateToTransfer(accountType);
+                });
+            });
+        }
+
+        // ==============================
+        // NEW: Navigate to Transfer Section and Pre-fill Account
+        // ==============================
+        function navigateToTransfer(accountType) {
+            // First, navigate to the transfer section
+            showSection('transfer');
+            
+            // Wait a bit for the DOM to update, then set the account
+            setTimeout(() => {
+                // Set the from account dropdown
+                const fromAccountSelect = document.getElementById('fromAccount');
+                if (fromAccountSelect) {
+                    fromAccountSelect.value = accountType;
+                    
+                    // Also set the mobile dropdown if visible
+                    const mobileFromAccount = document.getElementById('mobileFromAccount');
+                    if (mobileFromAccount) {
+                        mobileFromAccount.value = accountType;
+                    }
+                    
+                    // Show toast notification
+                    showToast('Transfer', `Selected ${accountType.charAt(0).toUpperCase() + accountType.slice(1)} Account`, 'info');
+                }
+                
+                // Scroll to the transfer form
+                const transferForm = document.getElementById('transferForm');
+                if (transferForm) {
+                    transferForm.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Focus on bank name input
+                    setTimeout(() => {
+                        document.getElementById('bankName').focus();
+                    }, 500);
+                }
+            }, 100);
+        }
 
         // Check if user has an active session
         function checkSession() {
@@ -5375,6 +5525,12 @@
                 accountNumberInput.value = rememberedAccount;
                 document.getElementById('rememberMe').checked = true;
             }
+            
+            // Clean up transaction listener
+            if (unsubscribeTransactions) {
+                unsubscribeTransactions();
+                unsubscribeTransactions = null;
+            }
         }
 
         function showDashboardPage() {
@@ -5436,7 +5592,7 @@
                     throw new Error('Account suspended');
                 }
                 
-                // Check if password matches
+                // Check if password matches - ALWAYS FETCH FRESH FROM FIRESTORE
                 if (userData.password !== password) {
                     throw new Error('Incorrect password');
                 }
@@ -5473,7 +5629,6 @@
                 
             } catch (error) {
                 console.error("Authentication error:", error);
-                const loginButton = document.getElementById('loginButton');
                 
                 // Handle specific errors
                 let errorMessage = 'Login failed. Please try again.';
@@ -5556,112 +5711,111 @@
         }
 
         async function createNewAccount(accountData) {
-    try {
-        console.log("Creating new account for:", accountData.firstName);
-        
-        // Show loading
-        showToast('Creating Account', 'Setting up your new account...', 'info');
-        
-        // Check if account number already exists
-        const existingUser = await db.collection('users')
-            .where('accountNumber', '==', accountData.accountNumber)
-            .limit(1)
-            .get();
-        
-        if (!existingUser.empty) {
-            throw new Error('Account number already exists');
-        }
-        
-        // Generate a unique user ID
-        const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        
-        // Prepare user data for Firestore - START ALL BALANCES AT 0.00
-        const userDataForFirestore = {
-            firstName: accountData.firstName,
-            lastName: accountData.lastName,
-            phone: accountData.phone,
-            dateOfBirth: accountData.dateOfBirth,
-            address: {
-                street: accountData.streetAddress,
-                city: accountData.city,
-                state: accountData.state,
-                zipCode: accountData.zipCode,
-                country: accountData.country
-            },
-            accountNumber: accountData.accountNumber,
-            password: accountData.password,
-            pin: accountData.pin,
-            role: accountData.role || 'user',
-            status: 'active',
-            profilePicture: accountData.profilePicture || '',
-            createdAt: new Date().toISOString(),
-            lastLogin: new Date().toISOString(),
-            // ALL ACCOUNT BALANCES START AT 0.00 FOR NEW USERS
-            accounts: {
-                checking: {
-                    balance: 0.00, // CHANGED FROM 1000.00 TO 0.00
-                    accountNumber: '•••• 5678',
-                    fullNumber: '4500 1234 5678 9012',
-                    type: 'checking',
-                    currency: 'USD'
-                },
-                savings: {
-                    balance: 0.00, // CHANGED FROM 5000.00 TO 0.00
-                    accountNumber: '•••• 9012',
-                    fullNumber: '4500 9876 5432 1098',
-                    type: 'savings',
-                    currency: 'USD'
-                },
-                investment: {
-                    balance: 0.00, // CHANGED FROM 25000.00 TO 0.00
-                    accountNumber: '•••• 3456',
-                    type: 'investment',
-                    portfolioType: 'IRA • Roth Account',
-                    currency: 'USD',
-                    ytdReturn: 0.0 // CHANGED FROM 5.2 TO 0.0
+            try {
+                console.log("Creating new account for:", accountData.firstName);
+                
+                // Show loading
+                showToast('Creating Account', 'Setting up your new account...', 'info');
+                
+                // Check if account number already exists
+                const existingUser = await db.collection('users')
+                    .where('accountNumber', '==', accountData.accountNumber)
+                    .limit(1)
+                    .get();
+                
+                if (!existingUser.empty) {
+                    throw new Error('Account number already exists');
                 }
+                
+                // Generate a unique user ID
+                const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                // Prepare user data for Firestore
+                const userDataForFirestore = {
+                    firstName: accountData.firstName,
+                    lastName: accountData.lastName,
+                    phone: accountData.phone,
+                    dateOfBirth: accountData.dateOfBirth,
+                    address: {
+                        street: accountData.streetAddress,
+                        city: accountData.city,
+                        state: accountData.state,
+                        zipCode: accountData.zipCode,
+                        country: accountData.country
+                    },
+                    accountNumber: accountData.accountNumber,
+                    password: accountData.password,
+                    pin: accountData.pin,
+                    role: accountData.role || 'user',
+                    status: 'active',
+                    profilePicture: accountData.profilePicture || '',
+                    createdAt: new Date().toISOString(),
+                    lastLogin: new Date().toISOString(),
+                    accounts: {
+                        checking: {
+                            balance: 1000.00,
+                            accountNumber: '•••• 5678',
+                            fullNumber: '4500 1234 5678 9012',
+                            type: 'checking',
+                            currency: 'USD'
+                        },
+                        savings: {
+                            balance: 5000.00,
+                            accountNumber: '•••• 9012',
+                            fullNumber: '4500 9876 5432 1098',
+                            type: 'savings',
+                            currency: 'USD'
+                        },
+                        investment: {
+                            balance: 25000.00,
+                            accountNumber: '•••• 3456',
+                            type: 'investment',
+                            portfolioType: 'IRA • Roth Account',
+                            currency: 'USD',
+                            ytdReturn: 5.2
+                        }
+                    }
+                };
+                
+                // Save user data to Firestore
+                await db.collection('users').doc(userId).set(userDataForFirestore);
+                
+                // Set global variables with the complete user data
+                currentUser = { uid: userId };
+                userData = userDataForFirestore;
+                userData.id = userId; // Add the ID to the userData object
+                isAdmin = userData.role === 'admin';
+                userPin = accountData.pin;
+                
+                // Save to localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                localStorage.setItem('userId', userId);
+                
+                // Update UI
+                updateUserProfile();
+                
+                // Close create account modal
+                document.getElementById('createAccountModal').classList.remove('active');
+                
+                // FIX: Show account success modal with details
+                showAccountSuccessModal(accountData);
+                
+            } catch (error) {
+                console.error("Error creating account:", error);
+                
+                let errorMessage = 'Failed to create account. Please try again.';
+                
+                switch (error.message) {
+                    case 'Account number already exists':
+                        errorMessage = 'This account number already exists. Please generate a new one.';
+                        break;
+                    default:
+                        errorMessage = error.message || 'Please check all fields and try again.';
+                }
+                
+                showToast('Account Creation Failed', errorMessage, 'error');
             }
-        };
-        
-        // Save user data to Firestore
-        await db.collection('users').doc(userId).set(userDataForFirestore);
-        
-        // Set global variables with the complete user data
-        currentUser = { uid: userId };
-        userData = userDataForFirestore;
-        userData.id = userId; // Add the ID to the userData object
-        isAdmin = userData.role === 'admin';
-        userPin = accountData.pin;
-        
-        // Save to localStorage
-        localStorage.setItem('userData', JSON.stringify(userData));
-        localStorage.setItem('userId', userId);
-        
-        // Update UI
-        updateUserProfile();
-        
-        // Close create account modal
-        document.getElementById('createAccountModal').classList.remove('active');
-        
-        // FIX: Show account success modal with details
-        showAccountSuccessModal(accountData);
-        
-    } catch (error) {
-        console.error("Error creating account:", error);
-        
-        let errorMessage = 'Failed to create account. Please try again.';
-        
-        switch (error.message) {
-            case 'Account number already exists':
-                errorMessage = 'This account number already exists. Please generate a new one.';
-                break;
-            default:
-                errorMessage = error.message || 'Please check all fields and try again.';
         }
-        
-        showToast('Account Creation Failed', errorMessage, 'error');
-    }
-}
 
         // FIX: Show account creation success modal
         function showAccountSuccessModal(accountData) {
@@ -5926,8 +6080,8 @@
                     // Load user accounts
                     await loadUserAccounts();
                     
-                    // Load transactions
-                    await loadTransactions();
+                    // Load transactions with real-time listener
+                    await setupTransactionListener();
                     
                     // Load contacts
                     await loadContacts();
@@ -5966,6 +6120,50 @@
             }
         }
 
+        // ==============================
+        // NEW: SETUP REAL-TIME TRANSACTION LISTENER
+        // ==============================
+        function setupTransactionListener() {
+            // Clean up previous listener
+            if (unsubscribeTransactions) {
+                unsubscribeTransactions();
+            }
+            
+            // Set up new listener for transactions collection
+            unsubscribeTransactions = db.collection('users').doc(currentUser.uid)
+                .collection('transactions')
+                .orderBy('date', 'desc')
+                .onSnapshot((snapshot) => {
+                    // Clear existing transactions
+                    userTransactions = [];
+                    
+                    snapshot.forEach(doc => {
+                        userTransactions.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    
+                    console.log('Transactions updated in real-time:', userTransactions.length);
+                    
+                    // Log each transaction status for debugging
+                    userTransactions.forEach(t => {
+                        console.log(`Transaction ${t.reference || t.id}: Status = ${t.status}`);
+                    });
+                    
+                    // Update UI with latest transactions
+                    updateTransactionsList();
+                    
+                    // Also update the all transactions modal if it's open
+                    if (document.getElementById('allTransactionsModal').classList.contains('active')) {
+                        showAllTransactionsModal();
+                    }
+                    
+                }, (error) => {
+                    console.error('Error in transaction listener:', error);
+                });
+        }
+
         async function loadUserAccounts() {
             try {
                 // Load accounts from user document
@@ -5973,43 +6171,43 @@
                     userAccounts = userData.accounts;
                     console.log('Loaded user accounts from user document:', userAccounts);
                 } else {
-                    // Create default accounts if none exist - ALL START AT 0.00
+                    // Create default accounts if none exist
                     await createDefaultAccounts();
                 }
                 
             } catch (error) {
                 console.error('Error loading user accounts:', error);
-                // Create demo accounts as fallback - ALL START AT 0.00
+                // Create demo accounts as fallback
                 userAccounts = {
                     checking: {
                         type: 'checking',
-                        balance: 0.00, // CHANGED FROM 12500.75 TO 0.00
+                        balance: 12500.75,
                         accountNumber: '•••• 5678',
                         fullNumber: '4500 1234 5678 9012',
                         currency: 'USD',
                         status: 'active',
                         interestRate: 0.01,
                         overdraftLimit: 1000,
-                        availableBalance: 0.00 // CHANGED FROM 12500.75 TO 0.00
+                        availableBalance: 12500.75
                     },
                     savings: {
                         type: 'savings',
-                        balance: 0.00, // CHANGED FROM 32500.50 TO 0.00
+                        balance: 32500.50,
                         accountNumber: '•••• 9012',
                         fullNumber: '4500 9876 5432 1098',
                         currency: 'USD',
                         status: 'active',
                         interestRate: 2.5,
                         annualYield: 3.2,
-                        monthlyInterest: 0.00 // CHANGED FROM 67.71 TO 0.00
+                        monthlyInterest: 67.71
                     },
                     investment: {
-                        balance: 0.00, // CHANGED FROM 25000.00 TO 0.00
+                        balance: 25000.00,
                         accountNumber: '•••• 3456',
                         type: 'investment',
                         portfolioType: 'IRA • Roth Account',
                         currency: 'USD',
-                        ytdReturn: 0.0 // CHANGED FROM 5.2 TO 0.0
+                        ytdReturn: 5.2
                     }
                 };
             }
@@ -6019,33 +6217,33 @@
             const defaultAccounts = {
                 checking: {
                     type: 'checking',
-                    balance: 0.00, // CHANGED FROM 12500.75 TO 0.00
+                    balance: 12500.75,
                     accountNumber: '•••• 5678',
                     fullNumber: '4500 1234 5678 9012',
                     currency: 'USD',
                     status: 'active',
                     interestRate: 0.01,
                     overdraftLimit: 1000,
-                    availableBalance: 0.00 // CHANGED FROM 12500.75 TO 0.00
+                    availableBalance: 12500.75
                 },
                 savings: {
                     type: 'savings',
-                    balance: 0.00, // CHANGED FROM 32500.50 TO 0.00
+                    balance: 32500.50,
                     accountNumber: '•••• 9012',
                     fullNumber: '4500 9876 5432 1098',
                     currency: 'USD',
                     status: 'active',
                     interestRate: 2.5,
                     annualYield: 3.2,
-                    monthlyInterest: 0.00 // CHANGED FROM 67.71 TO 0.00
+                    monthlyInterest: 67.71
                 },
                 investment: {
-                    balance: 0.00, // CHANGED FROM 25000.00 TO 0.00
+                    balance: 25000.00,
                     accountNumber: '•••• 3456',
                     type: 'investment',
                     portfolioType: 'IRA • Roth Account',
                     currency: 'USD',
-                    ytdReturn: 0.0 // CHANGED FROM 5.2 TO 0.0
+                    ytdReturn: 5.2
                 }
             };
 
@@ -6118,50 +6316,31 @@
             }
         }
 
+        // ==============================
+        // FIXED: loadTransactions function - now uses the listener
+        // ==============================
         async function loadTransactions() {
-            try {
-                const transactionsSnapshot = await db.collection('users').doc(currentUser.uid)
-                    .collection('transactions')
-                    .orderBy('date', 'desc')
-                    .limit(10)
-                    .get();
-                
-                userTransactions = [];
-                transactionsSnapshot.forEach(doc => {
-                    userTransactions.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-                
-                console.log('Loaded transactions:', userTransactions.length);
-                
-                // If no transactions, create demo data
-                if (userTransactions.length === 0) {
-                    await createDemoTransactions();
-                }
-                
-            } catch (error) {
-                console.error('Error loading transactions:', error);
-                await createDemoTransactions();
+            // This function is now handled by setupTransactionListener
+            // Keeping for backward compatibility
+            if (!unsubscribeTransactions) {
+                await setupTransactionListener();
             }
         }
 
         async function createDemoTransactions() {
-            userTransactions = [
+            const demoTransactions = [
                 {
-                    id: '1',
                     type: 'debit',
                     amount: 125.50,
                     description: 'Grocery Store',
                     category: 'shopping',
                     date: new Date(Date.now() - 86400000).toISOString(),
-                    status: 'pending',
+                    status: 'completed',
                     bank: 'Chase Bank',
-                    recipientName: 'Walmart'
+                    recipientName: 'Walmart',
+                    reference: generateReferenceNumber()
                 },
                 {
-                    id: '2',
                     type: 'credit',
                     amount: 2500.00,
                     description: 'Salary Deposit',
@@ -6169,10 +6348,10 @@
                     date: new Date(Date.now() - 172800000).toISOString(),
                     status: 'completed',
                     bank: 'Employer Bank',
-                    recipientName: 'Tech Corp Inc.'
+                    recipientName: 'Tech Corp Inc.',
+                    reference: generateReferenceNumber()
                 },
                 {
-                    id: '3',
                     type: 'debit',
                     amount: 45.75,
                     description: 'Coffee Shop',
@@ -6180,12 +6359,13 @@
                     date: new Date(Date.now() - 259200000).toISOString(),
                     status: 'completed',
                     bank: 'Local Cafe',
-                    recipientName: 'Coffee Corner'
+                    recipientName: 'Coffee Corner',
+                    reference: generateReferenceNumber()
                 }
             ];
             
             // Save demo transactions to Firestore
-            for (const transaction of userTransactions) {
+            for (const transaction of demoTransactions) {
                 await db.collection('users').doc(currentUser.uid)
                     .collection('transactions').add(transaction);
             }
@@ -6367,20 +6547,20 @@
             const investmentBalance = userAccounts.investment?.balance || 0;
             const totalBalance = checkingBalance + savingsBalance + investmentBalance;
 
-            // Calculate balance change (demo data) - will show 0% for new accounts
-            const previousBalance = totalBalance; // Since starting at 0, previous balance is same
-            const balanceChange = 0.0; // Starting at 0%, no change
-            const isPositive = true; // Default to positive
+            // Calculate balance change (demo data)
+            const previousBalance = totalBalance * 0.95;
+            const balanceChange = ((totalBalance - previousBalance) / previousBalance * 100).toFixed(1);
+            const isPositive = totalBalance >= previousBalance;
 
             // Update balances
             document.getElementById('totalBalance').textContent = formatCurrency(totalBalance);
             document.getElementById('checkingBalance').textContent = formatCurrency(checkingBalance);
             document.getElementById('savingsBalance').textContent = formatCurrency(savingsBalance);
-            document.getElementById('investmentBalance').textContent = formatCurrency(investmentBalance || 0);
+            document.getElementById('investmentBalance').textContent = formatCurrency(investmentBalance || 25000);
 
             // Update mobile portfolio values
-            document.getElementById('mobilePortfolioValue').textContent = formatCurrency(investmentBalance || 0);
-            document.getElementById('mobileYtdReturn').textContent = `+${userAccounts.investment?.ytdReturn || 0.0}%`;
+            document.getElementById('mobilePortfolioValue').textContent = formatCurrency(investmentBalance || 25000);
+            document.getElementById('mobileYtdReturn').textContent = `+${userAccounts.investment?.ytdReturn || 5.2}%`;
 
             // Update balance change
             const balanceChangeEl = document.getElementById('balanceChange');
@@ -6396,8 +6576,8 @@
             document.getElementById('investmentType').textContent = userAccounts.investment?.portfolioType || 'IRA • Roth Account';
 
             // Update portfolio values
-            document.getElementById('portfolioValue').textContent = formatCurrency(investmentBalance || 0);
-            document.getElementById('ytdReturn').textContent = `+${userAccounts.investment?.ytdReturn || 0.0}%`;
+            document.getElementById('portfolioValue').textContent = formatCurrency(investmentBalance || 25000);
+            document.getElementById('ytdReturn').textContent = `+${userAccounts.investment?.ytdReturn || 5.2}%`;
 
             // Update transactions with download buttons only
             updateTransactionsList();
@@ -6412,9 +6592,14 @@
             document.getElementById('wireAccountNumber').textContent = userAccounts.checking?.fullNumber || '•••• 5678';
         }
 
+        // ==============================
+        // FIXED: updateTransactionsList - shows correct status from Firestore
+        // ==============================
         function updateTransactionsList() {
             const transactionsList = document.getElementById('transactionsList');
             const noTransactions = document.getElementById('noTransactions');
+            
+            if (!transactionsList) return;
             
             if (userTransactions.length === 0) {
                 transactionsList.innerHTML = '';
@@ -6442,6 +6627,9 @@
                     month: 'short', 
                     day: 'numeric' 
                 });
+                
+                // DEBUG: Log the status we're getting from Firestore
+                console.log(`Rendering transaction ${transaction.reference || transaction.id}: Status = ${transaction.status}`);
                 
                 // Get appropriate icon
                 let iconClass = 'fas fa-exchange-alt';
@@ -6475,15 +6663,16 @@
                     iconColor = 'var(--admin-purple)';
                 }
                 
-                // Determine status color and text
+                // Determine status color and text - USING THE ACTUAL STATUS FROM FIRESTORE
                 let statusBadge = '';
                 if (transaction.status === 'pending') {
                     statusBadge = `<span class="transaction-status status-pending" style="font-size: 9px; padding: 2px 6px; margin-left: 8px;">PENDING</span>`;
                 } else if (transaction.status === 'failed') {
                     statusBadge = `<span class="transaction-status status-failed" style="font-size: 9px; padding: 2px 6px; margin-left: 8px;">FAILED</span>`;
+                } else if (transaction.status === 'completed') {
+                    statusBadge = `<span class="transaction-status status-completed" style="font-size: 9px; padding: 2px 6px; margin-left: 8px;">COMPLETED</span>`;
                 }
                 
-                // Only show download button, edit button removed for non-admin users
                 transactionItem.innerHTML = `
                     <div class="transaction-icon" style="background-color: ${iconColor}20; color: ${iconColor};">
                         <i class="${iconClass}"></i>
@@ -6794,7 +6983,7 @@
         }
 
         // ==============================
-        // TRANSFER PROCESSING FUNCTIONS
+        // TRANSFER PROCESSING FUNCTIONS - FIXED: Balance updates AND STATUS SET FROM FIRESTORE
         // ==============================
         async function processTransfer(transferData) {
             try {
@@ -6806,7 +6995,24 @@
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
                 submitBtn.disabled = true;
                 
-                // Create transaction record
+                // Get current account balance
+                const fromAccountData = userAccounts[transferData.fromAccount];
+                const newBalance = fromAccountData.balance - transferData.amount;
+                
+                // Update account balance in Firestore
+                const accountUpdate = {};
+                accountUpdate[`accounts.${transferData.fromAccount}.balance`] = newBalance;
+                
+                await db.collection('users').doc(currentUser.uid).update(accountUpdate);
+                
+                // Update local userAccounts
+                userAccounts[transferData.fromAccount].balance = newBalance;
+                userData.accounts = userAccounts;
+                
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Create transaction record - FIXED: Set status to 'pending' (default for new transfers)
                 const transactionData = {
                     type: 'debit',
                     amount: transferData.amount,
@@ -6818,28 +7024,19 @@
                     recipientAccount: transferData.recipientAccount,
                     transferType: transferData.transferType,
                     date: new Date().toISOString(),
-                    status: 'pending',
+                    status: 'pending', // Default status for new transfers
                     reference: generateReferenceNumber(),
                     pinVerified: true
                 };
-                
-                // Update account balance in Firestore (only when completed)
-                const fromAccountData = userAccounts[transferData.fromAccount];
                 
                 // Save transaction to Firestore
                 const transactionRef = await db.collection('users').doc(currentUser.uid)
                     .collection('transactions').add(transactionData);
                 
-                // Update local data
-                userTransactions.unshift({
-                    ...transactionData,
-                    id: transactionRef.id
-                });
+                // Add transaction ID
+                transactionData.id = transactionRef.id;
                 
-                // Update UI
-                updateTransactionsList();
-                
-                // Show pending modal
+                // Show success modal
                 const now = new Date();
                 document.getElementById('successAmount').textContent = formatCurrency(transferData.amount);
                 document.getElementById('successFrom').textContent = 
@@ -6858,11 +7055,11 @@
                         hour12: true 
                     });
                 
-                // Update modal title and message for pending transaction
-                document.getElementById('modalTitle').textContent = 'Transfer Pending';
+                // Update modal title and message
+                document.getElementById('modalTitle').textContent = 'Transfer Initiated!';
                 document.getElementById('modalMessage').textContent = 
-                    'Your transfer has been initiated and is pending approval. ' +
-                    'You will receive a notification once it is completed.';
+                    'Your transfer has been initiated successfully and is pending approval. ' +
+                    'You will be notified when the transaction is completed.';
                 
                 document.getElementById('successModal').classList.add('active');
                 
@@ -6873,7 +7070,7 @@
                     document.getElementById('transferForm').reset();
                 }
                 
-                showToast('Success', 'Transfer initiated and pending approval!', 'success');
+                showToast('Success', 'Transfer initiated! Status: Pending', 'success');
                 
             } catch (error) {
                 console.error('Error processing transfer:', error);
@@ -6888,6 +7085,204 @@
                 
                 // Reset current transfer data
                 currentTransferData = null;
+            }
+        }
+
+        // ==============================
+        // NEW: Show All Transactions Modal
+        // ==============================
+        function showAllTransactionsModal() {
+            const modal = document.getElementById('allTransactionsModal');
+            const allTransactionsList = document.getElementById('allTransactionsList');
+            const noTransactionsAll = document.getElementById('noTransactionsAll');
+            
+            if (userTransactions.length === 0) {
+                allTransactionsList.innerHTML = '';
+                noTransactionsAll.style.display = 'block';
+            } else {
+                noTransactionsAll.style.display = 'none';
+                
+                // Sort transactions by date (newest first)
+                const sortedTransactions = [...userTransactions].sort((a, b) => 
+                    new Date(b.date) - new Date(a.date)
+                );
+                
+                renderTransactionList(sortedTransactions, allTransactionsList);
+            }
+            
+            // Reset filters
+            document.querySelectorAll('.transaction-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector('.transaction-filter-btn[data-filter="all"]').classList.add('active');
+            
+            // Clear search
+            document.getElementById('transactionSearchInput').value = '';
+            
+            modal.classList.add('active');
+        }
+
+        function renderTransactionList(transactions, container) {
+            container.innerHTML = '';
+            
+            transactions.forEach(transaction => {
+                const transactionItem = document.createElement('div');
+                transactionItem.className = 'transaction-item';
+                transactionItem.dataset.transactionId = transaction.id;
+                
+                const amountClass = transaction.type === 'credit' ? 'credit' : 'debit';
+                const amountSign = transaction.type === 'credit' ? '+' : '-';
+                const date = new Date(transaction.date);
+                const dateStr = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                // DEBUG: Log the status for modal rendering
+                console.log(`Rendering modal transaction ${transaction.reference || transaction.id}: Status = ${transaction.status}`);
+                
+                // Determine status color and text - USING ACTUAL STATUS FROM FIRESTORE
+                let statusBadge = '';
+                let statusClass = '';
+                if (transaction.status === 'pending') {
+                    statusBadge = 'PENDING';
+                    statusClass = 'status-pending';
+                } else if (transaction.status === 'failed') {
+                    statusBadge = 'FAILED';
+                    statusClass = 'status-failed';
+                } else if (transaction.status === 'completed') {
+                    statusBadge = 'COMPLETED';
+                    statusClass = 'status-completed';
+                }
+                
+                // Get appropriate icon
+                let iconClass = 'fas fa-exchange-alt';
+                let iconColor = 'var(--primary-blue)';
+                if (transaction.category === 'shopping') {
+                    iconClass = 'fas fa-shopping-cart';
+                    iconColor = 'var(--warning-orange)';
+                }
+                if (transaction.category === 'food') {
+                    iconClass = 'fas fa-utensils';
+                    iconColor = 'var(--success-green)';
+                }
+                if (transaction.category === 'salary') {
+                    iconClass = 'fas fa-building';
+                    iconColor = 'var(--accent-gold)';
+                }
+                if (transaction.category === 'transfer') {
+                    iconClass = 'fas fa-exchange-alt';
+                    iconColor = 'var(--primary-blue)';
+                }
+                if (transaction.category === 'bill') {
+                    iconClass = 'fas fa-file-invoice';
+                    iconColor = 'var(--danger-red)';
+                }
+                
+                transactionItem.innerHTML = `
+                    <div class="transaction-icon" style="background-color: ${iconColor}20; color: ${iconColor};">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div style="display: flex; align-items: center;">
+                            <div class="transaction-name">${transaction.description}</div>
+                            <span class="transaction-status ${statusClass}" style="font-size: 9px; padding: 2px 6px; margin-left: 8px;">${statusBadge}</span>
+                        </div>
+                        <div class="transaction-date">${dateStr} • ${formatCategory(transaction.category)}</div>
+                        <div class="transaction-date" style="font-size: 10px;">Ref: ${transaction.reference || transaction.id}</div>
+                        ${transaction.bank ? `<div class="transaction-date" style="font-size: 10px;">${transaction.bank}</div>` : ''}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="transaction-amount ${amountClass}">
+                            ${amountSign}${formatCurrency(Math.abs(transaction.amount))}
+                        </div>
+                        <button class="transaction-download-btn" data-transaction-id="${transaction.id}">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Add click event for details
+                transactionItem.addEventListener('click', () => {
+                    showTransactionDetails(transaction);
+                });
+                
+                // Add click event for download button
+                const downloadBtn = transactionItem.querySelector('.transaction-download-btn');
+                downloadBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    downloadTransactionReceipt(transaction);
+                });
+                
+                container.appendChild(transactionItem);
+            });
+        }
+
+        function filterTransactions(filter) {
+            const allTransactionsList = document.getElementById('allTransactionsList');
+            const noTransactionsAll = document.getElementById('noTransactionsAll');
+            
+            let filteredTransactions = [];
+            
+            switch(filter) {
+                case 'all':
+                    filteredTransactions = [...userTransactions];
+                    break;
+                case 'completed':
+                    filteredTransactions = userTransactions.filter(t => t.status === 'completed');
+                    break;
+                case 'pending':
+                    filteredTransactions = userTransactions.filter(t => t.status === 'pending');
+                    break;
+                case 'failed':
+                    filteredTransactions = userTransactions.filter(t => t.status === 'failed');
+                    break;
+                case 'credit':
+                    filteredTransactions = userTransactions.filter(t => t.type === 'credit');
+                    break;
+                case 'debit':
+                    filteredTransactions = userTransactions.filter(t => t.type === 'debit');
+                    break;
+            }
+            
+            // Sort by date
+            filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (filteredTransactions.length === 0) {
+                allTransactionsList.innerHTML = '';
+                noTransactionsAll.style.display = 'block';
+            } else {
+                noTransactionsAll.style.display = 'none';
+                renderTransactionList(filteredTransactions, allTransactionsList);
+            }
+        }
+
+        function searchTransactions(searchTerm) {
+            const allTransactionsList = document.getElementById('allTransactionsList');
+            const noTransactionsAll = document.getElementById('noTransactionsAll');
+            
+            if (!searchTerm.trim()) {
+                filterTransactions('all');
+                return;
+            }
+            
+            const searchLower = searchTerm.toLowerCase();
+            const filteredTransactions = userTransactions.filter(t => 
+                (t.description && t.description.toLowerCase().includes(searchLower)) ||
+                (t.recipientName && t.recipientName.toLowerCase().includes(searchLower)) ||
+                (t.reference && t.reference.toLowerCase().includes(searchLower)) ||
+                (t.id && t.id.toLowerCase().includes(searchLower))
+            );
+            
+            filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (filteredTransactions.length === 0) {
+                allTransactionsList.innerHTML = '';
+                noTransactionsAll.style.display = 'block';
+            } else {
+                noTransactionsAll.style.display = 'none';
+                renderTransactionList(filteredTransactions, allTransactionsList);
             }
         }
 
@@ -6977,7 +7372,7 @@
         }
 
         // ==============================
-        // EVENT LISTENERS INITIALIZATION
+        // EVENT LISTENERS INITIALIZATION - ADDED NEW LISTENERS
         // ==============================
         function initEventListeners() {
             // Initialize Cloudinary widget
@@ -7310,8 +7705,8 @@
                 }
                 
                 // Check daily limit
-                if (amount > 10000) {
-                    showToast('Error', 'Transfer amount exceeds daily limit of $10,000.', 'error');
+                if (amount > 100000000) {
+                    showToast('Error', 'Transfer amount exceeds daily limit of $100,000,000.', 'error');
                     return;
                 }
                 
@@ -7420,6 +7815,12 @@
                     localStorage.removeItem('userId');
                     localStorage.removeItem('rememberedAccount');
                     
+                    // Clean up transaction listener
+                    if (unsubscribeTransactions) {
+                        unsubscribeTransactions();
+                        unsubscribeTransactions = null;
+                    }
+                    
                     showToast('Signed Out', 'You have been successfully signed out.', 'success');
                     setTimeout(() => {
                         showLoginPage();
@@ -7496,6 +7897,50 @@
             });
 
             // ==============================
+            // NEW: View All Transactions Button
+            // ==============================
+            document.getElementById('viewAllTransactions')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                showAllTransactionsModal();
+            });
+
+            // ==============================
+            // NEW: All Transactions Modal Filters
+            // ==============================
+            document.querySelectorAll('.transaction-filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.transaction-filter-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    const filter = this.dataset.filter;
+                    filterTransactions(filter);
+                });
+            });
+
+            // ==============================
+            // NEW: Transaction Search
+            // ==============================
+            document.getElementById('transactionSearchInput')?.addEventListener('input', function() {
+                searchTransactions(this.value);
+            });
+
+            // ==============================
+            // NEW: Close All Transactions Modal
+            // ==============================
+            document.getElementById('closeAllTransactionsModal')?.addEventListener('click', function() {
+                document.getElementById('allTransactionsModal').classList.remove('active');
+            });
+
+            // Close modal when clicking outside
+            document.getElementById('allTransactionsModal')?.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+
+            // ==============================
             // ADDITIONAL RECEIPT MODAL CLOSE HANDLERS
             // ==============================
             
@@ -7509,6 +7954,7 @@
                     document.getElementById('featureModal').classList.remove('active');
                     document.getElementById('createAccountModal').classList.remove('active');
                     document.getElementById('accountSuccessModal').classList.remove('active');
+                    document.getElementById('allTransactionsModal').classList.remove('active');
                 }
             });
 
@@ -7521,7 +7967,8 @@
                     'adminModal',
                     'featureModal',
                     'createAccountModal',
-                    'accountSuccessModal'
+                    'accountSuccessModal',
+                    'allTransactionsModal'
                 ];
                 
                 modals.forEach(modalId => {
@@ -7531,6 +7978,14 @@
                     }
                 });
             });
+            
+            // ==============================
+            // FIX: Re-initialize account card buttons after dashboard loads
+            // ==============================
+            // This ensures the transfer buttons work after dynamic content loads
+            setTimeout(() => {
+                initAccountCardButtons();
+            }, 1000);
         }
 
         // ==============================
@@ -7973,6 +8428,11 @@
         window.addEventListener('load', function() {
             // Initialize Cloudinary widget
             initCloudinaryWidget();
+            
+            // Initialize account card buttons again after full load
+            setTimeout(() => {
+                initAccountCardButtons();
+            }, 500);
         });
 
         // Update current date function
@@ -7996,4 +8456,3 @@
     </script>
 </body>
 </html>
-

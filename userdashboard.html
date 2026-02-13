@@ -7141,11 +7141,11 @@
                 
                 // Update modal title and message based on ACTUAL transaction status
                 if (transactionStatus === 'pending') {
-                    document.getElementById('modalTitle').textContent = 'Transfer Initiated!';
+                    document.getElementById('modalTitle').textContent = 'Transaction pending';
                     document.getElementById('modalMessage').textContent = 
-                        'Your transfer has been initiated successfully and is pending approval. ' +
-                        'You will be notified when the transaction is completed.';
-                    showToast('Info', 'Transfer initiated! Status: Pending Approval', 'info');
+                        'Your transaction is currently pending processing.' +
+                        ' A confirmation notification will be sent to you once the transfer is successfully finalized.';
+                    showToast('Info', 'Transction Pending  Status: Pending Approval', 'info');
                 } else {
                     document.getElementById('modalTitle').textContent = 'Transfer Successful!';
                     document.getElementById('modalMessage').textContent = 
@@ -8508,3 +8508,4 @@
     </script>
 </body>
 </html>
+

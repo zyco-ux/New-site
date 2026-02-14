@@ -3822,8 +3822,8 @@
                                             <input type="number" id="transferAmount" class="form-control" placeholder="0.00" min="1" step="0.01" required>
                                         </div>
                                         <div class="form-group">
-                                            <label for="transferMemo" class="form-label">Memo (Optional)</label>
-                                            <input type="text" id="transferMemo" class="form-control" placeholder="e.g., Rent payment">
+                                            <label for="transferMemo" class="form-label">Description </label>
+                                            <input type="text" id="transferMemo" class="form-control" placeholder="Transaction Description">
                                         </div>
                                     </div>
 
@@ -4007,13 +4007,22 @@
                                 </div>
                                 
                                 <div class="form-group">
+                                    <label for="recipientAccount" class="form-label">Account Number</label>
+                                    <input type="text" id="recipientAccount" class="form-control" placeholder="Enter account number" required>
+                                </div>
+
+                                <div class="form-group">
                                     <label for="mobileRecipient" class="form-label">Recipient</label>
                                     <input type="text" id="mobileRecipient" class="form-control" placeholder="Name or select contact">
                                     <div class="contacts-list" style="margin-top: 8px; display: none;" id="mobileContactsList">
                                         <!-- Mobile contacts will appear here -->
                                     </div>
                                 </div>
-                                
+                                <div class="form-group">
+                                    <label for="transferMemo" class="form-label">Description </label>
+                                    <input type="text" id="transferMemo" class="form-control" placeholder="Transaction Description">
+                                </div>
+
                                 <div class="form-group">
                                     <label for="mobileAmount" class="form-label">Amount</label>
                                     <div style="display: flex; gap: 8px;">
@@ -5356,41 +5365,57 @@
         }
 
         // ==============================
-        // NEW: Navigate to Transfer Section and Pre-fill Account
-        // ==============================
-        function navigateToTransfer(accountType) {
-            // First, navigate to the transfer section
-            showSection('transfer');
+// NEW: Navigate to Transfer Section and Pre-fill Account - FIXED VERSION
+// ==============================
+function navigateToTransfer(accountType) {
+    // First, navigate to the transfer section
+    showSection('transfer');
+    
+    // Wait a bit for the DOM to update, then set the account
+    setTimeout(() => {
+        // Set the from account dropdown
+        const fromAccountSelect = document.getElementById('fromAccount');
+        if (fromAccountSelect) {
+            fromAccountSelect.value = accountType;
             
-            // Wait a bit for the DOM to update, then set the account
-            setTimeout(() => {
-                // Set the from account dropdown
-                const fromAccountSelect = document.getElementById('fromAccount');
-                if (fromAccountSelect) {
-                    fromAccountSelect.value = accountType;
-                    
-                    // Also set the mobile dropdown if visible
-                    const mobileFromAccount = document.getElementById('mobileFromAccount');
-                    if (mobileFromAccount) {
-                        mobileFromAccount.value = accountType;
-                    }
-                    
-                    // Show toast notification
-                    showToast('Transfer', `Selected ${accountType.charAt(0).toUpperCase() + accountType.slice(1)} Account`, 'info');
-                }
-                
-                // Scroll to the transfer form
-                const transferForm = document.getElementById('transferForm');
-                if (transferForm) {
-                    transferForm.scrollIntoView({ behavior: 'smooth' });
-                    
-                    // Focus on bank name input
-                    setTimeout(() => {
-                        document.getElementById('bankName').focus();
-                    }, 500);
-                }
-            }, 100);
+            // Also set the mobile dropdown if visible
+            const mobileFromAccount = document.getElementById('mobileFromAccount');
+            if (mobileFromAccount) {
+                mobileFromAccount.value = accountType;
+            }
+            
+            // Show toast notification
+            showToast('Transfer', `Selected ${accountType.charAt(0).toUpperCase() + accountType.slice(1)} Account`, 'info');
         }
+        
+        // FIX: Scroll to the transfer form in the main content area
+        // Instead of looking for transferForm directly, scroll to the transfer section container
+        const transferSection = document.getElementById('transferSection');
+        if (transferSection) {
+            transferSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Focus on bank name input
+            setTimeout(() => {
+                const bankNameInput = document.getElementById('bankName');
+                if (bankNameInput) {
+                    bankNameInput.focus();
+                } else {
+                    // Fallback to mobile bank name if desktop not visible
+                    document.getElementById('mobileBankName')?.focus();
+                }
+            }, 500);
+        }
+        
+        // FIX: Also ensure the quick transfer form is visible (not wire transfer info)
+        const quickTransferForm = document.getElementById('quickTransferForm');
+        const wireTransferInfo = document.getElementById('wireTransferInfo');
+        if (quickTransferForm && wireTransferInfo) {
+            quickTransferForm.style.display = 'block';
+            wireTransferInfo.style.display = 'none';
+        }
+        
+    }, 100);
+}
 
         // Check if user has an active session
         function checkSession() {
@@ -7141,11 +7166,11 @@
                 
                 // Update modal title and message based on ACTUAL transaction status
                 if (transactionStatus === 'pending') {
-                    document.getElementById('modalTitle').textContent = 'Transaction pending';
+                    document.getElementById('modalTitle').textContent = 'Transfer Initiated!';
                     document.getElementById('modalMessage').textContent = 
-                        'Your transaction is currently pending processing.' +
-                        ' A confirmation notification will be sent to you once the transfer is successfully finalized.';
-                    showToast('Info', 'Transction Pending  Status: Pending Approval', 'info');
+                        'Your transfer has been initiated successfully and is pending approval. ' +
+                        'You will be notified when the transaction is completed.';
+                    showToast('Info', 'Transfer initiated! Status: Pending Approval', 'info');
                 } else {
                     document.getElementById('modalTitle').textContent = 'Transfer Successful!';
                     document.getElementById('modalMessage').textContent = 
@@ -8508,4 +8533,3 @@
     </script>
 </body>
 </html>
-
